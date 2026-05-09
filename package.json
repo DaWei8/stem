@@ -2,15 +2,12 @@
   "name": "stem",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
-    "dev": "npx concurrently -n \"frontend,logic\" -c \"blue,green\" \"npm run dev -w frontend\" \"npm run watch:logic\"",
+    "dev": "npx concurrently -n \"frontend,logic\" -c \"blue,green\" \"npm run dev --prefix frontend\" \"npm run watch:logic\"",
     "watch:logic": "node scripts/watch-logic.js",
     "build:logic": "node scripts/build-wasm.js",
     "install:all": "npm install && npm install --prefix frontend",
-    "build": "(npm run build:logic || echo 'Skipping logic build...') && npm run build -w frontend",
+    "build": "(npm run build:logic || echo Skipping) & npm run build --prefix frontend",
     "setup": "npm run install:all && npm run build:logic"
   },
   "devDependencies": {
