@@ -21,8 +21,8 @@ export function useLogicBot() {
       }
 
       try {
-        // Import the glue code from the public folder (Next.js serving)
-        const wasm = await import('@/../public/wasm/logic_engine.js' as any)
+        // Use webpackIgnore to prevent the bundler from trying to resolve the WASM dependency
+        const wasm = await import(/* webpackIgnore: true */ '/wasm/logic_engine.js')
         
         // Initialize with the explicit public URL to the binary
         await wasm.default('/wasm/logic_engine_bg.wasm')
