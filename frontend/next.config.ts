@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
       ? './../static/wasm/[modulehash].wasm'
       : 'static/wasm/[modulehash].wasm';
 
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: 'asset/resource',
+    });
+
     return config;
   },
 };

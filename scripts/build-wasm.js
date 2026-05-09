@@ -17,7 +17,9 @@ function build() {
 
     console.log(`Using command: ${wasmPackCmd}`);
 
-    execSync(`${wasmPackCmd} build --target bundler --out-dir "${outputDir}"`, {
+    const publicOutputDir = path.join(rootDir, 'frontend/public/wasm');
+    
+    execSync(`${wasmPackCmd} build --target web --out-dir "${publicOutputDir}"`, {
       cwd: logicDir,
       stdio: 'inherit'
     });

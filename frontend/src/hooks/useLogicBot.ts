@@ -21,9 +21,13 @@ export function useLogicBot() {
       }
 
       try {
-        // Load the module using Next.js/Webpack's native WASM support
-        const module = await import('@/lib/wasm/logic_engine')
-        wasmModule = module
+        // Import the JS glue code
+        const wasm = await import('@/../public/wasm/logic_engine')
+        
+        // Initialize with the static WASM binary
+        await wasm.default('/wasm/logic_engine_bg.wasm')
+        
+        wasmModule = wasm
         setIsLoaded(true)
         setError(null)
       } catch (err: any) {
