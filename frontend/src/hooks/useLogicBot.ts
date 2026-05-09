@@ -21,12 +21,12 @@ export function useLogicBot() {
       }
 
       try {
-        // Import the JS glue code
-        const wasm = await import('@/../public/wasm/logic_engine')
-
-        // Initialize with the static WASM binary
+        // Import the glue code from the public folder (Next.js serving)
+        const wasm = await import('@/../public/wasm/logic_engine.js' as any)
+        
+        // Initialize with the explicit public URL to the binary
         await wasm.default('/wasm/logic_engine_bg.wasm')
-
+        
         wasmModule = wasm
         setIsLoaded(true)
         setError(null)
