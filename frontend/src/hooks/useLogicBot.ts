@@ -22,7 +22,7 @@ export function useLogicBot() {
 
       try {
         // Use webpackIgnore to prevent the bundler from trying to resolve the WASM dependency
-        const wasm = await import(/* webpackIgnore: true */ '/wasm/logic_engine.js')
+        const wasm = await import(/* webpackIgnore: true */ '/wasm/logic_engine.js' as any)
         
         // Initialize with the explicit public URL to the binary
         await wasm.default('/wasm/logic_engine_bg.wasm')
