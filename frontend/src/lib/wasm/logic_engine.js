@@ -1,19 +1,9 @@
-// Mock implementation of the Wasm logic engine
-// This file is a placeholder until 'wasm-pack build' is run to generate the real WebAssembly.
+/* @ts-self-types="./logic_engine.d.ts" */
+import * as wasm from "./logic_engine_bg.wasm";
+import { __wbg_set_wasm } from "./logic_engine_bg.js";
 
-export class LogicEngine {
-  constructor(variables, state) {
-    this.variables = variables;
-    this.state = state;
-    console.warn("LogicBot: Using MOCK LogicEngine because Wasm module is missing. Run build-logic.bat.");
-  }
-
-  evaluate(expression) {
-    console.warn("LogicBot: MOCK evaluation of ->", expression);
-    return `[Mock Result: ${expression}]`;
-  }
-}
-
-export default async function init() {
-  return Promise.resolve();
-}
+__wbg_set_wasm(wasm);
+wasm.__wbindgen_start();
+export {
+    LogicEngine
+} from "./logic_engine_bg.js";

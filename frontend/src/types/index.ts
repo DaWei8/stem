@@ -17,6 +17,7 @@ export interface Project {
   name: string
   description?: string
   owner_id: string
+  system_type?: 'SYSTEM_blueprint' | 'SYSTEM_engine' | string
   status?: string
   created_at: string
   updated_at: string
