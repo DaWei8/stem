@@ -97,7 +97,9 @@ export function useCanvasLayout(projectId: string | undefined) {
             outputs: outputs.filter(o => o.page_id === page.id),
             onAddNextPage: (parentId: string) => addNextScreen(parentId),
             simulationStatus,
-            isHighlighted: activePath.includes(page.id)
+            isHighlighted: activePath.includes(page.id),
+            isStart: simulationParams.startPageId === page.id,
+            isEnd: simulationParams.endPageId === page.id
           },
         }
       })
@@ -149,7 +151,7 @@ export function useCanvasLayout(projectId: string | undefined) {
       setNodes([])
       setEdges([])
     }
-  }, [pages, inputs, actions, outputs, transitions, isSimulating, setNodes, setEdges, addNextScreen, selectedEdgeId])
+  }, [pages, inputs, actions, outputs, transitions, isSimulating, activePath, simulationParams, setNodes, setEdges, addNextScreen, selectedEdgeId])
 
   const onConnect = useCallback(
     (params: Connection) => {

@@ -139,7 +139,11 @@ export function Canvas() {
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, startPageId: v || '' })}
                   >
                     <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
-                      <SelectValue placeholder="Select Start Screen" />
+                      <SelectValue placeholder="Select Start Screen">
+                        {pages.find(p => p.id === simulationParams.startPageId)?.title || 
+                         pages.find(p => p.id === simulationParams.startPageId)?.name || 
+                         "Select Start Screen"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
                       {pages.map((p: any) => (
@@ -156,7 +160,11 @@ export function Canvas() {
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, endPageId: v || '' })}
                   >
                     <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
-                      <SelectValue placeholder="Select End Screen" />
+                      <SelectValue placeholder="Select End Screen">
+                        {pages.find(p => p.id === simulationParams.endPageId)?.title || 
+                         pages.find(p => p.id === simulationParams.endPageId)?.name || 
+                         "Select End Screen"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
                       {pages.map((p: any) => (
@@ -173,7 +181,9 @@ export function Canvas() {
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, userTypeId: v || '' })}
                   >
                     <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
-                      <SelectValue placeholder="All Users" />
+                      <SelectValue placeholder="All Users">
+                        {userTypes.find(ut => ut.id === simulationParams.userTypeId)?.name || "All Users"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
                       {userTypes.map((ut: any) => (
@@ -195,7 +205,7 @@ export function Canvas() {
                   onClick={runFlowSimulation}
                   className="w-full bg-white text-black hover:bg-zinc-200 rounded-none text-xs font-semibold"
                 >
-                  Flow Path
+                  Run Flow
                 </Button>
               </div>
 

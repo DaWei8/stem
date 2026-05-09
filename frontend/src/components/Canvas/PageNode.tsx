@@ -21,6 +21,8 @@ export type PageNodeData = {
   onAddNextPage?: (parentId: string) => void
   simulationStatus?: 'success' | 'warning' | 'error' | 'none'
   isHighlighted?: boolean
+  isStart?: boolean
+  isEnd?: boolean
 }
 
 export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
@@ -47,8 +49,11 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
 
       <div className={cn(
         "relative p-px transition-all duration-500 rounded-xl overflow-hidden",
-        selected ? "bg-white" : (data.isHighlighted ? "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-zinc-800 group-hover:bg-zinc-600"),
-        data.simulationStatus === 'success' && "bg-green-500",
+        selected ? "bg-white" : (
+          (data.isStart || data.isEnd) ? "bg-green-500 shadow-[0_0_30px_rgba(34,197,94,0.4)]" : 
+          (data.isHighlighted ? "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-zinc-800 group-hover:bg-zinc-600")
+        ),
+        data.simulationStatus === 'success' && !data.isStart && !data.isEnd && "bg-green-500",
         data.simulationStatus === 'error' && "bg-red-500",
         data.simulationStatus === 'warning' && "bg-amber-500"
       )}>

@@ -59,7 +59,7 @@ export function ExportView() {
 
   return (
     <div className="h-full bg-black p-8 overflow-y-auto custom-scrollbar">
-      <div className="max-w-4xl mx-auto space-y-12 pb-20">
+      <div className="mx-auto space-y-12 pb-20">
         <header className="space-y-2">
           <h1 className="text-3xl font-black tracking-tighter">System Export</h1>
           <p className="text-xs text-zinc-500 font-medium">Export your deterministic system models for external simulation or backup.</p>
