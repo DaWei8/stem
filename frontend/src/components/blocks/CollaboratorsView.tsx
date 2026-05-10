@@ -19,17 +19,17 @@ interface Collaborator {
   status: 'active' | 'pending'
 }
 
-export function CollaboratorsView() {
+export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
   const { id: projectId } = useParams()
-  const { 
-    collaborators, 
-    isLoading, 
-    fetchCollaborators, 
-    inviteCollaborator, 
+  const {
+    collaborators,
+    isLoading,
+    fetchCollaborators,
+    inviteCollaborator,
     removeCollaborator,
-    updateRole 
+    updateRole
   } = useCollaborators()
-  
+
   const [email, setEmail] = useState('')
   const [isInviting, setIsInviting] = useState(false)
 
@@ -55,73 +55,96 @@ export function CollaboratorsView() {
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'owner': return <span className="px-2 py-0.5 bg-white text-black text-[9px] font-black uppercase">Owner</span>
-      case 'editor': return <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 text-[9px] font-black uppercase border border-zinc-700">Editor</span>
-      case 'viewer': return <span className="px-2 py-0.5 bg-black text-zinc-600 text-[9px] font-black uppercase border border-zinc-900">Viewer</span>
+      case 'owner': return <span className="px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black text-[9px] font-black uppercase transition-colors">Owner</span>
+      case 'editor': return <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[9px] font-black uppercase border border-zinc-200 dark:border-zinc-700 transition-colors">Editor</span>
+      case 'viewer': return <span className="px-2 py-0.5 bg-zinc-50 dark:bg-black text-zinc-400 dark:text-zinc-600 text-[9px] font-black uppercase border border-zinc-100 dark:border-zinc-900 transition-colors">Viewer</span>
       default: return null
     }
   }
 
   return (
-    <div className="h-full bg-black p-8 overflow-y-auto custom-scrollbar">
-      <div className="mx-auto space-y-12 pb-20">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black tracking-tighter">Collaborators</h1>
-            <p className="text-xs text-zinc-500 font-medium">Orchestrate team permissions and manage system access control.</p>
-          </div>
-          <form onSubmit={handleInvite} className="flex gap-2 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-600" />
+    <div className={cn(
+      "bg-white dark:bg-black custom-scrollbar transition-colors duration-300",
+      isModal ? "p-0 h-auto" : "h-full p-4 overflow-y-auto"
+    )}>
+      <div className={cn("mx-auto", isModal ? "space-y-8 pb-4" : "space-y-12 pb-20")}>
+        {!isModal ? (
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-black tracking-tighter text-black dark:text-white transition-colors">Collaborators</h1>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium transition-colors">Orchestrate team permissions and manage system access control.</p>
+            </div>
+            <form onSubmit={handleInvite} className="flex gap-2 w-full md:w-auto">
+              <div className="relative flex-1 md:w-64">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 dark:text-zinc-600 transition-colors" />
+                <Input
+                  placeholder="colleague@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white"
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={isInviting}
+                className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-colors"
+              >
+                {isInviting ? 'Granting...' : 'Invite'}
+              </Button>
+            </form>
+          </header>
+        ) : (
+          <form onSubmit={handleInvite} className="flex gap-2 w-full">
+            <div className="relative w-full flex-1">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 dark:text-zinc-600 transition-colors" />
               <Input
-                placeholder="colleague@company.com"
+                placeholder="Enter collaborator email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-black/50 border-zinc-800 rounded-none h-11 pl-10 text-xs focus:border-zinc-600"
+                className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-6 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white"
               />
             </div>
             <Button
               type="submit"
               disabled={isInviting}
-              className="bg-white text-black hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black uppercase tracking-widest"
+              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-sm transition-colors"
             >
-              <UserPlus className="size-4 mr-2" />
               {isInviting ? 'Granting...' : 'Invite'}
             </Button>
           </form>
-        </header>
+        )}
 
         {/* Access List */}
         <section className="space-y-4">
-          <div className="flex items-center gap-3 pb-2 border-b border-zinc-900">
-            <ShieldCheck className="size-4 text-zinc-600" />
-            <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Active Permissions</h2>
+          <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
+            <ShieldCheck className="size-4 text-zinc-400 dark:text-zinc-600" />
+            <h2 className="text-xs font-medium text-zinc-400 dark:text-zinc-500 transition-colors">Active Permissions</h2>
           </div>
 
-          <div className="border border-zinc-900 divide-y divide-zinc-900 bg-black/20">
+          <div className="border border-zinc-100 dark:border-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-900 bg-zinc-50/30 dark:bg-black/20 transition-colors">
             {collaborators.length === 0 && !isLoading && (
               <div className="p-12 text-center text-zinc-600 text-xs italic">
                 No external collaborators yet.
               </div>
             )}
             {collaborators.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 group hover:bg-white/5 transition-all">
+              <div key={user.id} className="flex items-center justify-between p-4 group hover:bg-zinc-50 dark:hover:bg-white/5 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-500 uppercase">
+                  <div className="size-10 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-400 dark:text-zinc-500 uppercase transition-colors">
                     {(user.user.full_name || 'Anonymous').split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-black text-white">{user.user.full_name || 'Anonymous User'}</h4>
+                      <h4 className="text-xs font-black text-black dark:text-white transition-colors">{user.user.full_name || 'Anonymous User'}</h4>
                       {getRoleBadge(user.role)}
                     </div>
-                    <p className="text-[10px] text-zinc-500 font-medium">{user.user.email}</p>
+                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium transition-colors">{user.user.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6">
                   {user.role !== 'owner' && (
-                    <button 
+                    <button
                       onClick={() => handleDelete(user.id)}
                       className="text-zinc-700 hover:text-red-500 transition-colors"
                     >
@@ -131,27 +154,6 @@ export function CollaboratorsView() {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Advanced Policy */}
-        <section className="p-8 border border-zinc-800 bg-black/10 space-y-6">
-          <div className="flex items-center gap-3">
-            <Lock className="size-5 text-white" />
-            <h3 className="text-sm font-black uppercase tracking-widest text-white">Advanced Policy (RLS)</h3>
-          </div>
-          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium max-w-2xl">
-            Row Level Security (RLS) is automatically applied based on the collaborator's role. Owners can purge the entire registry, while Editors are limited to model mutation. Viewers can only perform deterministic simulations without state modification.
-          </p>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="size-1.5 rounded-full bg-green-500" />
-              <span className="text-[10px] font-bold text-zinc-600 uppercase">Inherited Security</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="size-1.5 rounded-full bg-blue-500" />
-              <span className="text-[10px] font-bold text-zinc-600 uppercase">Audit Logging Active</span>
-            </div>
           </div>
         </section>
       </div>

@@ -42,22 +42,22 @@ export function StandardModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className={cn(
-        "bg-black border-zinc-800 text-white  p-0 overflow-hidden shadow-2xl transition-all",
+        "bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white p-0 overflow-hidden shadow-2xl transition-all max-w-2xl",
         className
       )}>
         {/* Progress bar style top border */}
         <div className={cn(
-          "h-1 w-full shrink-0",
-          variant === 'danger' ? "bg-red-500" : "bg-white"
+          "h-1 w-full shrink-0 transition-colors",
+          variant === 'danger' ? "bg-red-500" : "bg-black dark:bg-white"
         )} />
 
         <div className="px-4">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-lg font-black tracking-tight text-white select-none capitalize">
+          <DialogHeader className="mb-6 mt-4">
+            <DialogTitle className="text-lg font-black text-black dark:text-white select-none capitalize transition-colors">
               {title}
             </DialogTitle>
             {description && (
-              <DialogDescription className="text-xs text-zinc-400 font-medium leading-relaxed">
+              <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed transition-colors">
                 {description}
               </DialogDescription>
             )}
@@ -75,7 +75,7 @@ export function StandardModal({
                     type="button"
                     variant="ghost"
                     onClick={onClose}
-                    className=" hover:bg-black mb-4 text-zinc-500 hover:text-white transition-all text-xs font-bold"
+                    className="hover:bg-zinc-100 dark:hover:bg-zinc-900 mb-4 text-zinc-500 hover:text-black dark:hover:text-white transition-all text-xs font-bold"
                   >
                     Cancel
                   </Button>
@@ -87,7 +87,7 @@ export function StandardModal({
                         "px-5 h-10! text-xs font-semibold transition-all",
                         variant === 'danger'
                           ? "bg-red-600 hover:bg-red-700 text-white"
-                          : "bg-white text-black hover:bg-zinc-200"
+                          : "bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
                       )}
                     >
                       {isConfirmLoading ? (

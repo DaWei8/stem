@@ -91,20 +91,22 @@ export function Canvas() {
   }, [setNodes])
 
   return (
-    <div className="w-full h-full bg-black relative flex overflow-hidden">
+    <div className="w-full h-full bg-zinc-50 dark:bg-zinc-900 relative flex overflow-hidden transition-colors duration-300">
       {/* Canvas Area */}
       <div className="flex-1 h-full relative">
         <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
           <div className="flex items-center gap-1">
             <Button
               onClick={handleAddManualScreen}
-              className="bg-black text-white hover:bg-zinc-800 rounded-none transition-none h-8 px-4 text-xs font-bold border border-zinc-800"
+              className="bg-white dark:bg-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-none transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm"
             >
               <Plus className="w-3 h-3" /> Add Screen
             </Button>
             <Button
               onClick={toggleSimulation}
-              className={`h-8 rounded-none px-4 text-xs font-bold transition-none ${isSimulating ? 'bg-white text-black hover:bg-zinc-200' : 'bg-black text-zinc-400 hover:bg-zinc-800'
+              className={`h-8 rounded-none px-4 text-xs font-bold transition-all border ${isSimulating
+                ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-lg'
+                : 'bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm'
                 }`}
             >
               {isSimulating ? (
@@ -112,7 +114,7 @@ export function Canvas() {
               ) : (
                 <><Play className="w-3 h-3" />Test Flow</>
               )}
-              <div className={`size-1.5 rounded-full ${isLoaded ? 'bg-green-500' : 'bg-yellow-500'}`} />
+              <div className={`size-1.5 rounded-full ml-1 ${isLoaded ? 'bg-green-500' : 'bg-yellow-500'}`} />
             </Button>
           </div>
         </div>
@@ -122,12 +124,12 @@ export function Canvas() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-black border border-zinc-800 p-5 shadow-[0_0_50px_rgba(255,255,255,0.1)] w-[320px] space-y-6"
+              className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 p-5 shadow-2xl w-[320px] space-y-6 transition-colors"
             >
-              <div className="flex items-center gap-3 border-zinc-900">
+              <div className="flex items-center gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-white">Simulation Engine</p>
-                  <p className="text-xs font-medium text-zinc-500">Deterministic Path Analysis</p>
+                  <p className="text-sm font-semibold text-black dark:text-white">Simulation Engine</p>
+                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500">Deterministic Path Analysis</p>
                 </div>
               </div>
 
@@ -138,14 +140,14 @@ export function Canvas() {
                     value={simulationParams.startPageId}
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, startPageId: v || '' })}
                   >
-                    <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
+                    <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-12! w-full! border-zinc-200 dark:border-zinc-800 rounded-none text-xs font-bold text-black dark:text-white">
                       <SelectValue placeholder="Select Start Screen">
-                        {pages.find(p => p.id === simulationParams.startPageId)?.title || 
-                         pages.find(p => p.id === simulationParams.startPageId)?.name || 
-                         "Select Start Screen"}
+                        {pages.find(p => p.id === simulationParams.startPageId)?.title ||
+                          pages.find(p => p.id === simulationParams.startPageId)?.name ||
+                          "Select Start Screen"}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
+                    <SelectContent className="bg-white dark:bg-zinc-950 min-h-12! w-full! border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                       {pages.map((p: any) => (
                         <SelectItem key={p.id} value={p.id} className="text-xs font-bold">{p.title || p.name}</SelectItem>
                       ))}
@@ -159,14 +161,14 @@ export function Canvas() {
                     value={simulationParams.endPageId}
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, endPageId: v || '' })}
                   >
-                    <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
+                    <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-12! w-full! border-zinc-200 dark:border-zinc-800 rounded-none text-xs font-bold text-black dark:text-white">
                       <SelectValue placeholder="Select End Screen">
-                        {pages.find(p => p.id === simulationParams.endPageId)?.title || 
-                         pages.find(p => p.id === simulationParams.endPageId)?.name || 
-                         "Select End Screen"}
+                        {pages.find(p => p.id === simulationParams.endPageId)?.title ||
+                          pages.find(p => p.id === simulationParams.endPageId)?.name ||
+                          "Select End Screen"}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
+                    <SelectContent className="bg-white dark:bg-zinc-950 min-h-12! w-full! border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                       {pages.map((p: any) => (
                         <SelectItem key={p.id} value={p.id} className="text-xs font-bold">{p.title || p.name}</SelectItem>
                       ))}
@@ -180,12 +182,12 @@ export function Canvas() {
                     value={simulationParams.userTypeId}
                     onValueChange={(v) => setSimulationParams({ ...simulationParams, userTypeId: v || '' })}
                   >
-                    <SelectTrigger className="bg-zinc-950 h-12! w-full! border-zinc-800 rounded-none text-xs font-bold text-white">
+                    <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-12! w-full! border-zinc-200 dark:border-zinc-800 rounded-none text-xs font-bold text-black dark:text-white">
                       <SelectValue placeholder="All Users">
                         {userTypes.find(ut => ut.id === simulationParams.userTypeId)?.name || "All Users"}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 min-h-12! w-full! border-zinc-800 text-white rounded-none">
+                    <SelectContent className="bg-white dark:bg-zinc-950 min-h-12! w-full! border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                       {userTypes.map((ut: any) => (
                         <SelectItem key={ut.id} value={ut.id} className="text-xs font-bold">
                           <div className="flex items-center gap-2">
@@ -203,17 +205,17 @@ export function Canvas() {
 
                 <Button
                   onClick={runFlowSimulation}
-                  className="w-full bg-white text-black hover:bg-zinc-200 rounded-none text-xs font-semibold"
+                  className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none text-xs font-bold transition-all"
                 >
                   Run Flow
                 </Button>
               </div>
 
               {activePath.length > 0 && (
-                <div className="pt-4 border-t border-zinc-900">
-                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
+                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-400 dark:text-zinc-500">
                     <span>Page length</span>
-                    <span className="text-white">{activePath.length} steps</span>
+                    <span className="text-black dark:text-white">{activePath.length} steps</span>
                   </div>
                 </div>
               )}
@@ -233,16 +235,21 @@ export function Canvas() {
           onNodeDragStop={onNodeDragStop}
           onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
-          colorMode="dark"
+          colorMode={typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
           fitView
         >
-          <Controls className="bg-black border-zinc-800 fill-white shadow-none! rounded-none!" />
+          <Controls className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 fill-black dark:fill-white shadow-sm! rounded-none!" />
           <MiniMap
-            className="bg-black border-zinc-800 rounded-none!"
-            nodeColor="#27272a"
-            maskColor="rgba(0,0,0,0.8)"
+            className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none!"
+            nodeColor="#a1a1aa"
+            maskColor="rgba(0,0,0,0.1)"
           />
-          <Background variant={BackgroundVariant.Dots} gap={32} size={1} color="#ffffff" />
+          <Background
+            variant={BackgroundVariant.Dots}
+            gap={32}
+            size={1}
+            color={typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000'}
+          />
         </ReactFlow>
       </div>
 

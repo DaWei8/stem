@@ -6,17 +6,15 @@ import {
   Code2,
   Palette,
   LayoutTemplate,
-  Settings,
   HelpCircle,
   Brain,
-  Activity,
-  Box,
-  Download
+  Download,
+  FileText
 } from 'lucide-react'
 import { useUI, PillarView } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { ModeSwitcher } from '../layout/ModeSwitcher'
 
 export function Sidebar() {
@@ -34,18 +32,19 @@ export function Sidebar() {
   // export .stem files and manage coolaborators
   const secondaryActions = [
     { id: 'export', name: 'Export', icon: Download, description: 'Export your stem file' },
+    { id: 'documentation', name: 'Docs', icon: FileText, description: 'Auto-generated specs' },
     { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
   ]
 
   return (
-    <div className="flex flex-col w-full h-full bg-black">
+    <div className="flex flex-col w-full h-full bg-zinc-100 dark:bg-black transition-colors duration-300">
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6 custom-scrollbar">
         {
           sidebarVisible && <ModeSwitcher />
         }
         <div className="space-y-8">
           {/* Main Pillars */}
-          <nav className="px-3">
+          <nav className="px-3 pt-3">
             {pillars.map((item) => {
               const Icon = item.icon
               const isActive = activeView === item.id
@@ -55,15 +54,17 @@ export function Sidebar() {
                   onClick={() => setActiveView(item.id as PillarView)}
                   className={cn(
                     "relative flex items-center w-full transition-all duration-200 group rounded-none",
-                    sidebarVisible ? "px-4 py-3.5 gap-4" : "px-0 py-4 justify-center",
+                    sidebarVisible ? "px-4 py-3.5 gap-4" : "px-0 py-3 justify-center",
                     isActive
-                      ? "bg-white text-black"
-                      : "text-zinc-500 hover:text-white hover:bg-black/50"
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50"
                   )}
                 >
                   <Icon className={cn(
                     "size-4 shrink-0 transition-all duration-300",
-                    isActive ? "text-black scale-110" : "text-zinc-500 group-hover:text-zinc-300"
+                    isActive
+                      ? "text-white dark:text-black scale-110"
+                      : "text-zinc-500 group-hover:text-zinc-400 dark:group-hover:text-zinc-300"
                   )} />
 
                   {sidebarVisible && (
@@ -71,14 +72,14 @@ export function Sidebar() {
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-xs font-black tracking-tight whitespace-nowrap"
+                        className="text-xs font-black whitespace-nowrap"
                       >
                         {item.name}
                       </motion.span>
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.9 }}
-                        className={cn("text-[10px] font-medium  whitespace-nowrap", isActive ? "text-black" : "text-zinc-500")}
+                        className={cn("text-[10px] whitespace-nowrap", isActive ? "text-white dark:text-black" : "text-zinc-700 dark:text-zinc-300")}
                       >
                         {item.description}
                       </motion.span>
@@ -115,13 +116,15 @@ export function Sidebar() {
                     "flex items-center w-full transition-all duration-200 group rounded-none relative",
                     sidebarVisible ? "px-4 py-3 gap-4" : "px-0 py-4 justify-center",
                     isActive
-                      ? "bg-white text-black"
-                      : "text-zinc-500 hover:text-white hover:bg-black/50"
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50"
                   )}
                 >
                   <Icon className={cn(
                     "size-4 shrink-0 transition-colors duration-300",
-                    isActive ? "text-black" : "text-zinc-600 group-hover:text-zinc-300"
+                    isActive
+                      ? (typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? "text-black" : "text-white")
+                      : "text-zinc-600 group-hover:text-zinc-400 dark:group-hover:text-zinc-300"
                   )} />
                   {sidebarVisible && (
                     <span className="text-xs font-bold tracking-tight whitespace-nowrap">{item.name}</span>
@@ -140,7 +143,7 @@ export function Sidebar() {
       </div>
 
       <div className={cn(
-        "p-4 border-t border-zinc-800/50 space-y-1 bg-black/40 backdrop-blur-md",
+        "p-4 border-t border-zinc-200 dark:border-zinc-800/50 space-y-1 bg-zinc-100/50 dark:bg-black/40 backdrop-blur-md",
         !sidebarVisible && "flex flex-col items-center"
       )}>
         <Link
@@ -151,8 +154,11 @@ export function Sidebar() {
           )}
           title="Help & Documentation"
         >
-          <HelpCircle className="size-4 text-zinc-600 group-hover:text-white transition-colors" />
-          {sidebarVisible && <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white transition-colors">Support Registry</span>}
+          <HelpCircle className={cn(
+            "size-4 transition-colors",
+            "text-zinc-500 dark:text-zinc-600 group-hover:text-black dark:group-hover:text-white"
+          )} />
+          {sidebarVisible && <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 group-hover:text-black dark:group-hover:text-white transition-colors">Support Registry</span>}
         </Link>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type PillarView = 'identity' | 'schema' | 'logic' | 'design' | 'flows' | 'registry' | 'export' | 'collaborators'
+export type PillarView = 'identity' | 'schema' | 'logic' | 'design' | 'flows' | 'registry' | 'export' | 'collaborators' | 'documentation'
 export type ProjectMode = 'design' | 'dev' | 'architect'
 
 interface UIState {

@@ -19,10 +19,10 @@ export default function ProjectEditorLayout({
       <motion.div
         initial={false}
         animate={{ width: sidebarVisible ? 240 : 64 }}
-        className="flex flex-col border-r border-zinc-800/50 relative z-30"
+        className="flex flex-col relative z-30"
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center px-4 border-b border-zinc-800 overflow-hidden">
+        <div className="h-16 flex items-center px-4 bg-zinc-200 dark:bg-zinc-950 overflow-hidden">
           <div className="flex items-center gap-3 w-full overflow-hidden">
             <div className="size-8 bg-white flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
               <Terminal className="size-4 text-black" />
@@ -33,7 +33,7 @@ export default function ProjectEditorLayout({
                 animate={{ opacity: 1, x: 0 }}
                 className="flex flex-col"
               >
-                <h1 className="text-xl font-heading  font-black text-white tracking-tighter leading-none">Stem</h1>
+                <h1 className="text-xl font-heading font-black text-black dark:text-white tracking-tighter leading-none">Stem</h1>
               </motion.div>
             )}
           </div>
@@ -53,7 +53,7 @@ export default function ProjectEditorLayout({
       </motion.div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#050505]">
+      <div className="flex-1 flex flex-col min-w-0 bg-zinc-200 dark:bg-zinc-100">
         <div className="flex-1 overflow-auto custom-scrollbar relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0,transparent_100%)] pointer-events-none" />
           {children}

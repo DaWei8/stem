@@ -94,7 +94,7 @@ export function LogicLayer() {
   }
 
   return (
-    <div className="p-8 space-y-8 bg-black min-h-full text-white selection:bg-white/20">
+    <div className="p-8 space-y-8 bg-white dark:bg-black min-h-full text-black dark:text-white selection:bg-black/10 dark:selection:bg-white/20 transition-colors duration-300">
       <PillarHeader
         title="Logic Layer"
         description="Manage your system's global constants, cloud functions, and external library dependencies."
@@ -102,9 +102,9 @@ export function LogicLayer() {
       />
 
       <Tabs defaultValue="constants" className="w-full space-y-6">
-        <TabsList className="bg-black/50 max-w-xl border px-0! h-fit! border-zinc-800 rounded-none w-auto inline-flex overflow-hidden">
+        <TabsList className="bg-zinc-50 dark:bg-black/50 max-w-xl border px-0! h-fit! border-zinc-200 dark:border-zinc-800 rounded-none w-auto inline-flex overflow-hidden transition-colors">
           {['constants', 'functions', 'dependencies'].map((tab) => (
-            <TabsTrigger key={tab} value={tab} className="px-8 py-2 h-fit! rounded-none data-[state=inactive]:bg-white/5 data-[state=active]:bg-zinc-900 data-[state=active]:text-white text-zinc-500 text-xs font-bold capitalize transition-all">
+            <TabsTrigger key={tab} value={tab} className="px-8 py-2 h-fit! rounded-none data-[state=inactive]:bg-black/5 dark:data-[state=inactive]:bg-white/5 data-[state=active]:bg-black dark:data-[state=active]:bg-zinc-900 data-[state=active]:text-white text-zinc-400 dark:text-zinc-500 text-xs font-bold capitalize transition-all">
               {tab}
             </TabsTrigger>
           ))}
@@ -117,7 +117,7 @@ export function LogicLayer() {
                 <ConstantCard key={c.id} constant={c} onDelete={(id) => deleteConstant(projectId as string, id)} />
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsConstantModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
+            <Button variant="ghost" onClick={() => setIsConstantModalOpen(true)} className="border border-dashed border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-black/50 transition-all h-fit rounded-none group">
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">New Constant</span>
             </Button>
@@ -131,7 +131,7 @@ export function LogicLayer() {
                 <FunctionCard key={f.id} func={f} onDelete={(id) => deleteFunction(projectId as string, id)} />
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsFunctionModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex flex-col items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
+            <Button variant="ghost" onClick={() => setIsFunctionModalOpen(true)} className="border border-dashed border-zinc-200 dark:border-zinc-800 p-4 flex flex-col items-center justify-center gap-3 text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-black/50 transition-all h-fit rounded-none group">
               <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">New Function</span>
             </Button>
@@ -143,16 +143,16 @@ export function LogicLayer() {
             <AnimatePresence>
               {dependencies.map((d) => (
                 <motion.div key={d.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <Card className="bg-black/30 border border-zinc-800 rounded-none shadow-none group hover:border-zinc-500 transition-all relative">
+                  <Card className="bg-zinc-50/50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800 rounded-none shadow-none group hover:border-black dark:hover:border-zinc-500 transition-all relative">
                     <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="size-9 bg-black border border-zinc-800 flex items-center justify-center shrink-0"><Package className="w-4 h-4 text-zinc-500" /></div>
-                        <div className="overflow-hidden"><CardTitle className="text-xs font-black truncate text-zinc-200">{d.name}</CardTitle><p className="text-[9px] font-mono text-zinc-600 mt-0.5">{d.type} v{d.version}</p></div>
+                        <div className="size-9 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shrink-0"><Package className="w-4 h-4 text-zinc-400 dark:text-zinc-500" /></div>
+                        <div className="overflow-hidden"><CardTitle className="text-xs font-black truncate text-zinc-900 dark:text-zinc-200">{d.name}</CardTitle><p className="text-[9px] font-mono text-zinc-400 dark:text-zinc-600 mt-0.5">{d.type} v{d.version}</p></div>
                       </div>
                       <DropdownMenu>
-                        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-7 rounded-none hover:bg-zinc-800 p-0"><MoreVertical className="size-3 text-zinc-600" /></Button>} />
-                        <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none">
-                          <DropdownMenuItem onClick={() => deleteDependency(projectId as string, d.id)} className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 cursor-pointer"><Trash2 className="size-3 mr-2" /> Uninstall</DropdownMenuItem>
+                        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-7 rounded-none hover:bg-zinc-100 dark:hover:bg-zinc-800 p-0"><MoreVertical className="size-3 text-zinc-400 dark:text-zinc-600" /></Button>} />
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
+                          <DropdownMenuItem onClick={() => deleteDependency(projectId as string, d.id)} className="text-red-500 dark:text-red-400 hover:bg-zinc-50 dark:hover:bg-red-950 rounded-none text-xs font-bold py-2 cursor-pointer transition-colors"><Trash2 className="size-3 mr-2" /> Uninstall</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </CardHeader>
@@ -160,7 +160,7 @@ export function LogicLayer() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsDepModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all rounded-none group">
+            <Button variant="ghost" onClick={() => setIsDepModalOpen(true)} className="border border-dashed border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-black/50 transition-all rounded-none group">
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">Add Package</span>
             </Button>
@@ -175,28 +175,28 @@ export function LogicLayer() {
         title="Define Constant"
         description="Global system parameters that remain immutable during runtime."
         footer={
-          <Button onClick={handleSaveConstant} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+          <Button onClick={handleSaveConstant} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
             Save Constant
           </Button>
         }
       >
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Constant Identifier</Label>
+            <Label className="text-xs font-black text-zinc-400 dark:text-zinc-500">Constant Identifier</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value.replace(/\s+/g, '_'))}
               placeholder="e.g. API_TIMEOUT"
-              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+              className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Value</Label>
+            <Label className="text-xs font-black text-zinc-400 dark:text-zinc-500">Value</Label>
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="e.g. 5000"
-              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+              className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
             />
           </div>
         </div>
@@ -209,32 +209,32 @@ export function LogicLayer() {
         title="New Cloud Function"
         description="Declare a deterministic logic block for system execution."
         footer={
-          <Button onClick={handleSaveFunction} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+          <Button onClick={handleSaveFunction} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
             Create Function
           </Button>
         }
       >
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Function Identifier</Label>
+            <Label className="text-xs font-black text-zinc-400 dark:text-zinc-500">Function Identifier</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
               placeholder="e.g. calculate_total"
-              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+              className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Logic Specification</Label>
+            <Label className="text-xs font-black text-zinc-400 dark:text-zinc-500">Logic Specification</Label>
             <div className="relative group">
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Declare the deterministic logic here..."
-                className="bg-black w-full min-h-[200px] p-4 border border-zinc-800 rounded-none text-sm font-mono focus:outline-none focus:border-white transition-colors resize-none text-white selection:bg-white/20"
+                className="bg-zinc-50 dark:bg-black w-full min-h-[200px] p-4 border border-zinc-200 dark:border-zinc-800 rounded-none text-sm font-mono focus:outline-none focus:border-black dark:focus:border-white transition-colors resize-none text-black dark:text-white selection:bg-black/10 dark:selection:bg-white/20"
               />
               <div className="absolute bottom-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                <span className="text-[10px] font-mono text-zinc-600">Deterministic Sandbox</span>
+                <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-600">Deterministic Sandbox</span>
               </div>
             </div>
           </div>
@@ -248,19 +248,19 @@ export function LogicLayer() {
         title="Attach Dependency"
         description="Integrate verified external libraries into your runtime."
         footer={
-          <Button onClick={handleSaveDependency} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+          <Button onClick={handleSaveDependency} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
             Install Dependency
           </Button>
         }
       >
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">NPM Package Name</Label>
+            <Label className="text-xs font-black text-zinc-400 dark:text-zinc-500">NPM Package Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value.toLowerCase())}
               placeholder="e.g. lodash"
-              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+              className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
             />
           </div>
         </div>

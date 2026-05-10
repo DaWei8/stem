@@ -236,21 +236,21 @@ export function DesignSystem() {
   }
 
   return (
-    <div className="p-8 space-y-12 bg-black min-h-full overflow-hidden text-white selection:bg-white/20">
+    <div className="p-8 space-y-12 bg-white dark:bg-black min-h-full overflow-hidden text-black dark:text-white selection:bg-black/10 dark:selection:bg-white/20 transition-colors duration-300">
       <PillarHeader
         title="Design System"
         description="The visual source of truth. Manage architectural tokens and UI patterns."
       />
 
       <Tabs defaultValue="tokens" className="flex-1 flex flex-col min-h-0">
-        <div className="border-b border-zinc-900 bg-zinc-950/20 backdrop-blur-md sticky top-0 z-10">
+        <div className="border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/20 backdrop-blur-md sticky top-0 z-10 transition-colors">
           <TabsList className="bg-transparent h-16 p-0 gap-2">
-            <TabsTrigger value="tokens" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white rounded-none h-full px-4 border-b-2 border-transparent text-zinc-500 font-bold text-xs  transition-all">
+            <TabsTrigger value="tokens" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:text-black dark:data-[state=active]:text-white rounded-none h-full px-4 border-b-2 border-transparent text-zinc-400 dark:text-zinc-500 font-bold text-xs transition-all">
               <div className="flex items-center gap-2">
                 <Palette className="size-3" /> Visual Tokens
               </div>
             </TabsTrigger>
-            <TabsTrigger value="components" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white rounded-none h-full px-4 border-b-2 border-transparent text-zinc-500 font-bold text-xs transition-all">
+            <TabsTrigger value="components" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:text-black dark:data-[state=active]:text-white rounded-none h-full px-4 border-b-2 border-transparent text-zinc-400 dark:text-zinc-500 font-bold text-xs transition-all">
               <div className="flex items-center gap-2">
                 <Component className="size-3" /> Component Registry
               </div>
@@ -308,12 +308,12 @@ export function DesignSystem() {
             <div className="flex flex-col gap-12">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black tracking-tight">System Blocks</h3>
-                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Functional UI components and patterns</p>
+                  <h3 className="text-2xl font-black tracking-tight text-black dark:text-white">System Blocks</h3>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">Functional UI components and patterns</p>
                 </div>
                 <Button
                   onClick={() => setIsComponentModalOpen(true)}
-                  className="bg-white text-black hover:bg-zinc-200 rounded-none h-12 px-8 font-black uppercase tracking-widest transition-all"
+                  className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 px-8 transition-all font-bold"
                 >
                   <Plus className="size-4 mr-2" /> Define Component
                 </Button>
@@ -330,12 +330,12 @@ export function DesignSystem() {
                 ))}
                 <button
                   onClick={() => setIsComponentModalOpen(true)}
-                  className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-zinc-900 hover:border-zinc-700 hover:bg-zinc-950/50 transition-all min-h-[200px]"
+                  className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-zinc-200 dark:border-zinc-900 hover:border-black dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-950/50 transition-all min-h-[200px]"
                 >
-                  <div className="size-12 rounded-full bg-zinc-900 flex items-center justify-center">
-                    <Plus className="size-6 text-zinc-500" />
+                  <div className="size-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                    <Plus className="size-6 text-zinc-400 dark:text-zinc-500" />
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Register New Pattern</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-600">Register New Pattern</span>
                 </button>
               </div>
             </div>
@@ -352,7 +352,7 @@ export function DesignSystem() {
         footer={
           <Button
             onClick={() => handleSaveToken(activeModal)}
-            className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black transition-all"
+            className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black transition-all"
           >
             {editingTokenId ? 'Update Token' : 'Save Token'}
           </Button>
@@ -360,41 +360,41 @@ export function DesignSystem() {
       >
         <div className="space-y-8">
           <div className="space-y-4">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Token Identifier</Label>
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Token Identifier</Label>
             <Input
               value={newTokenName}
               onChange={(e) => setNewTokenName(e.target.value)}
               placeholder="e.g., brand-primary"
-              className="bg-zinc-950 border-zinc-800 rounded-none h-12 font-mono text-xs text-white focus:border-white transition-colors"
+              className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
             />
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+              <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
                 {activeModal === 'typography' ? 'Typography Definition' : 'Value Definition'}
               </Label>
               {activeModal === 'color' && (
-                <div className="size-4 border border-zinc-800" style={{ backgroundColor: newTokenValue }} />
+                <div className="size-4 border border-zinc-200 dark:border-zinc-800" style={{ backgroundColor: newTokenValue }} />
               )}
             </div>
 
             <div className="space-y-6">
               {activeModal === 'typography' ? (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-4 p-4 bg-zinc-950/50 border border-zinc-900">
+                  <div className="grid grid-cols-1 gap-4 p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-900 transition-colors">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold text-zinc-600">Font Family</Label>
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Font Family</Label>
                         <Select value={fontFamily} onValueChange={(v) => setFontFamily(v || 'Inter')}>
-                          <SelectTrigger className="bg-zinc-950 border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-white focus:border-white transition-colors"><SelectValue /></SelectTrigger>
-                          <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                          <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                             {presetFonts.map(f => <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold text-zinc-600">Hierarchy Role</Label>
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Hierarchy Role</Label>
                         <Select value={typographyRole} onValueChange={(v) => {
                           if (v) {
                             setTypographyRole(v)
@@ -406,8 +406,8 @@ export function DesignSystem() {
                             }
                           }
                         }}>
-                          <SelectTrigger className="bg-zinc-950 border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-white focus:border-white transition-colors capitalize"><SelectValue /></SelectTrigger>
-                          <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                          <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors capitalize"><SelectValue /></SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                             {Object.keys(rolePresets).map(role => <SelectItem key={role} value={role} className="text-xs capitalize">{role}</SelectItem>)}
                           </SelectContent>
                         </Select>
@@ -417,28 +417,28 @@ export function DesignSystem() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold text-zinc-600">Size</Label>
-                        <Input value={fontSize} onChange={(e) => setFontSize(e.target.value)} placeholder="16px" className="bg-zinc-950 border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-white placeholder:text-zinc-700" />
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Size</Label>
+                        <Input value={fontSize} onChange={(e) => setFontSize(e.target.value)} placeholder="16px" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold text-zinc-600">Weight</Label>
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Weight</Label>
                         <Select value={fontWeight} onValueChange={(v) => setFontWeight(v || 'regular')}>
-                          <SelectTrigger className="bg-zinc-950 border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-white focus:border-white transition-colors"><SelectValue /></SelectTrigger>
-                          <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                          <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
                             {presetWeights.map(w => <SelectItem key={w} value={w} className="text-xs">{w}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold text-zinc-600">Tracking</Label>
-                        <Input value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} placeholder="-1.4%" className="bg-zinc-950 border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-white placeholder:text-zinc-700" />
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Tracking</Label>
+                        <Input value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} placeholder="-1.4%" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-zinc-900 mt-2">
+                    <div className="pt-2 border-t border-zinc-200 dark:border-zinc-900 mt-2">
                       <div className="flex items-center justify-between mb-2">
-                        <Label className="text-xs font-bold text-zinc-600">Preview</Label>
-                        <span className="text-xs font-mono text-zinc-500">{typographyRole}</span>
+                        <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Preview</Label>
+                        <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500">{typographyRole}</span>
                       </div>
                       <div
                         style={{
@@ -447,14 +447,14 @@ export function DesignSystem() {
                           fontWeight: fontWeight === 'regular' ? 400 : (fontWeight === 'bold' ? 700 : (fontWeight === 'semibold' ? 600 : 500)),
                           letterSpacing: letterSpacing.includes('%') ? `calc(${fontSize} * ${parseFloat(letterSpacing) / 100})` : letterSpacing
                         }}
-                        className="text-white truncate"
+                        className="text-black dark:text-white truncate"
                       >
                         {typographyRole.startsWith('h') ? `Heading Level ${typographyRole.slice(1)}` : 'The quick brown fox jumps over the lazy dog'}
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 bg-zinc-950 border border-zinc-900 space-y-4">
-                    <Label className="text-xs font-bold text-zinc-600">Type Scale Engine</Label>
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 space-y-4">
+                    <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Type Scale Engine</Label>
                     <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                       {typeScalePresets.map((preset) => (
                         <button
@@ -467,7 +467,9 @@ export function DesignSystem() {
                           }}
                           className={clsx(
                             "flex items-center justify-between p-1 border transition-all text-left",
-                            typographyRole === preset.role ? "bg-white text-black border-white" : "bg-black border-zinc-900 text-zinc-500 hover:border-zinc-700"
+                            typographyRole === preset.role 
+                              ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white" 
+                              : "bg-white dark:bg-black border-zinc-200 dark:border-zinc-900 text-zinc-400 dark:text-zinc-500 hover:border-black dark:hover:border-zinc-700"
                           )}
                         >
                           <div className="flex items-center gap-4">
@@ -486,15 +488,15 @@ export function DesignSystem() {
                 </div>
               ) : activeModal === 'color' ? (
                 <div className="space-y-6">
-                  <div className="p-4 bg-zinc-950 border border-zinc-900 space-y-4">
-                    <Label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">Dynamic Shade Engine</Label>
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 space-y-4">
+                    <Label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-wider">Dynamic Shade Engine</Label>
                     <div className="flex gap-4">
                       <div className="relative group cursor-pointer size-16">
                         <div
-                          className="absolute inset-0 border border-white/20 shadow-2xl transition-transform group-hover:scale-105"
+                          className="absolute inset-0 border border-black/10 dark:border-white/20 shadow-2xl transition-transform group-hover:scale-105"
                           style={{ backgroundColor: newTokenValue || '#ffffff' }}
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-white text-black text-[8px] font-black px-1.5 py-0.5 uppercase z-20 pointer-events-none">Pick</div>
+                        <div className="absolute -bottom-2 -right-2 bg-black dark:bg-white text-white dark:text-black text-[8px] font-black px-1.5 py-0.5 uppercase z-20 pointer-events-none shadow-sm">Pick</div>
                         <input
                           type="color"
                           value={newTokenValue || '#ffffff'}
@@ -503,18 +505,18 @@ export function DesignSystem() {
                         />
                       </div>
                       <div className="flex-1 space-y-2">
-                        <p className="text-[10px] text-zinc-400 font-medium">Select a base hue to generate an architectural scale.</p>
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Select a base hue to generate an architectural scale.</p>
                         <Input
                           value={newTokenValue}
                           onChange={(e) => setNewTokenValue(e.target.value)}
-                          className="bg-black border-zinc-800 h-9 rounded-none text-[10px] font-mono text-white"
+                          className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 h-9 rounded-none text-[10px] font-mono text-black dark:text-white transition-colors"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-zinc-950/50 border border-zinc-900">
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase mb-4 tracking-wider">Color Palette (50 — 950)</p>
+                  <div className="p-4 bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-900">
+                    <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase mb-4 tracking-wider">Color Palette (50 — 950)</p>
                     <div className="flex flex-col gap-1.5">
                       <div className="flex gap-1 h-12">
                         {generateShades(newTokenValue).map((color, idx) => (
@@ -522,8 +524,8 @@ export function DesignSystem() {
                             key={color}
                             onClick={() => setNewTokenValue(color)}
                             className={clsx(
-                              "flex-1 border border-zinc-900 transition-all hover:scale-y-110",
-                              newTokenValue === color && "border-white scale-y-110 z-10 shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                              "flex-1 border border-black/5 dark:border-zinc-900 transition-all hover:scale-y-110",
+                              newTokenValue === color && "border-black dark:border-white scale-y-110 z-10 shadow-xl"
                             )}
                             style={{ backgroundColor: color }}
                             title={`${(idx === 0 ? 50 : (idx === 10 ? 950 : idx * 100))}: ${color}`}
@@ -531,9 +533,9 @@ export function DesignSystem() {
                         ))}
                       </div>
                       <div className="flex justify-between px-0.5">
-                        <span className="text-[8px] font-black text-zinc-700">50</span>
-                        <span className="text-[8px] font-black text-zinc-700 uppercase">Shade Spectrum</span>
-                        <span className="text-[8px] font-black text-zinc-700">950</span>
+                        <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700">50</span>
+                        <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700 uppercase">Shade Spectrum</span>
+                        <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700">950</span>
                       </div>
                     </div>
                   </div>
@@ -542,7 +544,7 @@ export function DesignSystem() {
                 <Input
                   value={newTokenValue}
                   onChange={(e) => setNewTokenValue(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 rounded-none h-12 font-mono text-xs text-white focus:border-white transition-colors"
+                  className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
                 />
               )}
             </div>
@@ -559,7 +561,7 @@ export function DesignSystem() {
         footer={
           <Button
             onClick={handleSaveComponent}
-            className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all"
+            className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all"
           >
             {editingComponentId ? 'Update Blueprint' : 'Create Component'}
           </Button>
@@ -567,14 +569,14 @@ export function DesignSystem() {
       >
         <div className="space-y-8">
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Component name</Label>
-            <Input value={newCompName} onChange={(e) => setNewCompName(e.target.value)} className="bg-zinc-950 border-zinc-800 rounded-none h-12 font-mono text-xs text-white focus:border-white transition-colors" />
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Component name</Label>
+            <Input value={newCompName} onChange={(e) => setNewCompName(e.target.value)} className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors" />
           </div>
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Classification</Label>
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Classification</Label>
             <Select value={newCompType} onValueChange={(v) => v && setNewCompType(v as any)}>
-              <SelectTrigger className="bg-zinc-950 w-full border-zinc-800 rounded-none h-12! text-xs text-white focus:border-white transition-colors font-mono"><SelectValue /></SelectTrigger>
-              <SelectContent className="bg-black border-zinc-800 text-white capitalize rounded-none">
+              <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 w-full border-zinc-200 dark:border-zinc-800 rounded-none h-12! text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors font-mono"><SelectValue /></SelectTrigger>
+              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white capitalize rounded-none">
                 <SelectItem value="button" className="text-xs">Button</SelectItem>
                 <SelectItem value="input" className="text-xs">Input</SelectItem>
                 <SelectItem value="form" className="text-xs">Form</SelectItem>
