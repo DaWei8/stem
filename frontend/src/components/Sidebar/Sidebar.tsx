@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 
 import {
   Users,
@@ -17,24 +18,34 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ModeSwitcher } from '../layout/ModeSwitcher'
 
+const allPillars = [
+  { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys', modes: ['architect', 'design'] },
+  { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens', modes: ['architect', 'design'] },
+  { id: 'schema', name: 'Schema Design', icon: Database, description: 'Data structures', modes: ['architect', 'dev'] },
+  { id: 'logic', name: 'Logic Layer', icon: Code2, description: 'Cloud functions', modes: ['architect', 'dev'] },
+  { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model', modes: ['architect', 'dev'] },
+  { id: 'registry', name: 'Variable Registry', icon: Brain, description: 'Global state', modes: ['architect', 'dev'] },
+]
+
+const secondaryActions = [
+  { id: 'export', name: 'Export', icon: Download, description: 'Export your stem file' },
+  { id: 'documentation', name: 'Docs', icon: FileText, description: 'Auto-generated specs' },
+  { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
+]
+
 export function Sidebar() {
-  const { activeView, setActiveView, sidebarVisible } = useUI()
+  const { activeView, setActiveView, sidebarVisible, activeMode } = useUI()
 
-  const pillars = [
-    { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys' },
-    { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens' },
-    { id: 'schema', name: 'Schema Design', icon: Database, description: 'Data structures' },
-    { id: 'logic', name: 'Logic Layer', icon: Code2, description: 'Cloud functions' },
-    { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model' },
-    { id: 'registry', name: 'Variable Registry', icon: Brain, description: 'Global state' },
-  ]
+  const pillars = allPillars.filter(p => p.modes.includes(activeMode))
 
-  // export .stem files and manage coolaborators
-  const secondaryActions = [
-    { id: 'export', name: 'Export', icon: Download, description: 'Export your stem file' },
-    { id: 'documentation', name: 'Docs', icon: FileText, description: 'Auto-generated specs' },
-    { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
-  ]
+  useEffect(() => {
+    const isPillarAvailable = pillars.some(p => p.id === activeView)
+    const isSecondaryAction = secondaryActions.some(a => a.id === activeView)
+    
+    if (!isPillarAvailable && !isSecondaryAction && pillars.length > 0) {
+      setActiveView(pillars[0].id as PillarView)
+    }
+  }, [activeMode, activeView, setActiveView])
 
   return (
     <div className="flex flex-col w-full h-full bg-zinc-100 dark:bg-black transition-colors duration-300">

@@ -3,6 +3,12 @@
 import { create } from 'zustand'
 import { Screen, Transition } from '@/types'
 import { usePages } from './usePages'
+import { useDatabase } from './useDatabase'
+import { useIdentity } from './useIdentity'
+import { useVariables } from './useVariables'
+import { useDesignSystem } from './useDesignSystem'
+import { useProjects } from './useProjects'
+import { generateProjectDocumentation } from '@/lib/exportUtils'
 import { toast } from 'sonner'
 
 interface Message {
@@ -54,151 +60,85 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
   generateSystem: async (prompt, projectId) => {
     set({ isArchitecting: true })
     
-    // Simulate AI thinking
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
     try {
-      let script = ''
-      let content = ''
-      const lPrompt = prompt.toLowerCase()
+      // 1. Gather all current state to provide context to the AI
+      const { currentProject } = useProjects.getState()
+      const { pages, transitions, inputs, actions, outputs } = usePages.getState()
+      const { tables, columns } = useDatabase.getState()
+      const { userTypes, policies } = useIdentity.getState()
+      const { variables } = useVariables.getState()
+      const { tokens, components } = useDesignSystem.getState()
 
-      if (lPrompt.includes('saas') || lPrompt.includes('login') || lPrompt.includes('auth')) {
-        content = "I've architected a standard high-security authentication and dashboard flow. This includes a public landing page, a multi-stage authentication gate, and a protected dashboard with tier-based constraints."
-        script = `
-screen "Landing Page" {
-    description: "Public system entry point"
-}
-
-screen "Auth Portal" {
-    description: "Unified Login/Signup interface"
-}
-
-screen "Dashboard" {
-    description: "Primary workspace"
-    constraint: "user.auth == true" !! "Auth Portal"
-}
-
-screen "Pro Console" {
-    description: "Advanced analytics and tools"
-    constraint: "user.tier == 'pro'" !! "Dashboard"
-}
-
-# Flows
-"Landing Page" -> "Auth Portal"
-"Auth Portal" -> "Dashboard"
-"Dashboard" -> "Pro Console"
-        `
-      } else if (lPrompt.includes('shop') || lPrompt.includes('ecommerce') || lPrompt.includes('delivery')) {
-        content = "I've interpreted your intent as a transactional marketplace system. This blueprint includes a discovery catalog, cart management, and a gated checkout process with success/failure logic."
-        script = `
-screen "Catalog" {
-    description: "Item discovery and filtering"
-}
-
-screen "Cart" {
-    description: "Order staging and tax calculation"
-}
-
-screen "Checkout" {
-    description: "Secure transaction gateway"
-    constraint: "is_logged_in == true" !! "Login"
-}
-
-screen "Order Status" {
-    description: "Real-time delivery/order tracking"
-    constraint: "payment.status == 'success'" !! "Checkout"
-}
-
-screen "Login" {
-    description: "System authentication"
-}
-
-# Flows
-"Catalog" -> "Cart"
-"Cart" -> "Checkout"
-"Checkout" -> "Order Status" [label: "Success"]
-"Checkout" -> "Cart" [label: "Payment Failure"]
-        `
-      } else if (lPrompt.includes('crm') || lPrompt.includes('admin') || lPrompt.includes('internal')) {
-        content = "Generating a high-utility internal management system. This architecture focuses on data visibility, lead management, and administrative overrides."
-        script = `
-screen "Admin Dashboard" {
-    description: "Operational overview"
-    constraint: "user.role == 'admin'" !! "Unauthorized"
-}
-
-screen "Lead Registry" {
-    description: "Customer data management"
-}
-
-screen "Settings" {
-    description: "System-wide configuration"
-}
-
-screen "Unauthorized" {
-    description: "Access denied error state"
-}
-
-# Flows
-"Admin Dashboard" -> "Lead Registry"
-"Admin Dashboard" -> "Settings"
-        `
-      } else {
-        content = "I've interpreted your intent as a modular deterministic system. Here is the generated STEM-script blueprint optimized for the canvas."
-        script = `
-screen "Entry Point" {
-    description: "System start state"
-}
-
-screen "Main Workspace" {
-    description: "Primary application logic"
-}
-
-screen "Global Settings" {
-    description: "System configuration"
-}
-
-# Flows
-"Entry Point" -> "Main Workspace"
-"Main Workspace" -> "Global Settings"
-        `
+      const projectData = {
+        project: currentProject,
+        architecture: { pages, transitions, inputs, actions, outputs },
+        schema: { tables, columns },
+        identity: { userTypes, policies },
+        logic: { variables },
+        designSystem: { tokens, components },
+        meta: { version: '0.1.0-alpha', engine: 'STEM-CORE-V1' }
       }
 
+      // 2. Generate the deterministic text string of the system
+      const currentStateString = generateProjectDocumentation(projectData)
+
+      // 3. Send to API Endpoint
+      const response = await fetch('/api/architect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          currentState: currentStateString
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('API Request failed')
+      }
+
+      const data = await response.json()
+
+      // 4. Update Chat UI
       get().addMessage({
         role: 'assistant',
-        content,
-        script
+        content: data.content,
+        script: data.script
       })
     } catch (error) {
-      toast.error('AI Architecting failed')
+      console.error(error)
+      toast.error('AI Architecting failed. Check API connection.')
     } finally {
       set({ isArchitecting: false })
     }
   },
 
   commitScript: async (script, projectId) => {
-    const { addPage, addTransition } = usePages.getState()
+    const { addPage, addTransition, pages } = usePages.getState()
     
     toast.loading('Committing system architecture...')
     
     try {
-      // Simple STEM-script parser
-      const lines = script.split('\n')
+      const lines = script.split('\\n')
       const screens: Record<string, string> = {} // name -> id
       
-      // 1. Create Screens
+      // Seed existing screens to prevent duplicates
+      pages.forEach(p => {
+        if (p.title) screens[p.title] = p.id
+      })
+      
+      // 1. Parse & Create Missing Screens
       for (const line of lines) {
-        const screenMatch = line.match(/screen\s+"([^"]+)"/)
+        const screenMatch = line.match(/screen\\s+"([^"]+)"/)
         if (screenMatch) {
           const name = screenMatch[1]
-          const page = await addPage(projectId, name)
-          if (page) {
-            screens[name] = page.id
+          if (!screens[name]) {
+            const page = await addPage(projectId, name)
+            if (page) screens[name] = page.id
           }
         }
       }
       
-      // 2. Create Flows
+      // 2. Parse & Create Flows
       for (const line of lines) {
         const flowMatch = line.match(/"([^"]+)"\s*->\s*"([^"]+)"/)
         if (flowMatch) {
