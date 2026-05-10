@@ -16,11 +16,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { motion, AnimatePresence } from 'framer-motion'
-import { PillarHeader } from '@/components/layout/PillarHeader'
-import { StandardModal } from '@/components/ui/StandardModal'
-import { ConstantCard } from '@/components/logic/ConstantCard'
+
 import { FunctionCard } from '@/components/logic/FunctionCard'
 import { toast } from 'sonner'
+import { PillarHeader } from '../layout/PillarHeader'
+import { ConstantCard } from '../logic/ConstantCard'
+import { SlideInModal } from '../ui/SlideInModal'
 
 export function LogicLayer() {
   const { id: projectId } = useParams()
@@ -44,6 +45,12 @@ export function LogicLayer() {
   const handleSaveConstant = async () => {
     if (!name || !value || !projectId) return
 
+    // Security: Validate constant name (alphanumeric and underscores only)
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+      toast.error('Invalid name. Constants must start with a letter/underscore and contain only alphanumeric characters.')
+      return
+    }
+
     const isDuplicate = constants.some(c => c.name.toLowerCase() === name.toLowerCase())
     if (isDuplicate) {
       toast.error(`A constant with the name "${name}" already exists in this project.`)
@@ -56,6 +63,12 @@ export function LogicLayer() {
 
   const handleSaveFunction = async () => {
     if (!name || !projectId) return
+
+    // Security: Validate function name
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+      toast.error('Invalid function name. Use alphanumeric characters and underscores only.')
+      return
+    }
 
     const isDuplicate = functions.some(f => f.name.toLowerCase() === name.toLowerCase())
     if (isDuplicate) {
@@ -91,7 +104,7 @@ export function LogicLayer() {
       <Tabs defaultValue="constants" className="w-full space-y-6">
         <TabsList className="bg-black/50 max-w-xl border px-0! h-fit! border-zinc-800 rounded-none w-auto inline-flex overflow-hidden">
           {['constants', 'functions', 'dependencies'].map((tab) => (
-            <TabsTrigger key={tab} value={tab} className="px-8 py-2 h-fit! rounded-none data-[state=active]:bg-white data-[state=active]:text-black text-xs font-medium capitalize transition-all">
+            <TabsTrigger key={tab} value={tab} className="px-8 py-2 h-fit! rounded-none data-[state=inactive]:bg-white/5 data-[state=active]:bg-zinc-900 data-[state=active]:text-white text-zinc-500 text-xs font-bold capitalize transition-all">
               {tab}
             </TabsTrigger>
           ))}
@@ -104,7 +117,7 @@ export function LogicLayer() {
                 <ConstantCard key={c.id} constant={c} onDelete={(id) => deleteConstant(projectId as string, id)} />
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsConstantModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-600 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
+            <Button variant="ghost" onClick={() => setIsConstantModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">New Constant</span>
             </Button>
@@ -118,7 +131,7 @@ export function LogicLayer() {
                 <FunctionCard key={f.id} func={f} onDelete={(id) => deleteFunction(projectId as string, id)} />
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsFunctionModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex flex-col items-center justify-center gap-3 text-zinc-600 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
+            <Button variant="ghost" onClick={() => setIsFunctionModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex flex-col items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all h-fit rounded-none group">
               <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">New Function</span>
             </Button>
@@ -147,7 +160,7 @@ export function LogicLayer() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            <Button variant="ghost" onClick={() => setIsDepModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-600 hover:text-white hover:bg-black/50 transition-all rounded-none group">
+            <Button variant="ghost" onClick={() => setIsDepModalOpen(true)} className="border border-dashed border-zinc-800 p-4 flex items-center justify-center gap-3 text-zinc-500 hover:text-white hover:bg-black/50 transition-all rounded-none group">
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
               <span className="text-xs font-black">Add Package</span>
             </Button>
@@ -155,23 +168,103 @@ export function LogicLayer() {
         </TabsContent>
       </Tabs>
 
-      <StandardModal isOpen={isConstantModalOpen} onClose={() => setIsConstantModalOpen(false)} title="Define Constant" description="Global system parameters." confirmText="Save Constant" onConfirm={handleSaveConstant}>
-        <div className="space-y-4">
-          <div className="space-y-2"><Label className="text-[10px] font-black text-zinc-500 ">Constant Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white" /></div>
-          <div className="space-y-2"><Label className="text-[10px] font-black text-zinc-500 ">Value</Label><Input value={value} onChange={(e) => setValue(e.target.value)} className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white" /></div>
+      {/* Constants Drawer */}
+      <SlideInModal
+        isOpen={isConstantModalOpen}
+        onClose={() => setIsConstantModalOpen(false)}
+        title="Define Constant"
+        description="Global system parameters that remain immutable during runtime."
+        footer={
+          <Button onClick={handleSaveConstant} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+            Save Constant
+          </Button>
+        }
+      >
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Constant Identifier</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value.replace(/\s+/g, '_'))}
+              placeholder="e.g. API_TIMEOUT"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Value</Label>
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="e.g. 5000"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+            />
+          </div>
         </div>
-      </StandardModal>
+      </SlideInModal>
 
-      <StandardModal isOpen={isFunctionModalOpen} onClose={() => setIsFunctionModalOpen(false)} title="New Cloud Function" description="Declare a deterministic logic block." confirmText="Create Function" onConfirm={handleSaveFunction}>
-        <div className="space-y-4">
-          <div className="space-y-2"><Label className="text-[10px] font-black text-zinc-500 ">Function Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white" /></div>
-          <div className="space-y-2"><Label className="text-[10px] font-black text-zinc-500 ">Specification</Label><textarea value={description} onChange={(e) => setDescription(e.target.value)} className="bg-black w-full min-h-[100px] p-4 border border-zinc-800 rounded-none text-sm font-mono focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white" /></div>
+      {/* Functions Drawer */}
+      <SlideInModal
+        isOpen={isFunctionModalOpen}
+        onClose={() => setIsFunctionModalOpen(false)}
+        title="New Cloud Function"
+        description="Declare a deterministic logic block for system execution."
+        footer={
+          <Button onClick={handleSaveFunction} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+            Create Function
+          </Button>
+        }
+      >
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Function Identifier</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
+              placeholder="e.g. calculate_total"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Logic Specification</Label>
+            <div className="relative group">
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Declare the deterministic logic here..."
+                className="bg-black w-full min-h-[200px] p-4 border border-zinc-800 rounded-none text-sm font-mono focus:outline-none focus:border-white transition-colors resize-none text-white selection:bg-white/20"
+              />
+              <div className="absolute bottom-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] font-mono text-zinc-600">Deterministic Sandbox</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </StandardModal>
+      </SlideInModal>
 
-      <StandardModal isOpen={isDepModalOpen} onClose={() => setIsDepModalOpen(false)} title="Attach Dependency" description="Integrate external libraries." confirmText="Install Dependency" onConfirm={handleSaveDependency}>
-        <div className="space-y-2"><Label className="text-[10px] font-black text-zinc-500 ">NPM Package Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white" /></div>
-      </StandardModal>
+      {/* Dependencies Drawer */}
+      <SlideInModal
+        isOpen={isDepModalOpen}
+        onClose={() => setIsDepModalOpen(false)}
+        title="Attach Dependency"
+        description="Integrate verified external libraries into your runtime."
+        footer={
+          <Button onClick={handleSaveDependency} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+            Install Dependency
+          </Button>
+        }
+      >
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">NPM Package Name</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value.toLowerCase())}
+              placeholder="e.g. lodash"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
+            />
+          </div>
+        </div>
+      </SlideInModal>
     </div>
   )
 }

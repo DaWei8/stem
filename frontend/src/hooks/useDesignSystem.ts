@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { 
   addTokenAction, 
+  updateTokenAction,
   addComponentAction,
+  updateComponentAction,
   deleteTokenAction,
   deleteComponentAction
 } from '@/lib/actions/design'
@@ -14,7 +16,7 @@ interface DesignToken {
   id: string
   name: string
   value: string
-  type: 'color' | 'typography' | 'spacing' | 'shadow' | 'radius' | 'motion'
+  category: 'color' | 'typography' | 'spacing' | 'shadow' | 'border-radius' | 'duration' | 'z-index'
 }
 
 export interface SystemComponent {
@@ -33,9 +35,11 @@ interface DesignState {
   isLoading: boolean
   fetchTokens: (projectId: string) => Promise<void>
   addToken: (projectId: string, token: Omit<DesignToken, 'id'>) => Promise<void>
+  updateToken: (projectId: string, id: string, token: Partial<DesignToken>) => Promise<void>
   deleteToken: (projectId: string, id: string) => Promise<void>
   fetchComponents: (projectId: string) => Promise<void>
   addComponent: (projectId: string, component: Omit<SystemComponent, 'id' | 'project_id'>) => Promise<void>
+  updateComponent: (projectId: string, id: string, component: Partial<SystemComponent>) => Promise<void>
   deleteComponent: (projectId: string, id: string) => Promise<void>
 }
 
@@ -90,6 +94,18 @@ export const useDesignSystem = create<DesignState>((set) => ({
     }
   },
 
+  updateToken: async (projectId, id, token) => {
+    try {
+      const data = await updateTokenAction(projectId, id, token)
+      set((state) => ({ 
+        tokens: state.tokens.map(t => t.id === id ? data : t) 
+      }))
+      toast.success('Token updated')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
+    }
+  },
+
   deleteToken: async (projectId, id) => {
     try {
       await deleteTokenAction(projectId, id)
@@ -107,6 +123,18 @@ export const useDesignSystem = create<DesignState>((set) => ({
       toast.success('Component blueprint committed')
     } catch (error: any) {
       toast.error(`Failed to add component: ${error.message}`)
+    }
+  },
+
+  updateComponent: async (projectId, id, component) => {
+    try {
+      const data = await updateComponentAction(projectId, id, component)
+      set((state) => ({ 
+        components: state.components.map(c => c.id === id ? data : c) 
+      }))
+      toast.success('Component updated')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
     }
   },
 

@@ -42,16 +42,26 @@ export async function updateUserTypeAction(projectId: string, id: string, payloa
 }
 
 export async function addPolicyAction(projectId: string, policy: any) {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('rls_policies')
-    .insert([{ ...policy, project_id: projectId }])
-    .select()
-    .single()
+  console.log('Action: addPolicyAction', { projectId, policy })
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('rls_policies')
+      .insert([{ ...policy, project_id: projectId }])
+      .select()
+      .single()
 
-  if (error) throw new Error(error.message)
-  revalidatePath(`/projects/${projectId}`)
-  return data
+    if (error) {
+      console.error('Supabase error in addPolicyAction:', error)
+      throw new Error(error.message)
+    }
+    
+    revalidatePath(`/projects/${projectId}`)
+    return data
+  } catch (err: any) {
+    console.error('Unhandled error in addPolicyAction:', err)
+    throw err
+  }
 }
 
 export async function deletePolicyAction(projectId: string, id: string) {

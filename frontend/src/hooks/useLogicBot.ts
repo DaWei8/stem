@@ -48,8 +48,15 @@ export function useLogicBot() {
     }
 
     try {
+      // Map frontend variables to the format expected by the WASM LogicEngine
+      // specifically mapping 'type' to 'value_type'
+      const engineVariables = variables.map(v => ({
+        ...v,
+        value_type: v.type
+      }))
+
       const newEngine = new wasmModule.LogicEngine(
-        variables,
+        engineVariables,
         { values: initialState }
       )
       setEngine(newEngine)

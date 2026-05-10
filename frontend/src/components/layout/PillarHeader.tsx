@@ -28,7 +28,7 @@ export function PillarHeader({
           <h2 className="text-2xl font-black tracking-tighter bg-linear-to-br from-white to-zinc-500 bg-clip-text text-transparent">
             {title}
           </h2>
-          <p className="text-xs text-zinc-500 max-w-md font-medium leading-relaxed">
+          <p className="text-xs text-zinc-400 max-w-md font-medium leading-relaxed">
             {description}
           </p>
         </div>
@@ -37,7 +37,7 @@ export function PillarHeader({
             <div key={stat.label} className="flex items-center gap-6">
               {i > 0 && <div className="h-10 w-px bg-zinc-800" />}
               <div className="text-right">
-                <p className="text-[10px] font-bold text-zinc-600 ">{stat.label}</p>
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{stat.label}</p>
                 <p className="text-2xl font-black font-mono">{stat.value}</p>
               </div>
             </div>

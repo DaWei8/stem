@@ -8,6 +8,7 @@ import { IdentityPermissions } from '@/components/blocks/IdentityPermissions'
 import { DesignSystem } from '@/components/blocks/DesignSystem'
 import { ExportView } from '@/components/blocks/ExportView'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
+import { LogicBot } from '@/components/blocks/LogicBot'
 import { useUI } from '@/hooks/useUI'
 import { useVariables } from '@/hooks/useVariables'
 import { useLogicBot } from '@/hooks/useLogicBot'
@@ -158,6 +159,7 @@ export default function ProjectEditorPage() {
           </AnimatePresence>
         </main>
       </div>
+      <LogicBot />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { PillarHeader } from '@/components/layout/PillarHeader'
 import { cn } from '@/lib/utils'
-import { StandardModal } from '@/components/ui/StandardModal'
+import { SlideInModal } from '@/components/ui/SlideInModal'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -36,7 +36,7 @@ export function IdentityPermissions() {
     addPolicy,
     deletePolicy
   } = useIdentity()
-  const { tables } = useDatabase()
+  const { tables, fetchProjectData } = useDatabase()
 
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
@@ -48,19 +48,28 @@ export function IdentityPermissions() {
   const [isNewRoleAdmin, setIsNewRoleAdmin] = useState(false)
   const [newRoleColor, setNewRoleColor] = useState('zinc')
 
-  const [newPolicyData, setNewPolicyData] = useState({
+  interface PolicyData {
+    name: string;
+    table_id: string;
+    user_type_id: string;
+    policy_type: 'select' | 'insert' | 'update' | 'delete';
+    policy_logic: string;
+  }
+
+  const [newPolicyData, setNewPolicyData] = useState<PolicyData>({
     name: '',
     table_id: '',
-    user_type_id: '',
-    policy_type: 'select' as any,
+    user_type_id: 'all',
+    policy_type: 'select',
     policy_logic: 'true'
   })
 
   useEffect(() => {
     if (projectId) {
       fetchIdentityData(projectId as string)
+      fetchProjectData(projectId as string)
     }
-  }, [projectId, fetchIdentityData])
+  }, [projectId, fetchIdentityData, fetchProjectData])
 
   const handleAddRole = async () => {
     if (!newRoleName || !projectId) return
@@ -105,12 +114,22 @@ export function IdentityPermissions() {
   }
 
   const handleAddPolicy = async () => {
-    if (!newPolicyData.name || !newPolicyData.table_id || !projectId) return
-    await addPolicy(projectId as string, newPolicyData)
+    if (!newPolicyData.name || !newPolicyData.table_id || !projectId) {
+      toast.error('Policy identifier and target entity are required.')
+      return
+    }
+
+    // Normalize payload: handle 'all' as null for global policies
+    const payload = {
+      ...newPolicyData,
+      user_type_id: newPolicyData.user_type_id === 'all' ? null : newPolicyData.user_type_id
+    }
+
+    await addPolicy(projectId as string, payload)
     setNewPolicyData({
       name: '',
       table_id: '',
-      user_type_id: '',
+      user_type_id: 'all',
       policy_type: 'select',
       policy_logic: 'true'
     })
@@ -152,7 +171,7 @@ export function IdentityPermissions() {
               className="bg-white px-4 text-black hover:bg-zinc-200 h-11 text-xs font-semibold  transition-all rounded-none hover:gap-3 group"
             >
               <Plus className="size-4.5" />
-              New Role
+              New User Type
               <ArrowRight className="w-0 h-3 group-hover:w-3 transition-all" />
             </Button>
           </div>
@@ -213,7 +232,7 @@ export function IdentityPermissions() {
                           ut.color === 'violet' && "text-violet-400"
                         )} />
                       </div>
-                      <CardTitle className="text-lg font-black lowercase">{ut.name}</CardTitle>
+                      <CardTitle className="text-lg font-black text-white lowercase">{ut.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       {ut.description && (
@@ -225,10 +244,6 @@ export function IdentityPermissions() {
                           <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">System Admin</span>
                         </div>
                       )}
-
-                      <div className="flex absolute bottom-0 right-0 gap-1">
-                        <div className={cn("size-4 bg-zinc-800 transition-colors", ut.color === 'red' && "bg-red-500", ut.color === 'orange' && "bg-orange-500", ut.color === 'yellow' && "bg-yellow-500", ut.color === 'green' && "bg-green-500", ut.color === 'blue' && "bg-blue-500", ut.color === 'indigo' && "bg-indigo-500", ut.color === 'violet' && "bg-violet-500")} />
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -248,63 +263,55 @@ export function IdentityPermissions() {
               Define Policy
             </Button>
           </div>
-
           <div className="grid grid-cols-1 gap-4">
-            <AnimatePresence>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {policies.map((pol) => {
                 const table = tables.find(t => t.id === pol.table_id)
                 const userType = userTypes.find(ut => ut.id === pol.user_type_id)
                 return (
-                  <motion.div key={pol.id} variants={itemVariants} layout>
-                    <Card className="bg-black border-zinc-800 rounded-none shadow-none group hover:border-zinc-700 transition-all">
-                      <div className="flex items-center p-6 gap-6">
-                        <div className="bg-black size-12 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-600 transition-colors">
+                  <div key={pol.id}>
+                    <Card className="bg-zinc-700/50 border-zinc-800 rounded-none shadow-none group hover:border-zinc-700 transition-all">
+                      <div className="flex items-start px-4 p-2 gap-6">
+                        <div className="bg-black size-10 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-600 transition-colors">
                           <Eye className="w-5 h-5 text-zinc-500 group-hover:text-white transition-colors" />
                         </div>
 
                         <div className="flex-1 space-y-3">
+                          <p className="text-xs text-white font-bold tracking-tight mb-1">{pol.name} <span className="text-zinc-500 font-mono text-xs">({pol.policy_logic})</span></p>
                           <div className="flex items-center gap-3">
                             <span className={cn(
-                              "text-xs font-black px-2 py-0.5 border uppercase tracking-tighter",
+                              "text-[10px] font-black px-2 py-0.5 border uppercase tracking-tighter",
                               pol.policy_type === 'select' ? "border-blue-500/20 text-blue-400 bg-blue-500/5" :
                                 pol.policy_type === 'insert' ? "border-green-500/20 text-green-400 bg-green-500/5" :
                                   "border-red-500/20 text-red-400 bg-red-500/5"
                             )}>
                               {pol.policy_type}
                             </span>
-                            <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                            <div className="flex items-center gap-2 text-[10px] font-medium text-zinc-500">
                               <span>on</span>
-                              <span className="text-white font-mono">{table?.name || 'entity'}</span>
+                              <span className="text-white text-[10px] font-mono">{table?.name || 'entity'}</span>
                               <span>for</span>
-                              <span className="text-zinc-300 bg-black px-2 py-0.5 border border-zinc-800 text-xs font-bold">
+                              <span className="text-zinc-300 bg-black px-2 py-0.5 border border-zinc-800 text-[10px] font-bold">
                                 {userType?.name || 'all'}
                               </span>
                             </div>
                           </div>
-
-                          <div>
-                            <p className="text-sm font-bold tracking-tight mb-1">{pol.name}</p>
-                            <div className="flex items-center gap-2">
-                              <div className="h-px w-4 bg-zinc-800" />
-                              <code className="text-xs text-zinc-600 font-mono italic">USING ({pol.policy_logic})</code>
-                            </div>
-                          </div>
                         </div>
 
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex gap-2">
                           <Button
                             onClick={() => deletePolicy(projectId as string, pol.id)}
-                            variant="outline" size="icon" className="size-9 border-zinc-800 rounded-none hover:bg-red-900/20 hover:text-red-400 transition-all"
+                            size="icon" className="size-9 border-zinc-800 rounded-none bg-red-900/10 text-red-400"
                           >
                             <Trash2 className="size-4" />
                           </Button>
                         </div>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 )
               })}
-            </AnimatePresence>
+            </div>
 
             {policies.length === 0 && (
               <div className="py-20 border border-dashed border-zinc-800 flex flex-col items-center justify-center gap-4 text-center">
@@ -319,82 +326,83 @@ export function IdentityPermissions() {
         </section>
       </motion.div>
 
-      {/* Role Modal */}
-      <StandardModal
+      {/* Role Management Drawer */}
+      <SlideInModal
         isOpen={isRoleModalOpen}
         onClose={() => setIsRoleModalOpen(false)}
-        title="User Role"
-        description="Define a new user classification for permission scoping."
-        confirmText="Create Role"
-        onConfirm={handleAddRole}
+        title="Define Identity Role"
+        description="Establish a new user archetype and their global permissions."
+        footer={
+          <Button onClick={handleAddRole} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all">
+            Establish Role
+          </Button>
+        }
       >
         <div className="space-y-6">
           <div className="space-y-2">
             <Label className="text-xs font-black text-zinc-500 ">Role Identifier</Label>
             <Input
               value={newRoleName}
-              onChange={(e) => setNewRoleName(e.target.value)}
-              placeholder="e.g. system_auditor"
-              className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white"
+              onChange={(e) => setNewRoleName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
+              placeholder="e.g. branch_manager"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
             />
           </div>
-
           <div className="space-y-2">
             <Label className="text-xs font-black text-zinc-500 ">Description</Label>
             <Textarea
               value={newRoleDescription}
               onChange={(e) => setNewRoleDescription(e.target.value)}
-              placeholder="Briefly describe the scope of this user classification..."
-              className="bg-black border-zinc-800 rounded-none min-h-20 text-xs text-white resize-none"
+              placeholder="What can this user do in the system?"
+              className="bg-black border-zinc-800 rounded-none min-h-[100px] text-sm text-white focus:border-white transition-colors resize-none"
             />
           </div>
-
-          <div className="flex items-center space-x-2 p-4 bg-zinc-900/30 border border-zinc-800">
+          <div className="flex items-center gap-3 p-4 bg-black/30 border border-zinc-800">
             <Checkbox
-              id="admin"
+              id="is_admin_new"
               checked={isNewRoleAdmin}
               onCheckedChange={(checked) => setIsNewRoleAdmin(!!checked)}
+              className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
-            <label
-              htmlFor="admin"
-              className="text-xs font-bold text-zinc-400 cursor-pointer"
-            >
-              Grant Administrative Privileges
-            </label>
+            <Label htmlFor="is_admin_new" className="text-xs font-bold text-zinc-400 cursor-pointer">Grant Super-Admin Privileges</Label>
           </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Classification Color</Label>
-            <Select value={newRoleColor} onValueChange={(v) => setNewRoleColor(v || 'zinc')}>
-              <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white">
-                <SelectValue placeholder="Select color" />
-              </SelectTrigger>
-              <SelectContent className="bg-black min-h-12! w-full! border-zinc-800 text-white rounded-none">
-                <SelectItem value="zinc" className="bg-zinc-500" >Default (Zinc)</SelectItem>
-                <SelectItem value="red" className="bg-red-500" >Red</SelectItem>
-                <SelectItem value="orange" className="bg-orange-500" >Orange</SelectItem>
-                <SelectItem value="yellow" className="bg-yellow-500" >Yellow</SelectItem>
-                <SelectItem value="green" className="bg-green-500" >Green</SelectItem>
-                <SelectItem value="blue" className="bg-blue-500" >Blue</SelectItem>
-                <SelectItem value="indigo" className="bg-indigo-500" >Indigo</SelectItem>
-                <SelectItem value="violet" className="bg-violet-500" >Violet</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-3">
+            <Label className="text-xs font-black text-zinc-500 ">Theme Marker</Label>
+            <div className="flex flex-wrap gap-2">
+              {['zinc', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'].map(color => (
+                <button
+                  key={color}
+                  onClick={() => setNewRoleColor(color)}
+                  className={cn(
+                    "size-8 rounded-full border-2 transition-all",
+                    newRoleColor === color ? "border-white scale-110" : "border-transparent",
+                    color === 'zinc' && "bg-zinc-500",
+                    color === 'red' && "bg-red-500",
+                    color === 'orange' && "bg-orange-500",
+                    color === 'yellow' && "bg-yellow-500",
+                    color === 'green' && "bg-green-500",
+                    color === 'blue' && "bg-blue-500",
+                    color === 'indigo' && "bg-indigo-500",
+                    color === 'violet' && "bg-violet-500"
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </StandardModal>
+      </SlideInModal>
 
-      {/* Edit Role Modal */}
-      <StandardModal
+      {/* Edit Role Drawer */}
+      <SlideInModal
         isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingRole(null)
-        }}
-        title="Edit User Role"
-        description="Update the configuration for this user classification."
-        confirmText="Save Changes"
-        onConfirm={handleEditRole}
+        onClose={() => setIsEditModalOpen(false)}
+        title="Modify Identity Role"
+        description="Update archetype parameters and permissions."
+        footer={
+          <Button onClick={handleEditRole} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black transition-all">
+            Save Changes
+          </Button>
+        }
       >
         {editingRole && (
           <div className="space-y-6">
@@ -402,128 +410,138 @@ export function IdentityPermissions() {
               <Label className="text-xs font-black text-zinc-500 ">Role Identifier</Label>
               <Input
                 value={editingRole.name}
-                onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value })}
-                className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white"
+                onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
+                className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white"
               />
             </div>
-
             <div className="space-y-2">
               <Label className="text-xs font-black text-zinc-500 ">Description</Label>
               <Textarea
-                value={editingRole.description || ''}
+                value={editingRole.description}
                 onChange={(e) => setEditingRole({ ...editingRole, description: e.target.value })}
-                className="bg-black border-zinc-800 rounded-none min-h-[100px] text-xs text-white resize-none"
+                className="bg-black border-zinc-800 rounded-none min-h-[100px] text-sm text-white"
               />
             </div>
-
-            <div className="flex items-center space-x-2 p-4 bg-zinc-900/30 border border-zinc-800">
+            <div className="flex items-center gap-3 p-4 bg-black/30 border border-zinc-800">
               <Checkbox
-                id="edit-admin"
+                id="is_admin_edit"
                 checked={editingRole.is_admin}
                 onCheckedChange={(checked) => setEditingRole({ ...editingRole, is_admin: !!checked })}
+                className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
               />
-              <label
-                htmlFor="edit-admin"
-                className="text-xs font-bold text-zinc-400 cursor-pointer"
-              >
-                Grant Administrative Privileges
-              </label>
+              <Label htmlFor="is_admin_edit" className="text-xs font-bold text-zinc-400 cursor-pointer">Super-Admin Privileges</Label>
             </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">Classification Color</Label>
-              <Select
-                value={editingRole.color || 'zinc'}
-                onValueChange={(v) => setEditingRole({ ...editingRole, color: v || 'zinc' })}
-              >
-                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white">
-                  <SelectValue placeholder="Select color" />
-                </SelectTrigger>
-                <SelectContent className="bg-black w-full! min-h-12! border-zinc-800 text-white rounded-none">
-                  <SelectItem value="zinc" className="bg-zinc-500" >Default (Zinc)</SelectItem>
-                  <SelectItem value="red" className="bg-red-500" >Red</SelectItem>
-                  <SelectItem value="orange" className="bg-orange-500" >Orange</SelectItem>
-                  <SelectItem value="yellow" className="bg-yellow-500" >Yellow</SelectItem>
-                  <SelectItem value="green" className="bg-green-500" >Green</SelectItem>
-                  <SelectItem value="blue" className="bg-blue-500" >Blue</SelectItem>
-                  <SelectItem value="indigo" className="bg-indigo-500" >Indigo</SelectItem>
-                  <SelectItem value="violet" className="bg-violet-500" >Violet</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="space-y-3">
+              <Label className="text-xs font-black text-zinc-500 ">Theme Marker</Label>
+              <div className="flex flex-wrap gap-2">
+                {['zinc', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'].map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setEditingRole({ ...editingRole, color })}
+                    className={cn(
+                      "size-8 rounded-full border-2 transition-all",
+                      editingRole.color === color ? "border-white scale-110" : "border-transparent",
+                      color === 'zinc' && "bg-zinc-500",
+                      color === 'red' && "bg-red-500",
+                      color === 'orange' && "bg-orange-500",
+                      color === 'yellow' && "bg-yellow-500",
+                      color === 'green' && "bg-green-500",
+                      color === 'blue' && "bg-blue-500",
+                      color === 'indigo' && "bg-indigo-500",
+                      color === 'violet' && "bg-violet-500"
+                    )}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
-      </StandardModal>
+      </SlideInModal>
 
-      {/* Policy Modal */}
-      <StandardModal
+      {/* Policy Management Drawer */}
+      <SlideInModal
         isOpen={isPolicyModalOpen}
         onClose={() => setIsPolicyModalOpen(false)}
         title="Define Security Policy"
-        description="Create a granular Row Level Security rule for an entity."
-        confirmText="Create Policy"
-        onConfirm={handleAddPolicy}
+        description="Establish a Row-Level Security (RLS) rule for an entity."
+        footer={
+          <Button onClick={handleAddPolicy} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black transition-all">
+            Deploy Policy
+          </Button>
+        }
       >
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Policy Description</Label>
+            <Label className="text-xs font-black text-zinc-500 ">Policy Identifier</Label>
             <Input
               value={newPolicyData.name}
-              onChange={(e) => setNewPolicyData({ ...newPolicyData, name: e.target.value.replace(/\s+/g, '_') })}
-              placeholder="e.g. users_can_view_own_profile"
-              className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white"
+              onChange={(e) => setNewPolicyData({ ...newPolicyData, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
+              placeholder="e.g. view_private_profiles"
+              className="bg-black border-zinc-800 rounded-none h-12 font-mono text-white focus:border-white transition-colors"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-xs font-black text-zinc-500 ">Target Entity</Label>
-              <Select value={newPolicyData.table_id} onValueChange={(v) => setNewPolicyData({ ...newPolicyData, table_id: v || '' })}>
-                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white">
-                  <SelectValue placeholder="Select table" />
+              <Select value={newPolicyData.table_id} onValueChange={(v: any) => setNewPolicyData({ ...newPolicyData, table_id: v })}>
+                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white focus:border-white transition-colors">
+                  <SelectValue placeholder="Select Table" />
                 </SelectTrigger>
-                <SelectContent className="bg-black lowercase border-zinc-800 text-white rounded-none h-12! w-full!">
-                  {tables.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                  {tables.map(t => (
+                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">User Type</Label>
-              <Select value={newPolicyData.user_type_id} onValueChange={(v) => setNewPolicyData({ ...newPolicyData, user_type_id: v || '' })}>
-                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white">
-                  <SelectValue placeholder="All users" />
+              <Label className="text-xs font-black text-zinc-500 ">User Archetype</Label>
+              <Select value={newPolicyData.user_type_id} onValueChange={(v: any) => setNewPolicyData({ ...newPolicyData, user_type_id: v })}>
+                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white focus:border-white transition-colors">
+                  <SelectValue placeholder="Select Role" />
                 </SelectTrigger>
-                <SelectContent className="bg-black lowercase border-zinc-800 text-white rounded-none min-h-12! w-full!">
-                  {userTypes.map(ut => <SelectItem key={ut.id} value={ut.id}>{ut.name}</SelectItem>)}
+                <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                  <SelectItem value="all">All Identities (Global)</SelectItem>
+                  {userTypes.map(ut => (
+                    <SelectItem key={ut.id} value={ut.id}>{ut.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">Action Type</Label>
-              <Select value={newPolicyData.policy_type} onValueChange={(v) => setNewPolicyData({ ...newPolicyData, policy_type: (v as any) || 'select' })}>
-                <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black border-zinc-800 text-white rounded-none min-h-12! w-full!">
-                  <SelectItem value="select">SELECT</SelectItem>
-                  <SelectItem value="insert">INSERT</SelectItem>
-                  <SelectItem value="update">UPDATE</SelectItem>
-                  <SelectItem value="delete">DELETE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">Policy Expression (SQL)</Label>
-              <Input
-                value={newPolicyData.policy_logic}
-                onChange={(e) => setNewPolicyData({ ...newPolicyData, policy_logic: e.target.value })}
-                className="bg-black border-zinc-800 rounded-none h-full max-h-12! text-xs font-mono text-white resize-none"
-              />
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Action Type</Label>
+            <Select value={newPolicyData.policy_type} onValueChange={(v: any) => setNewPolicyData({ ...newPolicyData, policy_type: v })}>
+              <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white focus:border-white transition-colors">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                <SelectItem value="select">SELECT</SelectItem>
+                <SelectItem value="insert">INSERT</SelectItem>
+                <SelectItem value="update">UPDATE</SelectItem>
+                <SelectItem value="delete">DELETE</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Policy Expression (SQL)</Label>
+            <div className="relative group">
+              <textarea
+                value={newPolicyData.policy_logic}
+                onChange={(e) => setNewPolicyData({ ...newPolicyData, policy_logic: e.target.value })}
+                placeholder="e.g. auth.uid() = user_id"
+                className="bg-black w-full min-h-[120px] p-4 border border-zinc-800 rounded-none text-sm font-mono focus:outline-none focus:border-white transition-colors resize-none text-white selection:bg-white/20"
+              />
+              <div className="absolute bottom-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] font-mono text-zinc-600">SQL Expression</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </StandardModal>
+      </SlideInModal>
     </div>
   )
 }

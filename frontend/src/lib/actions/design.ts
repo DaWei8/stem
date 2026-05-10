@@ -16,11 +16,39 @@ export async function addTokenAction(projectId: string, token: any) {
   return data
 }
 
+export async function updateTokenAction(projectId: string, id: string, token: any) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('design_tokens')
+    .update(token)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
+
 export async function addComponentAction(projectId: string, component: any) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('components')
     .insert([{ ...component, project_id: projectId }])
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
+
+export async function updateComponentAction(projectId: string, id: string, component: any) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('components')
+    .update(component)
+    .eq('id', id)
     .select()
     .single()
 

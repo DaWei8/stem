@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { PillarHeader } from '@/components/layout/PillarHeader'
 import { cn } from '@/lib/utils'
-import { StandardModal } from '@/components/ui/StandardModal'
+import { SlideInModal } from '@/components/ui/SlideInModal'
 import { toast } from 'sonner'
 
 export function DatabaseSchema() {
@@ -42,6 +42,7 @@ export function DatabaseSchema() {
     is_primary_key: false,
     variable_id: ''
   })
+  const [isDefiningColumn, setIsDefiningColumn] = useState(false)
 
   useEffect(() => {
     if (projectId) {
@@ -117,30 +118,28 @@ export function DatabaseSchema() {
         </div>
       </PillarHeader>
 
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+      <div
+
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
       >
-        <AnimatePresence>
+        <div>
           {tables.map((table) => {
             const tableColumns = columns.filter((c) => c.table_id === table.id)
 
             return (
-              <motion.div key={table.id} variants={itemVariants} layout>
+              <div key={table.id}>
                 <Card className="bg-black/40 border-zinc-800  overflow-hidden group shadow-none hover:border-zinc-500 transition-all">
                   <CardHeader className="p-4 border-b border-zinc-800 bg-black/40 flex flex-row items-center justify-between space-y-0">
                     <div className="flex items-center gap-3">
                       <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center">
                         <TableIcon className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
                       </div>
-                      <CardTitle className="text-xs font-black tracking-wider">{table.name}</CardTitle>
+                      <CardTitle className="text-xs font-bold font-mono text-white">{table.name}</CardTitle>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger render={
-                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-zinc-800  shadow-none transition-none">
-                          <MoreVertical className="w-4 h-4 text-zinc-600" />
+                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-zinc-800 shadow-none transition-none">
+                          <MoreVertical className="w-4 h-4 text-zinc-500" />
                         </Button>
                       } />
                       <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white  min-w-[160px]">
@@ -184,14 +183,14 @@ export function DatabaseSchema() {
                               <div className="flex flex-col">
                                 <span className={cn(
                                   "text-[11px] font-bold tracking-tight",
-                                  col.is_primary_key ? "text-white" : "text-zinc-400 group-hover/row:text-zinc-200"
+                                  col.is_primary_key ? "text-white" : "text-zinc-300 group-hover/row:text-white"
                                 )}>
                                   {col.name}
                                 </span>
                                 {variable && (
                                   <div className="flex items-center gap-1.5 mt-0.5">
                                     <div className="size-1 rounded-full bg-zinc-700" />
-                                    <span className="text-[8px] font-mono text-zinc-600 truncate group-hover/row:text-zinc-500 uppercase tracking-tighter">
+                                    <span className="text-[8px] font-mono text-zinc-500 truncate group-hover/row:text-zinc-300 uppercase tracking-tighter">
                                       Registry: {variable.label}
                                     </span>
                                   </div>
@@ -199,7 +198,7 @@ export function DatabaseSchema() {
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-[9px] font-black text-zinc-600 bg-black/40 px-2 py-0.5 border border-zinc-800 group-hover/row:border-zinc-700 group-hover/row:text-zinc-400 transition-all">
+                              <span className="text-[9px] font-black text-zinc-400 bg-black/40 px-2 py-0.5 border border-zinc-800 group-hover/row:border-zinc-700 group-hover/row:text-zinc-200 transition-all">
                                 {col.type || 'varchar'}
                               </span>
                             </div>
@@ -207,150 +206,221 @@ export function DatabaseSchema() {
                         )
                       })}
                     </div>
-                    <button
-                      onClick={() => {
-                        setActiveTableId(table.id)
-                        setIsColumnModalOpen(true)
-                      }}
-                      className="w-full p-4 text-xs font-black text-zinc-600 hover:text-white hover:bg-zinc-800/50 border-t border-zinc-800 flex items-center justify-center gap-2 transition-all"
-                    >
-                      <Plus className="w-3 h-3" />
-                      Add Column
-                    </button>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             )
           })}
-        </AnimatePresence>
+        </div>
 
         <motion.button
           variants={itemVariants}
           onClick={() => setIsTableModalOpen(true)}
-          className="border-2 w-full border-dashed border-zinc-800 bg-black/10 hover:bg-black/30 h-[180px] flex flex-col items-center justify-center gap-4 text-zinc-600 hover:text-white transition-all group"
+          className="border-2 w-full border-dashed border-zinc-800 bg-black/10 hover:bg-black/30 h-[180px] flex flex-col items-center justify-center gap-4 text-zinc-500 hover:text-white transition-all group"
         >
           <div className="size-12 rounded-full border border-dashed border-zinc-700 flex items-center justify-center group-hover:border-zinc-400 transition-colors">
             <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" />
           </div>
           <div className="text-center">
             <p className="text-xs font-black">Construct Table</p>
-            <p className="text-xs text-zinc-700 font-medium">Create a new persistent entity</p>
+            <p className="text-xs text-zinc-500 font-medium">Create a new persistent entity</p>
           </div>
         </motion.button>
-      </motion.div>
+      </div>
 
       {/* Table Creation Modal */}
-      <StandardModal
+      <SlideInModal
         isOpen={isTableModalOpen}
         onClose={() => setIsTableModalOpen(false)}
         title="New Database Table"
         description="Create a new persistent entity in your system schema."
-        confirmText="Create Table"
-        onConfirm={handleCreateTable}
+        footer={
+          <Button
+            onClick={handleCreateTable}
+            className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all"
+          >
+            Create Table
+          </Button>
+        }
       >
-        <div className="space-y-2">
-          <Label className="text-xs font-black text-zinc-500 ">Table Identifier</Label>
-          <Input
-            value={newTableName}
-            onChange={(e) => setNewTableName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
-            placeholder="e.g. products"
-            className="bg-black border-zinc-800  h-12 text-sm font-mono text-white"
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-xs font-black text-zinc-500 ">Table Identifier</Label>
+            <Input
+              value={newTableName}
+              onChange={(e) => setNewTableName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
+              placeholder="e.g. products"
+              className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white focus:border-white transition-colors"
+            />
+          </div>
         </div>
-      </StandardModal>
+      </SlideInModal>
 
       {/* Table Edit Modal */}
-      <StandardModal
+      <SlideInModal
         isOpen={isEditTableModalOpen}
         onClose={() => {
           setIsEditTableModalOpen(false)
           setEditingTable(null)
+          setIsDefiningColumn(false)
         }}
-        title="Edit Table Configuration"
-        description="Update the persistent entity identifier."
-        confirmText="Save Changes"
-        onConfirm={handleUpdateTable}
+        title="Table Configuration"
+        description={`Architecting ${editingTable?.name || 'entity'}`}
+        footer={
+          <div className="flex flex-col gap-2 text-nowrap w-full">
+            {isDefiningColumn ? (
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setIsDefiningColumn(false)}
+                  variant="outline"
+                  className="flex-1 border-zinc-800 text-white rounded-none h-12 text-xs transition-all"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    await handleCreateColumn()
+                    setIsDefiningColumn(false)
+                  }}
+                  className="flex-2 bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs transition-all"
+                >
+                  Save Field
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleUpdateTable}
+                className="w-full bg-white text-black hover:bg-zinc-200 rounded-none h-12 text-xs transition-all"
+              >
+                Save Changes
+              </Button>
+            )}
+          </div>
+        }
       >
         {editingTable && (
-          <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Table Identifier</Label>
-            <Input
-              value={editingTable.name}
-              onChange={(e) => setEditingTable({ ...editingTable, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
-              className="bg-black border-zinc-800  h-12 text-sm font-mono text-white"
-            />
+          <div className="space-y-10">
+            {/* Identity Section - Always Visible */}
+            <div className="space-y-2">
+              <Label className="text-xs font-black text-zinc-500">Table Identity</Label>
+              <Input
+                value={editingTable.name}
+                onChange={(e) => setEditingTable({ ...editingTable, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
+                className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white focus:border-white transition-colors"
+              />
+            </div>
+
+            {/* Dynamic Content Section */}
+            <div className="space-y-4">
+              {isDefiningColumn ? (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                    <Label className="text-xs text-white">Define New Column</Label>
+                    <span className="text-[10px] font-mono text-zinc-600">Step 2: Attributes</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-zinc-500 ">Column Name</Label>
+                    <Input
+                      value={newColData.name}
+                      onChange={(e) => setNewColData({ ...newColData, name: e.target.value })}
+                      placeholder="e.g. price_cents"
+                      className="bg-black border-zinc-800 rounded-none h-12 text-sm font-mono text-white focus:border-white transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-zinc-500 ">Data Type</Label>
+                    <Select
+                      value={newColData.type}
+                      onValueChange={(v) => setNewColData({ ...newColData, type: v as any })}
+                    >
+                      <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white focus:border-white transition-colors">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                        <SelectItem value="uuid">UUID</SelectItem>
+                        <SelectItem value="varchar">Varchar</SelectItem>
+                        <SelectItem value="int4">Integer</SelectItem>
+                        <SelectItem value="timestamp">Timestamp</SelectItem>
+                        <SelectItem value="jsonb">JSONB</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-zinc-500 ">Map to Variable</Label>
+                    <Select
+                      value={newColData.variable_id}
+                      onValueChange={(v) => setNewColData({ ...newColData, variable_id: v as any })}
+                    >
+                      <SelectTrigger className="bg-black border-zinc-800 rounded-none h-12! w-full! text-xs text-white focus:border-white transition-colors">
+                        <SelectValue placeholder="Select Variable" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-zinc-800 text-white rounded-none">
+                        {variables.map(v => (
+                          <SelectItem key={v.id} value={v.label}>{v.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-black/30 border border-zinc-800">
+                    <Checkbox
+                      id="pk_inline"
+                      checked={newColData.is_primary_key}
+                      onCheckedChange={(checked) => setNewColData({ ...newColData, is_primary_key: !!checked })}
+                      className=" border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                    />
+                    <Label htmlFor="pk_inline" className="text-xs font-bold text-zinc-400 cursor-pointer">
+                      Set as Primary Key
+                    </Label>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                    <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Fields & Schema</Label>
+                    <Button
+                      onClick={() => {
+                        setActiveTableId(editingTable.id)
+                        setIsDefiningColumn(true)
+                      }}
+                      variant="outline"
+                      className="h-7 px-3 text-xs border-zinc-800 text-white hover:text-black hover:bg-white rounded-none font-bold transition-all"
+                    >
+                      <Plus className="size-3 mr-1.5" /> Add Field
+                    </Button>
+                  </div>
+
+                  <div className="border border-zinc-900 divide-y divide-zinc-900">
+                    {columns.filter(c => c.table_id === editingTable.id).map(col => (
+                      <div key={col.id} className="p-3 flex items-center justify-between group/field hover:bg-zinc-950 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="size-6 bg-zinc-900 flex items-center justify-center">
+                            {col.is_primary_key ? <Key className="size-3 text-zinc-400" /> : <Database className="size-3 text-zinc-600" />}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold font-mono text-white">{col.name}</span>
+                            <span className="text-[10px] font-mono text-zinc-600 uppercase">{col.type}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover/field:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" className="size-7 text-zinc-600 hover:text-white"><Edit3 className="size-3" /></Button>
+                          <Button variant="ghost" size="icon" className="size-7 text-red-900 hover:text-red-400"><Trash2 className="size-3" /></Button>
+                        </div>
+                      </div>
+                    ))}
+                    {columns.filter(c => c.table_id === editingTable.id).length === 0 && (
+                      <div className="p-8 text-center border-t border-zinc-900">
+                        <p className="text-xs font-bold text-zinc-700">No fields defined</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
-      </StandardModal>
+      </SlideInModal>
 
-      {/* Column Creation Modal */}
-      <StandardModal
-        isOpen={isColumnModalOpen}
-        onClose={() => setIsColumnModalOpen(false)}
-        title="Define Column"
-        description="Add a new attribute to the table specification."
-        confirmText="Add Column"
-        onConfirm={handleCreateColumn}
-      >
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-black text-zinc-500 ">Column Name</Label>
-            <Input
-              value={newColData.name}
-              onChange={(e) => setNewColData({ ...newColData, name: e.target.value })}
-              placeholder="e.g. price_cents"
-              className="bg-black border-zinc-800  h-12 text-sm font-mono text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">Data Type</Label>
-              <Select
-                value={newColData.type}
-                onValueChange={(v) => setNewColData({ ...newColData, type: v as any })}
-              >
-                <SelectTrigger className="bg-black border-zinc-800 h-12! w-full! text-xs text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black h-12! w-full! border-zinc-800 text-white ">
-                  <SelectItem value="uuid">UUID</SelectItem>
-                  <SelectItem value="varchar">Varchar</SelectItem>
-                  <SelectItem value="int4">Integer</SelectItem>
-                  <SelectItem value="timestamp">Timestamp</SelectItem>
-                  <SelectItem value="jsonb">JSONB</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black text-zinc-500 ">Map to Variable</Label>
-              <Select
-                value={newColData.variable_id}
-                onValueChange={(v) => setNewColData({ ...newColData, variable_id: v as any })}
-              >
-                <SelectTrigger className="bg-black border-zinc-800  h-12! w-full! text-xs text-white">
-                  <SelectValue placeholder="Select Variable" />
-                </SelectTrigger>
-                <SelectContent className="bg-black h-12! w-full! border-zinc-800 text-white ">
-                  {variables.map(v => (
-                    <SelectItem key={v.id} value={v.id}>{v.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-4 bg-black/30 border border-zinc-800">
-            <Checkbox
-              id="pk"
-              checked={newColData.is_primary_key}
-              onCheckedChange={(checked) => setNewColData({ ...newColData, is_primary_key: !!checked })}
-              className=" border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
-            />
-            <Label htmlFor="pk" className="text-xs font-black text-zinc-400 cursor-pointer">
-              Set as Primary Key
-            </Label>
-          </div>
-        </div>
-      </StandardModal>
     </div>
   )
 }

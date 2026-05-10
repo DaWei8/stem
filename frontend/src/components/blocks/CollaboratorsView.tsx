@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useCollaborators } from '@/hooks/useCollaborators'
+import { useParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface Collaborator {
   id: string
@@ -17,26 +20,37 @@ interface Collaborator {
 }
 
 export function CollaboratorsView() {
+  const { id: projectId } = useParams()
+  const { 
+    collaborators, 
+    isLoading, 
+    fetchCollaborators, 
+    inviteCollaborator, 
+    removeCollaborator,
+    updateRole 
+  } = useCollaborators()
+  
   const [email, setEmail] = useState('')
   const [isInviting, setIsInviting] = useState(false)
 
-  // Mock collaborators for now
-  const [collaborators] = useState<Collaborator[]>([
-    { id: '1', name: 'Elite Engineer', email: 'lead@stem.ai', role: 'owner', status: 'active' },
-    { id: '2', name: 'System Architect', email: 'architect@stem.ai', role: 'editor', status: 'active' },
-    { id: '3', name: 'Logic Auditor', email: 'auditor@stem.ai', role: 'viewer', status: 'pending' },
-  ])
+  useEffect(() => {
+    if (projectId) {
+      fetchCollaborators(projectId as string)
+    }
+  }, [projectId, fetchCollaborators])
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !projectId) return
     setIsInviting(true)
-    // Simulate API call
-    setTimeout(() => {
-      toast.success(`Access request dispatched to ${email}`)
-      setEmail('')
-      setIsInviting(false)
-    }, 1000)
+    await inviteCollaborator(projectId as string, email)
+    setEmail('')
+    setIsInviting(false)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!projectId) return
+    await removeCollaborator(projectId as string, id)
   }
 
   const getRoleBadge = (role: string) => {
@@ -85,27 +99,32 @@ export function CollaboratorsView() {
           </div>
 
           <div className="border border-zinc-900 divide-y divide-zinc-900 bg-black/20">
+            {collaborators.length === 0 && !isLoading && (
+              <div className="p-12 text-center text-zinc-600 text-xs italic">
+                No external collaborators yet.
+              </div>
+            )}
             {collaborators.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-4 group hover:bg-white/5 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-500 uppercase">
-                    {user.name.split(' ').map(n => n[0]).join('')}
+                    {(user.user.full_name || 'Anonymous').split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-black text-white">{user.name}</h4>
+                      <h4 className="text-xs font-black text-white">{user.user.full_name || 'Anonymous User'}</h4>
                       {getRoleBadge(user.role)}
                     </div>
-                    <p className="text-[10px] text-zinc-500 font-medium">{user.email}</p>
+                    <p className="text-[10px] text-zinc-500 font-medium">{user.user.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6">
-                  {user.status === 'pending' && (
-                    <span className="text-[9px] font-bold text-yellow-500/80 uppercase italic">Pending confirmation</span>
-                  )}
                   {user.role !== 'owner' && (
-                    <button className="text-zinc-700 hover:text-red-500 transition-colors">
+                    <button 
+                      onClick={() => handleDelete(user.id)}
+                      className="text-zinc-700 hover:text-red-500 transition-colors"
+                    >
                       <Trash2 className="size-4" />
                     </button>
                   )}
