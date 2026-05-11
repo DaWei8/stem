@@ -11,164 +11,7 @@ import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, ArrowRight, Loader2, Cpu, Globe, Database, Zap, Activity } from 'lucide-react'
 
-const SystemVisualization = () => {
-  const [logs, setLogs] = useState([
-    { id: 1, text: 'Engine created', status: 'ok' },
-    { id: 2, text: 'Deterministic state synced', status: 'synced' },
-    { id: 3, text: 'Identity layer secured', status: 'active' },
-  ])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newLog = {
-        id: Date.now(),
-        text: `Trace: 0x${Math.random().toString(16).slice(2, 8)} -> Verified`,
-        status: 'ok'
-      }
-      setLogs(prev => [newLog, ...prev.slice(0, 4)])
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="relative w-full h-full flex touch-none items-center justify-center p-8 bg-black">
-      {/* Background Tech Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-
-      {/* Dashboard Layout */}
-      <div className="relative w-full h-full grid grid-cols-12 grid-rows-12 gap-4 z-10 max-w-3xl max-h-[600px]">
-
-        {/* Top Header/Status Bar */}
-        <div className="col-span-12 row-span-1 bg-black/30 border border-zinc-800 flex items-center justify-between px-6 backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <div className="flex gap-1.5">
-              <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-              <div className="size-2 rounded-full bg-zinc-800" />
-              <div className="size-2 rounded-full bg-zinc-800" />
-            </div>
-            <span className="text-[10px] font-black  text-zinc-500">System Monitoring Gateway</span>
-          </div>
-          <div className="flex items-center gap-6 text-[9px] font-mono text-zinc-600">
-            <span>Uptime: 99.999%</span>
-            <span>Cluster: STEM-01</span>
-          </div>
-        </div>
-
-        {/* Main Metrics Grid */}
-        <div className="col-span-8 row-span-6 bg-black/10 border border-zinc-800 p-6 flex flex-col gap-6 backdrop-blur-sm">
-          <div className="flex justify-between items-end">
-            <div>
-              <h3 className="text-xs font-black tracking-wider text-white mb-1">Compute throughput</h3>
-              <p className="text-[9px] text-zinc-600">Deterministic load balancing active</p>
-            </div>
-            <div className="text-right">
-              <span className="text-2xl font-black font-mono text-white tracking-tighter">1,248 TPS</span>
-            </div>
-          </div>
-
-          {/* Simulated Chart */}
-          <div className="flex-1 flex items-end gap-1.5 h-32 pt-4">
-            {[...Array(24)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ height: '20%' }}
-                animate={{ height: `${30 + Math.random() * 60}%` }}
-                transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
-                className="flex-1 bg-zinc-800 hover:bg-white transition-colors"
-              />
-            ))}
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-zinc-800/50">
-            {[
-              { label: 'Latency', value: '0.42ms', trend: '-2%' },
-              { label: 'Integrity', value: 'Verified', trend: '100%' },
-              { label: 'Nodes', value: '14 Active', trend: 'Stable' },
-            ].map((m, i) => (
-              <div key={i}>
-                <p className="text-[9px] font-black text-zinc-600 mb-1">{m.label}</p>
-                <p className="text-xs font-bold text-white font-mono">{m.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Module Status Sidebar */}
-        <div className="col-span-4 row-span-8 flex flex-col gap-4">
-          {[
-            { icon: Globe, label: "Identity Layer", status: "Secured" },
-            { icon: Database, label: "Schema Engine", status: "Synced" },
-            { icon: Shield, label: "Security Mesh", status: "Active" },
-            { icon: Zap, label: "Flow Logic", status: "Running" },
-          ].map((item, i) => (
-            <div key={i} className="flex-1 bg-black/40 border border-zinc-800 p-4 flex items-center justify-between hover:border-zinc-500 transition-colors cursor-pointer group">
-              <div className="flex items-center gap-4">
-                <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 transition-colors">
-                  <item.icon className="size-4 text-zinc-400 group-hover:text-white transition-colors" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-black tracking-tight text-white">{item.label}</p>
-                  <p className="text-[9px] font-medium text-zinc-500">{item.status}</p>
-                </div>
-              </div>
-              <Activity className="size-3 text-zinc-800 group-hover:text-green-500 transition-colors" />
-            </div>
-          ))}
-        </div>
-
-        {/* Activity Feed */}
-        <div className="col-span-8 row-span-5 bg-black border border-zinc-800 p-6 overflow-hidden relative">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[9px] font-black tracking-[0.2em] text-zinc-500">Deterministic Activity logs</span>
-            <div className="flex gap-2">
-              <div className="size-1.5 bg-zinc-800" />
-              <div className="size-1.5 bg-white" />
-            </div>
-          </div>
-          <div className="space-y-3">
-            <AnimatePresence mode="popLayout">
-              {logs.map((log) => (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  className="flex items-center justify-between font-mono text-[10px] text-zinc-400 border-b border-zinc-900 pb-2"
-                >
-                  <div className="flex items-center gap-3 truncate pr-4">
-                    <span className="text-zinc-700">[{new Date(log.id).toLocaleTimeString()}]</span>
-                    <span className="truncate tracking-tighter">{log.text}</span>
-                  </div>
-                  <span className="text-zinc-600 shrink-0 font-bold ">{log.status}</span>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-          {/* Subtle Gradient Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-black to-transparent pointer-events-none" />
-        </div>
-
-        {/* System Summary Bottom */}
-        <div className="col-span-4 row-span-3 bg-black/50 border border-zinc-800 p-5 flex flex-col justify-between">
-          <div className="flex items-center gap-3">
-            <Cpu className="size-4 text-zinc-400" />
-            <span className="text-[10px] font-black text-white">Neural core active</span>
-          </div>
-          <div className="h-1.5 w-full bg-black rounded-full overflow-hidden">
-            <motion.div
-              animate={{ x: ['-100%', '100%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="h-full w-1/3 bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-            />
-          </div>
-          <p className="text-[8px] text-zinc-600 leading-tight">
-            Deterministic engine is operating at peak efficiency. No deviations detected in 4.2 million cycles.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { StemIllustration } from '@/components/auth/StemIllustration'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -208,16 +51,14 @@ export default function LoginPage() {
       <div className="flex flex-col lg:flex-row w-full">
 
         {/* Right Side: Dashboard Animation */}
-        <div className="hidden lg:flex w-full lg:w-[55%] bg-black relative items-center justify-center">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,rgba(255,255,255,0.03),transparent_60%)]" />
-
+        <div className="hidden lg:flex w-full lg:w-[55%] relative items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="w-full h-full"
           >
-            <SystemVisualization />
+            <StemIllustration />
           </motion.div>
         </div>
 
