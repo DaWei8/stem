@@ -93,24 +93,6 @@ export function LogicBot() {
 
   return (
     <div className="w-[380px] shrink-0 bg-white dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full overflow-hidden transition-colors duration-300">
-      {/* Header */}
-      <div className="px-6 pt-6 pb-0 shrink-0 space-y-5">
-        <div className="space-y-1">
-          <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Project Engine</p>
-          <h3 className="text-xl font-black text-black dark:text-white tracking-tight">System Blueprint</h3>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'chat')} className="w-full">
-          <TabsList variant="line" className="w-full justify-start border-b border-zinc-200 dark:border-zinc-800 p-0 h-10 transition-colors">
-            <TabsTrigger value="overview" className="flex-1 px-0 text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 data-[state=active]:text-black dark:data-[state=active]:text-white">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex-1 px-0 text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 data-[state=active]:text-black dark:data-[state=active]:text-white">
-              Chat
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden flex flex-col">

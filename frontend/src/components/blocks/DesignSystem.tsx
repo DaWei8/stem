@@ -244,7 +244,7 @@ export function DesignSystem() {
 
       <Tabs defaultValue="tokens" className="flex-1 flex flex-col min-h-0">
         <div className="border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/20 backdrop-blur-md sticky top-0 z-10 transition-colors">
-          <TabsList className="bg-transparent h-16 p-0 gap-2">
+          <TabsList className="bg-transparent text-nowrap h-16 p-0 gap-2">
             <TabsTrigger value="tokens" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:text-black dark:data-[state=active]:text-white rounded-none h-full px-4 border-b-2 border-transparent text-zinc-400 dark:text-zinc-500 font-bold text-xs transition-all">
               <div className="flex items-center gap-2">
                 <Palette className="size-3" /> Visual Tokens
@@ -467,8 +467,8 @@ export function DesignSystem() {
                           }}
                           className={clsx(
                             "flex items-center justify-between p-1 border transition-all text-left",
-                            typographyRole === preset.role 
-                              ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white" 
+                            typographyRole === preset.role
+                              ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
                               : "bg-white dark:bg-black border-zinc-200 dark:border-zinc-900 text-zinc-400 dark:text-zinc-500 hover:border-black dark:hover:border-zinc-700"
                           )}
                         >

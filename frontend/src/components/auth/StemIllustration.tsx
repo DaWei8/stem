@@ -76,7 +76,7 @@ export type Node = {
         initial={{ top: '-10%' }}
         animate={{ top: '110%' }}
         transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-        className="absolute left-0 right-0 h-48 bg-linear-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none z-0"
+        className="absolute left-0 right-0 h-48 bg-linear-to-b from-transparent via-white/2 to-transparent pointer-events-none z-0"
       />
 
       <div className="relative w-full max-w-2xl aspect-square flex flex-col items-center justify-center z-10">
@@ -158,7 +158,7 @@ export type Node = {
                   y1={`${fromNode.y}%`}
                   x2={`${toNode.x}%`}
                   y2={`${toNode.y}%`}
-                  stroke="#3f3f46" // zinc-700
+                  stroke="#3f3f46"
                   strokeWidth="1"
                   strokeDasharray="4 4"
                   initial={{ pathLength: 0, opacity: 0 }}
@@ -189,7 +189,7 @@ export type Node = {
                 />
                 <div className={`relative size-14 bg-black border ${pillar.id === 'logic' ? 'border-zinc-400' : 'border-zinc-700'} flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)]`}>
                   {pillar.id === 'logic' && (
-                    <motion.div 
+                    <motion.div
                       animate={{ opacity: [0.1, 0.3, 0.1] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                       className="absolute inset-0 bg-white/30 blur-md rounded-none pointer-events-none"
