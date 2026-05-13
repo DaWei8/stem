@@ -10,7 +10,9 @@ import {
   HelpCircle,
   Brain,
   Download,
-  FileText
+  FileText,
+  Activity,
+  GitBranch
 } from 'lucide-react'
 import { useUI, PillarView } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
@@ -21,10 +23,11 @@ import { ModeSwitcher } from '../layout/ModeSwitcher'
 const allPillars = [
   { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys', modes: ['architect', 'design'] },
   { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens', modes: ['architect', 'design'] },
-  { id: 'schema', name: 'Schema Design', icon: Database, description: 'Data structures', modes: ['architect', 'dev'] },
+  { id: 'dataengine', name: 'Data Engine', icon: Database, description: 'Schema & state', modes: ['architect', 'dev'] },
   { id: 'logic', name: 'Logic Layer', icon: Code2, description: 'Cloud functions', modes: ['architect', 'dev'] },
   { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model', modes: ['architect', 'dev'] },
-  { id: 'registry', name: 'Variable Registry', icon: Brain, description: 'Global state', modes: ['architect', 'dev'] },
+  { id: 'observability', name: 'Observability', icon: Activity, description: 'Latency & cost', modes: ['architect', 'dev'] },
+  { id: 'lifecycle', name: 'Lifecycle', icon: GitBranch, description: 'Flags & migrations', modes: ['architect', 'dev'] },
 ]
 
 const secondaryActions = [

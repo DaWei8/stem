@@ -7,6 +7,8 @@ import { useDatabase } from './useDatabase'
 import { useIdentity } from './useIdentity'
 import { useVariables } from './useVariables'
 import { useDesignSystem } from './useDesignSystem'
+import { useObservability } from './useObservability'
+import { useLifecycle } from './useLifecycle'
 import { useProjects } from './useProjects'
 import { generateProjectDocumentation } from '@/lib/exportUtils'
 import { toast } from 'sonner'
@@ -68,6 +70,8 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
       const { userTypes, policies } = useIdentity.getState()
       const { variables } = useVariables.getState()
       const { tokens, components } = useDesignSystem.getState()
+      const { latencyModels, costProjections, bottlenecks } = useObservability.getState()
+      const { featureFlags, flagGates, migrations, transforms } = useLifecycle.getState()
 
       const projectData = {
         project: currentProject,
@@ -76,6 +80,8 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
         identity: { userTypes, policies },
         logic: { variables },
         designSystem: { tokens, components },
+        observability: { latencyModels, costProjections, bottlenecks },
+        lifecycle: { featureFlags, flagGates, migrations, transforms },
         meta: { version: '0.1.0-alpha', engine: 'STEM-CORE-V1' }
       }
 

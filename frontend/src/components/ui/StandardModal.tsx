@@ -42,7 +42,7 @@ export function StandardModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className={cn(
-        "bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white p-0 overflow-hidden shadow-2xl transition-all max-w-2xl",
+        "bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white p-0 overflow-hidden shadow-2xl transition-all w-full max-w-2xl",
         className
       )}>
         {/* Progress bar style top border */}

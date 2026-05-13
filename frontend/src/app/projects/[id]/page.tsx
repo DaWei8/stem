@@ -1,14 +1,15 @@
 'use client'
 
 import { Canvas } from '@/components/Canvas/Canvas'
-import { VariableRegistry } from '@/components/blocks/VariableRegistry'
-import { DatabaseSchema } from '@/components/blocks/DatabaseSchema'
+import { DataEngine } from '@/components/blocks/DataEngine'
 import { LogicLayer } from '@/components/blocks/LogicLayer'
 import { IdentityPermissions } from '@/components/blocks/IdentityPermissions'
 import { DesignSystem } from '@/components/blocks/DesignSystem'
 import { ExportView } from '@/components/blocks/ExportView'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
 import { DocumentationView } from '@/components/blocks/DocumentationView'
+import { ObservabilityView } from '@/components/blocks/ObservabilityView'
+import { LifecycleView } from '@/components/blocks/LifecycleView'
 import { useUI } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
 import { useVariables } from '@/hooks/useVariables'
@@ -16,6 +17,7 @@ import { useLogicBot } from '@/hooks/useLogicBot'
 import { useDesignSystem } from '@/hooks/useDesignSystem'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useIdentity } from '@/hooks/useIdentity'
+import { useLogic } from '@/hooks/useLogic'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { AlertCircle, ChevronLeft, Loader2, Sparkles, Share2, Save, Download, Terminal } from 'lucide-react'
@@ -23,23 +25,27 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useProjects } from '@/hooks/useProjects'
 import { usePages } from '@/hooks/usePages'
+import { useObservability } from '@/hooks/useObservability'
+import { useLifecycle } from '@/hooks/useLifecycle'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { StandardModal } from '@/components/ui/StandardModal'
 import { generateProjectDocumentation } from '@/lib/exportUtils'
 
 export default function ProjectEditorPage() {
-  const { activeView, activeMode } = useUI()
+  const { activeView, activeMode, isChaosMode, toggleChaosMode } = useUI()
   const { id } = useParams()
   const { currentProject, fetchProjectById, isLoading: isProjectLoading } = useProjects()
   const { fetchVariables, isLoading: isVarsLoading, error: variableError } = useVariables()
   const { error: logicError } = useLogicBot()
-  const { error: pageError } = usePages()
-  const { pages, inputs, actions, outputs, transitions } = usePages()
+  const { pages, inputs, actions, outputs, transitions, fetchProjectPages, error: pageError } = usePages()
   const { variables } = useVariables()
   const { tokens, components } = useDesignSystem()
-  const { tables, columns } = useDatabase()
-  const { userTypes, policies } = useIdentity()
+  const { tables, columns, fetchProjectData: fetchDatabaseData } = useDatabase()
+  const { userTypes, policies, fetchIdentityData } = useIdentity()
+  const { fetchLogicData } = useLogic()
+  const { fetchObservabilityData, latencyModels, costProjections, bottlenecks } = useObservability()
+  const { fetchLifecycleData, featureFlags, flagGates, migrations, transforms } = useLifecycle()
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -113,6 +119,8 @@ export default function ProjectEditorPage() {
           identity: { userTypes, policies },
           logic: { variables },
           designSystem: { tokens, components },
+          observability: { latencyModels, costProjections, bottlenecks },
+          lifecycle: { featureFlags, flagGates, migrations, transforms },
           meta: { version: '0.1.0-alpha', exportedAt: new Date().toISOString(), engine: 'STEM-CORE-V1' }
         }
         const docText = generateProjectDocumentation(data)
@@ -132,6 +140,8 @@ export default function ProjectEditorPage() {
           identity: { userTypes, policies },
           logic: { variables },
           designSystem: { tokens, components },
+          observability: { latencyModels, costProjections, bottlenecks },
+          lifecycle: { featureFlags, flagGates, migrations, transforms },
           meta: { version: '0.1.0-alpha', exportedAt: new Date().toISOString(), engine: 'STEM-CORE-V1' }
         }
         downloadFile(data, `${currentProject?.name?.toLowerCase().replace(/\\s+/g, '_') || 'project'}.stem`)
@@ -170,10 +180,27 @@ export default function ProjectEditorPage() {
 
   useEffect(() => {
     if (id) {
-      fetchProjectById(id as string)
-      fetchVariables(id as string)
+      const projectId = id as string
+      fetchProjectById(projectId)
+      fetchVariables(projectId)
+      fetchProjectPages(projectId)
+      fetchDatabaseData(projectId)
+      fetchIdentityData(projectId)
+      fetchLogicData(projectId)
+      fetchObservabilityData(projectId)
+      fetchLifecycleData(projectId)
     }
-  }, [id, fetchProjectById, fetchVariables])
+  }, [
+    id, 
+    fetchProjectById, 
+    fetchVariables, 
+    fetchProjectPages, 
+    fetchDatabaseData, 
+    fetchIdentityData, 
+    fetchLogicData,
+    fetchObservabilityData, 
+    fetchLifecycleData
+  ])
 
 
 
@@ -181,12 +208,10 @@ export default function ProjectEditorPage() {
 
   const renderContent = () => {
     switch (activeView) {
-      case 'registry':
-        return <VariableRegistry />
+      case 'dataengine':
+        return <DataEngine />
       case 'identity':
         return <IdentityPermissions />
-      case 'schema':
-        return <DatabaseSchema />
       case 'logic':
         return <LogicLayer />
       case 'design':
@@ -197,6 +222,10 @@ export default function ProjectEditorPage() {
         return <CollaboratorsView />
       case 'documentation':
         return <DocumentationView />
+      case 'observability':
+        return <ObservabilityView />
+      case 'lifecycle':
+        return <LifecycleView />
       case 'flows':
         return <Canvas />
       default:

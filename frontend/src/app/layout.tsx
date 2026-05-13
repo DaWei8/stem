@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: "Deterministic System Design Tool for Elite Engineers",
 };
 
+import { ResponsiveGuard } from "@/components/layout/ResponsiveGuard";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,7 +42,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ResponsiveGuard>
+            {children}
+          </ResponsiveGuard>
           <Toaster
             position="top-right"
             toastOptions={{

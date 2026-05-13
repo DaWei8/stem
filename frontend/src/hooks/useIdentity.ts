@@ -11,29 +11,8 @@ import {
   deletePolicyAction
 } from '@/lib/actions/identity'
 
-interface UserType {
-  id: string
-  project_id: string
-  name: string
-  description: string | null
-  icon: string | null
-  color: string | null
-  base_permissions: any
-  is_default: boolean
-  is_admin: boolean
-  created_at: string
-  updated_at: string
-}
+import { UserType, RLSPolicy } from '@/types'
 
-interface RLSPolicy {
-  id: string
-  table_id: string
-  user_type_id: string | null
-  policy_type: 'select' | 'insert' | 'update' | 'delete' | null
-  policy_logic: string
-  name: string
-  project_id: string
-}
 
 interface IdentityState {
   userTypes: UserType[]

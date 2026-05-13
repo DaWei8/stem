@@ -260,7 +260,7 @@ export function DesignSystem() {
 
         <div className="flex-1 overflow-y-auto py-8 custom-scrollbar">
           <TabsContent value="tokens" className="m-0 focus-visible:outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+            <div className="grid grid-cols-1 gap-16">
               <TokenSection
                 title="Colors"
                 icon={<Palette className="size-4" />}

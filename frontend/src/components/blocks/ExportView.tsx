@@ -11,7 +11,8 @@ import { useVariables } from '@/hooks/useVariables'
 import { useDesignSystem } from '@/hooks/useDesignSystem'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useIdentity } from '@/hooks/useIdentity'
-import { cn } from '@/lib/utils'
+import { generateProjectDocumentation, generateDocFile } from '@/lib/exportUtils'
+import clsx from 'clsx'
 
 export function ExportView() {
   const { currentProject } = useProjects()
@@ -26,6 +27,28 @@ export function ExportView() {
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState(false)
+
+  const handleExportDocs = () => {
+    try {
+      const data = {
+        project: currentProject,
+        architecture: { pages, transitions, inputs, actions, outputs },
+        schema: { tables, columns },
+        identity: { userTypes, policies },
+        logic: { variables },
+        designSystem: { tokens, components },
+        observability: { latencyModels: [], costProjections: [], bottlenecks: [] },
+        lifecycle: { featureFlags: [], flagGates: [], migrations: [], transforms: [] },
+        meta: { version: '0.1.0-alpha', exportedAt: new Date().toISOString(), engine: 'STEM-CORE-V1' }
+      }
+      const docText = generateProjectDocumentation(data)
+      generateDocFile(docText, currentProject?.name || 'project')
+      toast.success('System Documentation exported')
+    } catch (err) {
+      toast.error('Failed to export documentation')
+    }
+  }
+
 
   const stats = [
     { label: 'Entities', value: pages.length + tables.length },
@@ -234,7 +257,7 @@ export function ExportView() {
             <Button
               onClick={handleGenerateUrl}
               disabled={isGeneratingUrl}
-              className={cn(
+              className={clsx(
                 "w-full rounded-none h-12 text-xs transition-all",
                 publicUrl
                   ? "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
@@ -255,10 +278,11 @@ export function ExportView() {
               <div className="space-y-4">
                 <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors">Alternative Formats</h3>
                 <div className="space-y-2">
-                  <button onClick={() => toast.info('Markdown export coming soon')} className="w-full flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-900 hover:border-black dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-black/40 transition-all group/opt">
+                  <button onClick={handleExportDocs} className="w-full flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-900 hover:border-black dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-black/40 transition-all group/opt">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 group-hover/opt:text-black dark:group-hover/opt:text-white uppercase transition-colors">System Documentation</span>
                     <span className="text-[9px] font-mono text-zinc-300 dark:text-zinc-700 transition-colors">.MD</span>
                   </button>
+
                   <button onClick={handleExportScript} className="w-full flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-900 hover:border-black dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-black/40 transition-all group/opt">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 group-hover/opt:text-black dark:group-hover/opt:text-white uppercase transition-colors">Logic Registry</span>
                     <span className="text-[9px] font-mono text-zinc-300 dark:text-zinc-700 transition-colors">.JSON</span>

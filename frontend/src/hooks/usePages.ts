@@ -15,7 +15,7 @@ interface PagesState {
   error: string | null
   fetchProjectPages: (projectId: string) => Promise<void>
   addPage: (projectId: string, name: string) => Promise<Screen | null>
-  addTransition: (sourceId: string, targetId: string) => Promise<void>
+  addTransition: (sourceId: string, targetId: string, triggerType?: string, isFailurePath?: boolean) => Promise<void>
   removeTransition: (id: string) => Promise<void>
   updateTransition: (id: string, updates: Partial<Transition>) => Promise<void>
   removePage: (id: string) => Promise<void>
@@ -76,6 +76,20 @@ export const usePages = create<PagesState>((set) => ({
   },
 
   addPage: async (projectId, name) => {
+    // Optimistic ID for instant rendering
+    const tempId = `temp-${Math.random().toString(36).substring(7)}`
+    const tempPage: Screen = {
+      id: tempId,
+      project_id: projectId,
+      title: name,
+      page_type: 'screen',
+      canvas_x: 0,
+      canvas_y: 0
+    }
+
+    const previousPages = usePages.getState().pages
+    set((state) => ({ pages: [...state.pages, tempPage] }))
+
     const { data, error } = await supabase
       .from('pages')
       .insert([{ 
@@ -88,14 +102,18 @@ export const usePages = create<PagesState>((set) => ({
 
     if (error) {
       toast.error('Failed to create page')
+      set({ pages: previousPages })
       return null
     } else {
-      set((state) => ({ pages: [...state.pages, data] }))
+      // Replace temp page with real data
+      set((state) => ({ 
+        pages: state.pages.map(p => p.id === tempId ? data : p) 
+      }))
       return data
     }
   },
 
-  addTransition: async (sourceId, targetId) => {
+  addTransition: async (sourceId, targetId, triggerType, isFailurePath) => {
     const { pages } = usePages.getState()
     const projectId = pages.find(p => p.id === sourceId)?.project_id
 
@@ -110,7 +128,8 @@ export const usePages = create<PagesState>((set) => ({
         project_id: projectId,
         from_page_id: sourceId, 
         to_page_id: targetId,
-        trigger_type: 'auto'
+        trigger_type: triggerType || 'user_action',
+        is_failure_path: isFailurePath || false
       }])
       .select()
       .single()
@@ -162,6 +181,25 @@ export const usePages = create<PagesState>((set) => ({
   },
 
   removePage: async (id) => {
+    const previousState = {
+      pages: usePages.getState().pages,
+      inputs: usePages.getState().inputs,
+      actions: usePages.getState().actions,
+      outputs: usePages.getState().outputs,
+      transitions: usePages.getState().transitions
+    }
+
+    // Optimistic delete
+    set((state) => ({
+      pages: state.pages.filter((p) => p.id !== id),
+      inputs: state.inputs.filter((i) => i.page_id !== id),
+      actions: state.actions.filter((a) => a.page_id !== id),
+      outputs: state.outputs.filter((o) => o.page_id !== id),
+      transitions: state.transitions.filter(
+        (t) => t.from_page_id !== id && t.to_page_id !== id
+      ),
+    }))
+
     const { error } = await supabase
       .from('pages')
       .delete()
@@ -170,21 +208,20 @@ export const usePages = create<PagesState>((set) => ({
     if (error) {
       console.error('Failed to remove page:', error)
       toast.error('Failed to delete screen')
+      set(previousState)
     } else {
-      set((state) => ({
-        pages: state.pages.filter((p) => p.id !== id),
-        inputs: state.inputs.filter((i) => i.page_id !== id),
-        actions: state.actions.filter((a) => a.page_id !== id),
-        outputs: state.outputs.filter((o) => o.page_id !== id),
-        transitions: state.transitions.filter(
-          (t) => t.from_page_id !== id && t.to_page_id !== id
-        ),
-      }))
       toast.success('Screen deleted')
     }
   },
 
   updatePage: async (id: string, updates: Partial<Screen>) => {
+    const previousPages = usePages.getState().pages
+    
+    // Optimistic update
+    set((state) => ({
+      pages: state.pages.map((p) => (p.id === id ? { ...p, ...updates } : p)),
+    }))
+
     const { error } = await supabase
       .from('pages')
       .update(updates)
@@ -193,10 +230,7 @@ export const usePages = create<PagesState>((set) => ({
     if (error) {
       console.error('Failed to update page:', error)
       toast.error('Failed to save changes')
-    } else {
-      set((state) => ({
-        pages: state.pages.map((p) => (p.id === id ? { ...p, ...updates } : p)),
-      }))
+      set({ pages: previousPages })
     }
   },
 
