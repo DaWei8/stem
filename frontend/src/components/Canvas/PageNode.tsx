@@ -83,7 +83,6 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
           </Tooltip>
         )}
 
-
         <Card
           className="bg-black border-none rounded-[11px] shadow-2xl overflow-hidden cursor-pointer"
         >
