@@ -118,7 +118,7 @@ export function PagePropertiesModal({
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="flex-1 flex flex-col">
-          <TabsList variant="line" className="px-5 w-full justify-start h-auto bg-transparent border-b border-zinc-100 dark:border-zinc-800/50">
+          <TabsList className="px-5 w-full justify-start h-auto bg-transparent border-b border-zinc-100 dark:border-zinc-800/50">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="inputs">Inputs</TabsTrigger>
             <TabsTrigger value="actions">Triggers</TabsTrigger>
