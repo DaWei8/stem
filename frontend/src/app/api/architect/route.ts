@@ -12,102 +12,93 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing prompt' }, { status: 400 })
     }
 
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
     // If an API key is provided, we do a real LLM call
-    if (OPENAI_API_KEY) {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    if (GEMINI_API_KEY) {
+      const systemInstructions = `You are the STEM System Architect, a powerful AI co-author for mission-critical software logic.
+      
+ROLE:
+You do NOT design UI, wireframes, or aesthetics. You architect the "Behavioral Engine" (the logic, data flow, and state transitions) of an application.
+
+SCOPE GUARDRAILS:
+- If the user asks for wireframes, UI designs, colors, or visual layout: REFUSE.
+- Explain: "I focus exclusively on the mechanical and logical integrity of your system. I cannot generate wireframes or decorative designs, but I can architect the underlying flow, data interfaces, and state mutations."
+- Instead, suggest architecting the logic flow for that feature.
+
+STEM-script V2 PROTOCOL:
+You must respond with TWO parts:
+1. A human-readable analysis (the "Analysis")
+2. A list of transaction commands (the "Script") wrapped in <script> tags.
+
+COMMANDS:
+- DEFINE SCREEN "Name"
+- ADD INPUT TO "Screen" { name: "Label", type: "form_field|query_param", var: "Variable" }
+- ADD TRIGGER TO "Screen" { name: "Label", type: "function_call|navigation" }
+- ADD MUTATION TO "Screen" { name: "Label", type: "state_update|webhook", var: "Variable" }
+- CONNECT "Screen A" -> "Screen B"
+- CONNECT "Screen A" -> "Screen B" [FAILURE] (For error states)
+
+CURRENT STATE:
+${currentState}
+
+TASK:
+If the user describes an entire app, architect the FULL flow including all screens, connections, and logic gates.
+If a node is selected (see 'selectedNodeId' in context), prioritize modifications to that node.
+
+Respond deterministically. No generic chat.`
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'gpt-4-turbo-preview', // or gpt-4o
-          messages: [
-            {
-              role: 'system',
-              content: `You are the STEM System Architect. You generate deterministic system blueprints in STEM-script.
-              
-CURRENT SYSTEM STATE:
-${currentState}
-
-INSTRUCTIONS:
-1. Analyze the user's intent based on the CURRENT SYSTEM STATE.
-2. Generate ONLY valid STEM-script to mutate the state. No markdown formatting, just the raw text script.
-3. STEM-script syntax:
-   screen "Name" {
-      description: "..."
-      constraint: "..." !! "Fallback Screen"
-   }
-   "Screen A" -> "Screen B"
-`
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.2
+          contents: [{
+            parts: [{ text: `${systemInstructions}\n\nUSER REQUEST: ${prompt}` }]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          }
         })
       })
 
       if (!response.ok) {
-        throw new Error('OpenAI API request failed')
+        const errorData = await response.json()
+        const errorMessage = errorData.error?.message || 'Gemini API request failed'
+        const statusCode = response.status === 503 ? 503 : 500
+        
+        console.error('Gemini error:', errorData)
+        return NextResponse.json({ 
+          error: errorMessage,
+          code: errorData.error?.code,
+          status: errorData.error?.status
+        }, { status: statusCode })
       }
 
       const data = await response.json()
-      const script = data.choices[0].message.content.trim()
+      const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
-      return NextResponse.json({
-        content: "I've analyzed your system state and generated the following architectural updates based on your request.",
-        script
-      })
+      // Parse content and script
+      const scriptMatch = fullText.match(/<script>([\s\S]*?)<\/script>/)
+      const script = scriptMatch ? scriptMatch[1].trim() : ''
+      const content = fullText.replace(/<script>[\s\S]*?<\/script>/, '').trim()
+
+      return NextResponse.json({ content, script })
     }
 
     // ==========================================
     // FALLBACK MOCK (If no API key is present)
     // ==========================================
-    console.warn("No OPENAI_API_KEY found. Using local simulated responses.")
+    console.warn("No GEMINI_API_KEY found. Using local simulated responses.")
     await new Promise(resolve => setTimeout(resolve, 1500))
 
-    let script = ''
-    let content = ''
-    const lPrompt = prompt.toLowerCase()
-
-    if (lPrompt.includes('saas') || lPrompt.includes('login') || lPrompt.includes('auth')) {
-      content = "I've architected a standard high-security authentication and dashboard flow based on your current state."
-      script = `
-screen "Landing Page" {
-    description: "Public system entry point"
-}
-
-screen "Auth Portal" {
-    description: "Unified Login/Signup interface"
-}
-
-screen "Dashboard" {
-    description: "Primary workspace"
-    constraint: "user.auth == true" !! "Auth Portal"
-}
-
-# Flows
-"Landing Page" -> "Auth Portal"
-"Auth Portal" -> "Dashboard"
-      `.trim()
-    } else {
-      content = "I've processed your architectural intent. Without an OpenAI API key, I am providing a default structural component."
-      script = `
-screen "New Interface" {
-    description: "Generated by STEM Architect"
-}
-
-# Flows
-"New Interface" -> "Settings"
-      `.trim()
-    }
-
-    return NextResponse.json({ content, script })
+    return NextResponse.json({
+      content: "Gemini API key is missing. Please add GEMINI_API_KEY to your environment to enable live architecting.",
+      script: ""
+    })
 
   } catch (error: any) {
     console.error('API /architect error:', error)

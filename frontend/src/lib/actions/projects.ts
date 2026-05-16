@@ -30,7 +30,7 @@ export async function createProjectAction(name: string, description?: string) {
   return data
 }
 
-export async function updateProjectAction(id: string, updates: { name?: string, description?: string }) {
+export async function updateProjectAction(id: string, updates: { name?: string, description?: string | null }) {
   const supabase = await createClient()
   
   const { error } = await supabase

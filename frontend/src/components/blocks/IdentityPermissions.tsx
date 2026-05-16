@@ -65,19 +65,19 @@ export function IdentityPermissions() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex items-center justify-between px-5 py-3 bg-amber-500/10 border border-amber-500/30"
+            className="flex items-center justify-between px-3 py-3 bg-amber-500/10 border border-amber-500/30"
           >
             <div className="flex items-center gap-3">
               <div className="size-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">
-                X-Ray Active — Viewing canvas as <span className="font-mono">{impersonatedRole.name}</span>
+              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                Persona Mode Active — Viewing canvas as <span className="font-mono">{impersonatedRole.name}</span>
               </span>
             </div>
             <button
               onClick={() => setViewAsUserTypeId(null)}
-              className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline uppercase tracking-widest"
+              className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
             >
-              Exit X-Ray
+              Exit Persona Mode
             </button>
           </motion.div>
         )}

@@ -48,7 +48,7 @@ export function Canvas() {
     setNodes, simulationParams, setSimulationParams, runFlowSimulation, activePath
   } = useCanvasLayout(projectId)
 
-  const { pages, removePage, inputs, actions, outputs, transitions } = usePages()
+  const { pages, removePage, inputs, actions, outputs, transitions, setSelectedNodeId } = usePages()
   const { userTypes } = useIdentity()
   const [pageToDelete, setPageToDelete] = useState<string | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
@@ -64,9 +64,11 @@ export function Canvas() {
   const isDark = mounted && typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
 
   const onSelectionChange = useCallback(({ nodes }: { nodes: any[] }) => {
+    const selected = nodes.length === 1 ? nodes[0] : null
     setSelectedNodes(nodes)
-    setSelectedNode(nodes.length === 1 ? nodes[0] : null)
-  }, [])
+    setSelectedNode(selected)
+    setSelectedNodeId(selected ? selected.id : null)
+  }, [setSelectedNodeId])
 
   const handleDeletePage = useCallback(async () => {
     if (pageToDelete) {

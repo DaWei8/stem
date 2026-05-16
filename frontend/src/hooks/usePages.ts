@@ -23,6 +23,13 @@ interface PagesState {
   addInput: (pageId: string, input: Partial<ScreenInput>) => Promise<void>
   addAction: (pageId: string, action: Partial<ScreenAction>) => Promise<void>
   addOutput: (pageId: string, output: Partial<ScreenOutput>) => Promise<void>
+  removeInput: (id: string) => Promise<void>
+  removeAction: (id: string) => Promise<void>
+  removeOutput: (id: string) => Promise<void>
+  updateInput: (id: string, updates: Partial<ScreenInput>) => Promise<void>
+  updateOutput: (id: string, updates: Partial<ScreenOutput>) => Promise<void>
+  selectedNodeId: string | null
+  setSelectedNodeId: (id: string | null) => void
 }
 
 const supabase = createClient()
@@ -35,6 +42,9 @@ export const usePages = create<PagesState>((set) => ({
   transitions: [],
   isLoading: false,
   error: null,
+  selectedNodeId: null,
+
+  setSelectedNodeId: (id) => set({ selectedNodeId: id }),
 
   fetchProjectPages: async (projectId: string) => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -279,6 +289,65 @@ export const usePages = create<PagesState>((set) => ({
     } else {
       set((state) => ({ outputs: [...state.outputs, data] }))
       toast.success('Output added')
+    }
+  },
+
+  removeInput: async (id: string) => {
+    const previous = usePages.getState().inputs
+    set((state) => ({ inputs: state.inputs.filter((i) => i.id !== id) }))
+
+    const { error } = await supabase.from('page_inputs').delete().eq('id', id)
+    if (error) {
+      toast.error('Failed to remove input')
+      set({ inputs: previous })
+    }
+  },
+
+  removeAction: async (id: string) => {
+    const previous = usePages.getState().actions
+    set((state) => ({ actions: state.actions.filter((a) => a.id !== id) }))
+
+    const { error } = await supabase.from('page_actions').delete().eq('id', id)
+    if (error) {
+      toast.error('Failed to remove trigger')
+      set({ actions: previous })
+    }
+  },
+
+  removeOutput: async (id: string) => {
+    const previous = usePages.getState().outputs
+    set((state) => ({ outputs: state.outputs.filter((o) => o.id !== id) }))
+
+    const { error } = await supabase.from('page_outputs').delete().eq('id', id)
+    if (error) {
+      toast.error('Failed to remove output')
+      set({ outputs: previous })
+    }
+  },
+
+  updateInput: async (id, updates) => {
+    const previous = usePages.getState().inputs
+    set((state) => ({
+      inputs: state.inputs.map((i) => (i.id === id ? { ...i, ...updates } : i)),
+    }))
+
+    const { error } = await supabase.from('page_inputs').update(updates).eq('id', id)
+    if (error) {
+      toast.error('Failed to update input')
+      set({ inputs: previous })
+    }
+  },
+
+  updateOutput: async (id, updates) => {
+    const previous = usePages.getState().outputs
+    set((state) => ({
+      outputs: state.outputs.map((o) => (o.id === id ? { ...o, ...updates } : o)),
+    }))
+
+    const { error } = await supabase.from('page_outputs').update(updates).eq('id', id)
+    if (error) {
+      toast.error('Failed to update output')
+      set({ outputs: previous })
     }
   }
 }))

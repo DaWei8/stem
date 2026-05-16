@@ -96,7 +96,7 @@ export function LogicLayer() {
   return (
     <div className="p-8 space-y-8 bg-white dark:bg-black min-h-full text-black dark:text-white selection:bg-black/10 dark:selection:bg-white/20 transition-colors duration-300">
       <PillarHeader
-        title="Logic Layer"
+        title="Frontend Logic"
         description="Manage your system's global constants, cloud functions, and external library dependencies."
         stats={[{ label: 'Methods', value: functions.length }, { label: 'Deps', value: dependencies.length }]}
       />

@@ -13,6 +13,7 @@ import { useSystemArchitect } from '@/hooks/useSystemArchitect'
 import { useUI } from '@/hooks/useUI'
 import { StatMini, OverviewSection } from './helpers'
 import { toast } from 'sonner'
+import { Markdown } from '@/components/ui/Markdown'
 
 interface Props {
   pages: any[]; variables: any[]; components: any[]; tokens: any[]; inputs: any[]; actions: any[]; outputs: any[]; projectId: string; onSelectScreen?: (id: string) => void; onDeleteScreen?: (id: string) => void; selectedNodeId: string | undefined
@@ -75,8 +76,8 @@ export function ProjectOverview({
                 <StatMini label="Inputs" value={stats.inputs} icon={<Fingerprint className="size-3 text-blue-500" />} active={canvasFilter === 'inputs'} onClick={() => setCanvasFilter(canvasFilter === 'inputs' ? 'none' : 'inputs')} />
                 <StatMini label="Outputs" value={stats.outputs} icon={<Database className="size-3 text-emerald-500" />} active={canvasFilter === 'outputs'} onClick={() => setCanvasFilter(canvasFilter === 'outputs' ? 'none' : 'outputs')} />
               </div>
-              <div className="space-y-6">
-                <div className="flex items-center gap-2"><Laptop className="size-3 text-zinc-400" /><span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Active Screens</span></div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center mb-2 gap-2"><Laptop className="size-3 text-zinc-400" /><span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Active Screens</span></div>
                 {filteredPages.map(page => (
                   <div key={page.id} onClick={() => onSelectScreen?.(page.id)} className={cn("group flex items-center justify-between p-2.5 border rounded-none cursor-pointer transition-all", selectedNodeId?.includes(page.id) ? "bg-zinc-100 border-zinc-300 dark:bg-zinc-900" : "bg-zinc-50 dark:bg-black border-transparent hover:border-zinc-200")}>
                     <span className="text-xs font-bold text-zinc-500 group-hover:text-black dark:group-hover:text-white transition-colors">{page.title || page.name}</span>
@@ -90,7 +91,9 @@ export function ProjectOverview({
               <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                 {messages.map(msg => (
                   <div key={msg.id} className={cn("flex flex-col gap-2", msg.role === 'user' ? "items-end" : "items-start")}>
-                    <div className={cn("max-w-[90%] p-3.5 text-[11px] leading-relaxed font-bold rounded-none", msg.role === 'user' ? "bg-black text-white dark:bg-white dark:text-black" : "bg-zinc-100 dark:bg-zinc-900 text-zinc-500 border border-zinc-200 dark:border-zinc-800")}>{msg.content}</div>
+                    <div className={cn("max-w-[90%] p-3.5 rounded-none", msg.role === 'user' ? "bg-black text-white dark:bg-white dark:text-black text-[11px] font-bold" : "bg-zinc-100 dark:bg-zinc-900 text-zinc-500 border border-zinc-200 dark:border-zinc-800")}>
+                      {msg.role === 'user' ? msg.content : <Markdown content={msg.content} />}
+                    </div>
                     {msg.script && (
                       <div className="w-full bg-black border border-zinc-800 overflow-hidden shadow-2xl">
                         <div className="h-8 bg-zinc-900 flex items-center justify-between px-3">
@@ -103,7 +106,7 @@ export function ProjectOverview({
                     )}
                   </div>
                 ))}
-                {isArchitecting && <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"><Loader2 className="size-3.5 animate-spin text-black dark:text-white" /><span className="text-[10px] font-black uppercase text-zinc-400 animate-pulse">Architecting...</span></div>}
+                {isArchitecting && <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"><Loader2 className="size-3.5 animate-spin text-black dark:text-white" /><span className="text-[10px] font-black uppercase text-zinc-400 animate-pulse">Stem is cooking....</span></div>}
                 <div ref={messagesEndRef} />
               </div>
               <div className="p-4 bg-zinc-50 dark:bg-black border-t border-zinc-200 dark:border-zinc-800 shrink-0">

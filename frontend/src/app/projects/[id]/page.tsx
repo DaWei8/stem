@@ -27,6 +27,7 @@ import { useProjects } from '@/hooks/useProjects'
 import { usePages } from '@/hooks/usePages'
 import { useObservability } from '@/hooks/useObservability'
 import { useLifecycle } from '@/hooks/useLifecycle'
+import { useSystemArchitect } from '@/hooks/useSystemArchitect'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { StandardModal } from '@/components/ui/StandardModal'
@@ -46,6 +47,7 @@ export default function ProjectEditorPage() {
   const { fetchLogicData } = useLogic()
   const { fetchObservabilityData, latencyModels, costProjections, bottlenecks } = useObservability()
   const { fetchLifecycleData, featureFlags, flagGates, migrations, transforms } = useLifecycle()
+  const { fetchMessages } = useSystemArchitect()
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -189,6 +191,7 @@ export default function ProjectEditorPage() {
       fetchLogicData(projectId)
       fetchObservabilityData(projectId)
       fetchLifecycleData(projectId)
+      fetchMessages(projectId)
     }
   }, [
     id, 
@@ -199,7 +202,8 @@ export default function ProjectEditorPage() {
     fetchIdentityData, 
     fetchLogicData,
     fetchObservabilityData, 
-    fetchLifecycleData
+    fetchLifecycleData,
+    fetchMessages
   ])
 
 

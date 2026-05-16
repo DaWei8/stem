@@ -73,7 +73,7 @@ export const useProjects = create<ProjectsState>((set, get) => ({
       }))
       toast.success('Project Created successfully')
     } catch (error: any) {
-      toast.error(`Initialization failed: ${error.message}`)
+      toast.error(`Project creation failed: ${error.message}`)
     }
   },
 

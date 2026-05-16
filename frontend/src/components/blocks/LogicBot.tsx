@@ -33,7 +33,7 @@ export function LogicBot() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { pages } = usePages()
+  const { pages, transitions } = usePages()
   const { variables } = useVariables()
   const { tokens, components } = useDesignSystem()
   const { policies } = useIdentity()
@@ -48,6 +48,34 @@ export function LogicBot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // --- The "Mirror Effect": Acknowledge manual canvas changes ---
+  const prevPagesLength = useRef(pages.length)
+  const prevTransLength = useRef(transitions.length)
+
+  useEffect(() => {
+    if (pages.length !== prevPagesLength.current) {
+      const added = pages.length > prevPagesLength.current
+      const diff = Math.abs(pages.length - prevPagesLength.current)
+      
+      useSystemArchitect.getState().addMessage({
+        role: 'assistant',
+        content: `[SYSTEM] ${added ? 'Detected' : 'Removed'} ${diff} node(s) on the canvas. I have updated my structural map accordingly.`
+      })
+      prevPagesLength.current = pages.length
+    }
+  }, [pages.length])
+
+  useEffect(() => {
+    if (transitions.length !== prevTransLength.current) {
+      const added = transitions.length > prevTransLength.current
+      useSystemArchitect.getState().addMessage({
+        role: 'assistant',
+        content: `[SYSTEM] ${added ? 'New link established' : 'A flow connection was severed'} on the canvas. Context updated.`
+      })
+      prevTransLength.current = transitions.length
+    }
+  }, [transitions.length])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,7 +168,7 @@ export function LogicBot() {
                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Active Screens</h4>
                   <span className="text-[10px] font-black text-zinc-300 dark:text-zinc-700 transition-colors">({pages.length})</span>
                 </div>
-                <div className="space-y-1.5">
+                <div className="flex flex-col">
                   {filteredPages.map(page => (
                     <button
                       key={page.id}
@@ -182,6 +210,26 @@ export function LogicBot() {
                     )}>
                       {msg.content}
                     </div>
+
+                    {msg.script && (
+                      <div className="w-full flex flex-wrap gap-2 mb-1 px-1">
+                        {msg.script.includes('DEFINE SCREEN') && (
+                          <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[8px] font-black uppercase tracking-widest border border-blue-500/20">
+                            +{msg.script.match(/DEFINE SCREEN/g)?.length} Screen(s)
+                          </span>
+                        )}
+                        {msg.script.includes('CONNECT') && (
+                          <span className="px-2 py-0.5 bg-purple-500/10 text-purple-500 text-[8px] font-black uppercase tracking-widest border border-purple-500/20">
+                            +{msg.script.match(/CONNECT/g)?.length} Connection(s)
+                          </span>
+                        )}
+                        {(msg.script.includes('ADD INPUT') || msg.script.includes('ADD MUTATION')) && (
+                          <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">
+                            +{ (msg.script.match(/ADD INPUT|ADD MUTATION/g)?.length) } Logical Ops
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {msg.script && (
                       <div className="w-full mt-1 bg-zinc-950 border border-zinc-800 overflow-hidden group/script">

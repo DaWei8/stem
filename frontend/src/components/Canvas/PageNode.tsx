@@ -1,12 +1,17 @@
+import { useState } from 'react'
 import { Handle, Position, NodeProps, Node } from '@xyflow/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Square, ArrowRight, Play, CheckCircle2, Plus, Settings2, Globe, Database, Fingerprint, Laptop, Terminal, ShieldAlert } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Plus, Fingerprint, Play, Database } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ScreenInput, ScreenAction, ScreenOutput } from '@/types'
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useUI } from '@/hooks/useUI'
-import { Tooltip } from '@/components/ui/Tooltip'
+import { useVariables } from '@/hooks/useVariables'
+import { usePages } from '@/hooks/usePages'
+
+import { NodeHeader } from './page-node/NodeHeader'
+import { InputsSection, ActionsSection, OutputsSection } from './page-node/NodeSections'
+import { NodeFooter } from './page-node/NodeFooter'
 
 
 export type PageNodeData = {
@@ -42,11 +47,47 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
   const filterType = data.filterType
   const hasActiveFilter = filterType !== 'none'
   const { isChaosMode } = useUI()
+  const variables = useVariables((s) => s.variables)
+  const { 
+    addInput, addAction, addOutput, 
+    removeInput, removeAction, removeOutput,
+    updateInput, updateOutput 
+  } = usePages()
+  const isPermissionDenied = filterType === 'permission'
+  const isEmpty = inputs.length === 0 && actions.length === 0 && outputs.length === 0
+  
+  const [isCompact, setIsCompact] = useState(false)
 
+  /* ─── Inline Add Handlers ─── */
+  const handleAddInput = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    if (variables.length === 0) return
+    addInput(data.page_id, {
+      name: `input_${inputs.length + 1}`,
+      input_type: 'form_field',
+      variable_id: variables[0].id,
+    })
+  }
+
+  const handleAddAction = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    addAction(data.page_id, {
+      name: `trigger_${actions.length + 1}`,
+      action_type: 'function_call',
+    })
+  }
+
+  const handleAddOutput = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    addOutput(data.page_id, {
+      name: `mutation_${outputs.length + 1}`,
+      output_type: 'state_update',
+    })
+  }
 
   return (
     <div className={cn(
-      "w-[300px] group relative transition-all duration-500",
+      "w-[320px] group relative transition-all duration-500",
       selected && "z-50",
       hasActiveFilter && !isFiltered && "opacity-20 grayscale-[0.5] scale-[0.98] blur-[0.5px]"
     )}>
@@ -62,6 +103,7 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
         <Plus className="size-4" />
       </motion.button>
 
+      {/* Outer Glow Shell */}
       <div className={cn(
         "relative p-px transition-all duration-500 rounded-xl overflow-hidden",
         selected ? "bg-white" : (
@@ -73,162 +115,109 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
         data.simulationStatus === 'success' && !data.isStart && !data.isEnd && "bg-green-500",
         data.simulationStatus === 'error' && "bg-red-500",
         data.simulationStatus === 'warning' && "bg-amber-500",
-        data.validationWarnings && data.validationWarnings.length > 0 && "bg-amber-400 animate-pulse"
+        data.validationWarnings && data.validationWarnings.length > 0 && "bg-amber-400 animate-pulse",
+        isPermissionDenied && "bg-red-500/50 opacity-60"
       )}>
-        {data.validationWarnings && data.validationWarnings.length > 0 && (
-          <Tooltip content={`Architectural Warning: ${data.validationWarnings[0]}`}>
-            <div className="absolute -top-3 -right-3 z-50 bg-amber-500 text-black p-1.5 rounded-full shadow-lg border-2 border-black">
-              <ShieldAlert className="size-4" />
-            </div>
-          </Tooltip>
-        )}
 
-        <Card
-          className="bg-black border-none rounded-[11px] shadow-2xl overflow-hidden cursor-pointer"
-        >
-          {/* Header */}
-          <CardHeader className="px-4 bg-black/50 border-b border-zinc-900/50">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1">
-                <Laptop className="size-3 text-zinc-600" />
-                <span className={cn(
-                  "text-[9px] uppercase font-bold transition-colors",
-                  filterType === 'screens' ? "text-white" : "text-zinc-500"
-                )}>Screen</span>
-              </div>
-              <div className="flex gap-1">
-                {data.isNew && (
-                  <Tooltip content="New Component (Unsaved Snapshot)">
-                    <span className="text-[7px] font-black bg-blue-500 text-white px-1 py-0.5 rounded-sm mr-1 animate-pulse cursor-help">NEW</span>
-                  </Tooltip>
-                )}
-                <div className="size-1 rounded-full bg-zinc-800" />
-                <div className="size-1 rounded-full bg-zinc-800" />
-              </div>
+        <Card className="bg-black border-none rounded-[11px] shadow-2xl overflow-hidden cursor-pointer">
+          {/* Level 1: Page Identity */}
+          <NodeHeader
+            label={data.label}
+            description={data.description}
+            pageType={data.page?.page_type}
+            isNew={data.isNew}
+            filterType={filterType}
+            isChaosMode={isChaosMode}
+            hasActions={actions.length > 0}
+            hasOutputs={outputs.length > 0}
+            validationWarnings={data.validationWarnings}
+            onToggleCompact={() => setIsCompact(!isCompact)}
+            isCompact={isCompact}
+          />
 
-            </div>
-            <CardTitle className="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors">
-              {data.label}
-            </CardTitle>
-            {data.description && (
-              <p className="text-[10px] text-zinc-500 line-clamp-1 font-medium leading-relaxed">
-                {data.description}
-              </p>
-            )}
+          {/* Level 2-4: Functional Modules */}
+          {!isCompact && (
+            <CardContent className="p-0 divide-y divide-zinc-900/30">
+              {/* Interfaces (Inputs/Ports) */}
+              <InputsSection
+                inputs={inputs}
+                variables={variables}
+                isActiveFilter={filterType === 'inputs' || filterType === 'variables'}
+                onAdd={handleAddInput}
+                onRemove={(id) => removeInput(id)}
+                onRebindVariable={(inputId, varId) => updateInput(inputId, { variable_id: varId })}
+              />
 
-            {isChaosMode && (actions.length > 0 || outputs.length > 0) && (
-              <motion.button
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // Simulated failure trigger logic could be dispatched here
-                }}
-                className="mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded text-[9px] font-black uppercase tracking-widest transition-colors"
-              >
-                <ShieldAlert className="size-3" /> Trigger Failure
-              </motion.button>
-            )}
-          </CardHeader>
+              {/* Operations (Triggers/Logic) */}
+              <ActionsSection
+                actions={actions}
+                isActiveFilter={filterType === 'triggers'}
+                onAdd={handleAddAction}
+                onRemove={(id) => removeAction(id)}
+              />
 
-          <CardContent className="p-0 divide-y divide-zinc-900/50">
-            {/* Inputs Section */}
-            <Section
-              icon={<Fingerprint className="size-3" />}
-              title="Incoming Data"
-              items={inputs}
-              color="text-blue-400"
-              isActiveFilter={filterType === 'inputs' || filterType === 'variables'}
-              renderItem={(i) => (
-                <div key={i.id} className="flex items-center justify-between py-1 group/item">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-medium text-zinc-400 group-hover/item:text-zinc-200 transition-colors">{i.name || i.label}</span>
-                    <span className="text-[8px] font-mono text-zinc-600 truncate max-w-[120px]">
-                      {i.variable_id ? `var::${i.variable_id.slice(0, 8)}` : 'static_input'}
-                    </span>
+              {/* State Mutations (Outputs) */}
+              <OutputsSection
+                outputs={outputs}
+                variables={variables}
+                isActiveFilter={filterType === 'outputs'}
+                onAdd={handleAddOutput}
+                onRemove={(id) => removeOutput(id)}
+                onRebindVariable={(outputId, varId) => updateOutput(outputId, { variable_id: varId })}
+              />
+
+              {/* Actionable empty state */}
+              {isEmpty && (
+                <div className="px-4 py-5 flex flex-col items-center gap-3">
+                  <div className="flex gap-0.5">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="w-1 h-4 bg-zinc-900 rounded-full" />
+                    ))}
                   </div>
-                  <code className="text-[9px] font-mono text-zinc-500 bg-black/50 px-1.5 py-0.5 border border-zinc-800/50 rounded-sm">
-                    {i.input_type === 'form_field' ? 'FORM' : 'QUERY'}
-                  </code>
-                </div>
-              )}
-            />
-
-            {/* Actions Section */}
-            <Section
-              icon={<Play className="size-3" />}
-              title="Triggers & Logic"
-              items={actions}
-              color="text-purple-400"
-              isActiveFilter={filterType === 'triggers'}
-              renderItem={(a) => (
-                <div key={a.id} className="flex flex-col py-1.5 px-2.5 bg-black/30 border border-zinc-800/50 mt-1.5 rounded-md group/action hover:border-zinc-600 transition-all">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black text-zinc-600 uppercase tracking-tighter">{a.action_type?.split('_')[0] || 'ACT'}</span>
-                    <ArrowRight className="w-2.5 h-2.5 text-zinc-800 group-hover/action:translate-x-0.5 transition-transform" />
-                    <span className="text-[10px] font-bold text-zinc-200 truncate">{a.name}</span>
-                  </div>
-                  <div className="mt-1 flex items-center gap-1.5 opacity-60">
-                    <Terminal className="size-2.5 text-zinc-500" />
-                    <span className="text-[8px] font-mono text-zinc-500 italic">
-                      {a.function_id ? `fn ${a.function_id.slice(0, 8)}()` : 'eval_inline'}
-                    </span>
-                  </div>
-                </div>
-              )}
-            />
-
-            {/* Outputs Section */}
-            <Section
-              icon={<Database className="size-3" />}
-              title="State Mutations"
-              items={outputs}
-              color="text-green-400"
-              isActiveFilter={filterType === 'outputs'}
-              renderItem={(o) => (
-                <div key={o.id} className="flex items-center justify-between py-1 group/output">
-                  <div className="flex items-center gap-2.5">
-                    <div className={cn(
-                      "w-1.5 h-1.5 rounded-full",
-                      o.output_type === 'webhook' ? "bg-amber-500" : "bg-white"
-                    )} />
-                    <span className="text-[10px] font-medium text-zinc-400 group-hover/output:text-zinc-200 transition-colors">{o.name}</span>
-                  </div>
-                  <span className="text-[8px] font-mono text-zinc-600">
-                    {o.output_type === 'state_update' ? 'MUTATE' : 'SYNC'}
+                  <span className="text-[9px] text-zinc-700 font-mono italic">
+                    No logic defined
                   </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={handleAddInput}
+                      className="flex items-center gap-1 text-[8px] font-bold text-blue-400/70 hover:text-blue-400 px-2 py-1 border border-blue-400/20 hover:border-blue-400/40 bg-blue-400/5 transition-all"
+                    >
+                      <Fingerprint className="size-2.5" /> Interface
+                    </button>
+                    <button
+                      onClick={handleAddAction}
+                      className="flex items-center gap-1 text-[8px] font-bold text-purple-400/70 hover:text-purple-400 px-2 py-1 border border-purple-400/20 hover:border-purple-400/40 bg-purple-400/5 transition-all"
+                    >
+                      <Play className="size-2.5" /> Operation
+                    </button>
+                    <button
+                      onClick={handleAddOutput}
+                      className="flex items-center gap-1 text-[8px] font-bold text-emerald-400/70 hover:text-emerald-400 px-2 py-1 border border-emerald-400/20 hover:border-emerald-400/40 bg-emerald-400/5 transition-all"
+                    >
+                      <Database className="size-2.5" /> Mutation
+                    </button>
+                  </div>
                 </div>
               )}
-            />
-          </CardContent>
+            </CardContent>
+          )}
 
-          {/* Footer Stats */}
-          <div className="px-5 py-3 bg-black/50 border-t border-zinc-900/50 flex items-center justify-between">
-            <div className="flex gap-3">
-              <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-tighter">
-                {inputs.length + actions.length + outputs.length} attachments
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {isFiltered && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="size-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
-                />
-              )}
-              <Settings2 className="size-3 text-zinc-800 group-hover:text-zinc-500 transition-colors" />
-            </div>
-          </div>
+          {/* Footer: Integrity + Stats */}
+          <NodeFooter
+            inputCount={inputs.length}
+            actionCount={actions.length}
+            outputCount={outputs.length}
+            isFiltered={isFiltered}
+            isPermissionDenied={isPermissionDenied}
+            isCompact={isCompact}
+          />
         </Card>
       </div>
 
-
+      {/* Source Handle (Success Path) */}
       <Handle type="source" position={Position.Bottom} className="bg-white! border-white! w-3 h-3 hover:scale-150 transition-transform" />
 
-      {/* Negative Port (Failure) */}
+      {/* Negative Port (Failure Path) */}
       <Handle
         type="source"
         position={Position.Right}
@@ -237,33 +226,5 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
         style={{ top: '70%' }}
       />
     </div>
-
   )
 }
-
-function Section({ icon, title, items, renderItem, color, isActiveFilter }: { icon: React.ReactNode; title: string; items: any[]; renderItem: (item: any) => React.ReactNode; color: string; isActiveFilter?: boolean }) {
-  if (items.length === 0) return null
-  return (
-    <div className={cn(
-      "px-5 py-3 flex flex-col gap-1 transition-all duration-500",
-      isActiveFilter ? "bg-white/5 border-l-2 border-white/20" : ""
-    )}>
-      <div className="flex items-center gap-1.5">
-        <Tooltip content={title}>
-          <div className={cn("size-4 rounded-full bg-black border border-zinc-800 flex items-center justify-center transition-all cursor-help", color, isActiveFilter && "scale-110 shadow-[0_0_10px_currentColor]")}>
-            {icon}
-          </div>
-        </Tooltip>
-        <span className={cn(
-          "text-[10px] font-bold uppercase transition-colors",
-          isActiveFilter ? "text-white" : "text-zinc-500"
-        )}>{title}</span>
-      </div>
-      <div className="flex flex-col">
-        {items.map(renderItem)}
-      </div>
-    </div>
-  )
-}
-
-

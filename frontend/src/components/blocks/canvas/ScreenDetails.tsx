@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import {
-  Fingerprint, Zap, Database, Trash2, Save, ChevronRight, ArrowRight, Folder, Code, ShieldCheck, AlertTriangle, Plus
+  Fingerprint, Zap, Database, Trash2, Save, ChevronRight, ArrowRight, Folder, Code, ShieldCheck
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,7 +11,12 @@ import { toast } from 'sonner'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useIdentity } from '@/hooks/useIdentity'
 import { SidebarSection } from './helpers'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useSystemArchitect } from '@/hooks/useSystemArchitect'
+import { Markdown } from '@/components/ui/Markdown'
+import { Terminal, Copy, Check, Send, Loader2, Search } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useRef, useEffect } from 'react'
+
 
 interface Props {
   page: any
@@ -32,11 +36,32 @@ export function ScreenDetails({
 }: Props) {
   const { columns, tables } = useDatabase()
   const { policies } = useIdentity()
-  
+
   const [title, setTitle] = useState(page.title)
   const [description, setDescription] = useState(page.description || '')
   const [folder, setFolder] = useState(page.folder || '')
   const [isSaving, setIsSaving] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const { messages, isArchitecting, generateSystem, commitScript, addMessage } = useSystemArchitect()
+  const projectId = page.project_id
+
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatInput.trim() || isArchitecting || !projectId) return
+    const prompt = chatInput.trim()
+    setChatInput('')
+    addMessage({ role: 'user', content: prompt })
+    generateSystem(prompt, projectId)
+  }
+
+  const handleCopy = (id: string, script: string) => {
+    navigator.clipboard.writeText(script); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); toast.success('STEM-script copied')
+  }
 
   // Derived data for context
   const persistentVars = useMemo(() => {
@@ -83,6 +108,7 @@ export function ScreenDetails({
           <TabsTrigger value="overview" className="text-zinc-400 data-[state=active]:text-black dark:data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest bg-transparent">Overview</TabsTrigger>
           <TabsTrigger value="data" className="text-zinc-400 data-[state=active]:text-black dark:data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest bg-transparent">Data Context</TabsTrigger>
           <TabsTrigger value="logic" className="text-zinc-400 data-[state=active]:text-black dark:data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest bg-transparent">Logic</TabsTrigger>
+          <TabsTrigger value="ai" className="text-zinc-400 data-[state=active]:text-black dark:data-[state=active]:text-white text-[10px] font-black uppercase tracking-widest bg-transparent flex items-center gap-2"><Zap className="size-2.5" /> AI Architect</TabsTrigger>
         </TabsList>
 
         <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-8 custom-scrollbar">
@@ -113,7 +139,7 @@ export function ScreenDetails({
 
           <TabsContent value="data" className="m-0 space-y-8">
             <SidebarSection
-              title="Active Subscriptions"
+              title="Inputs"
               icon={<Fingerprint className="size-3 text-blue-500" />}
               onAdd={() => addInput(page.id, { name: `input_${(page.inputs || []).length + 1}`, input_type: 'form_field', variable_id: availableVariables[0]?.id })}
               items={page.inputs || []}
@@ -186,6 +212,36 @@ export function ScreenDetails({
                 </div>
               )}
             />
+          </TabsContent>
+
+          <TabsContent value="ai" className="m-0 flex-1 flex flex-col min-h-0 bg-zinc-50/50 dark:bg-black/50">
+            <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+              {messages.map(msg => (
+                <div key={msg.id} className={cn("flex flex-col gap-2", msg.role === 'user' ? "items-end" : "items-start")}>
+                  <div className={cn("max-w-[90%] p-3.5 rounded-none", msg.role === 'user' ? "bg-black text-white dark:bg-white dark:text-black text-[11px] font-bold" : "bg-white dark:bg-zinc-900 text-zinc-500 border border-zinc-200 dark:border-zinc-800 shadow-sm")}>
+                    {msg.role === 'user' ? msg.content : <Markdown content={msg.content} />}
+                  </div>
+                  {msg.script && (
+                    <div className="w-full bg-black border border-zinc-800 overflow-hidden shadow-2xl">
+                      <div className="h-8 bg-zinc-900 flex items-center justify-between px-3">
+                        <div className="flex items-center gap-2"><Terminal className="size-3 text-zinc-500" /><span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">Blueprint Script</span></div>
+                        <button onClick={() => handleCopy(msg.id, msg.script!)} className="text-zinc-500 hover:text-white transition-colors">{copiedId === msg.id ? <Check className="size-3" /> : <Copy className="size-3" />}</button>
+                      </div>
+                      <pre className="p-3 text-[10px] font-mono text-emerald-500 overflow-x-auto max-h-[200px]"><code>{msg.script}</code></pre>
+                      <button onClick={() => commitScript(msg.script!, projectId)} className="w-full h-9 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors">Commit Architecture</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isArchitecting && <div className="flex items-center gap-3 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"><Loader2 className="size-3.5 animate-spin text-black dark:text-white" /><span className="text-[10px] font-black uppercase text-zinc-400 animate-pulse">Stem is cooking....</span></div>}
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="p-4 bg-white dark:bg-black border-t border-zinc-200 dark:border-zinc-800 shrink-0">
+              <form onSubmit={handleChatSubmit} className="relative">
+                <Input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder={`Describe changes to ${page.title}...`} className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 h-11 pr-12 text-xs font-bold rounded-none" />
+                <Button type="submit" disabled={isArchitecting || !chatInput.trim()} className="absolute right-1 top-1 size-9 rounded-none bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 transition-all"><Send className="size-4" /></Button>
+              </form>
+            </div>
           </TabsContent>
         </div>
       </Tabs>

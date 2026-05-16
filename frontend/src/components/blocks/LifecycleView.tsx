@@ -136,7 +136,7 @@ export function LifecycleView() {
         {/* Feature Flags */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-widest">Feature Flags</h2>
+            <h2 className="text-sm font-black text-black dark:text-white">Feature Flags</h2>
             <Button
               onClick={() => setShowAddFlag(!showAddFlag)}
               className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
@@ -261,7 +261,7 @@ export function LifecycleView() {
         {/* Schema Migrations */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-widest">Schema Migrations</h2>
+            <h2 className="text-sm font-black text-black dark:text-white">Schema Migrations</h2>
             <Button
               onClick={() => setShowAddMigration(!showAddMigration)}
               className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"

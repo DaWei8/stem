@@ -121,7 +121,7 @@ export function ObservabilityView() {
         {/* Latency Models */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-widest">Latency Models</h2>
+            <h2 className="text-sm font-black text-black dark:text-white">Latency Models</h2>
             <Button
               onClick={() => setShowAddLatency(!showAddLatency)}
               className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
@@ -184,7 +184,7 @@ export function ObservabilityView() {
         {/* Bottleneck Annotations */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-black dark:text-white uppercase tracking-widest">Bottleneck Annotations</h2>
+            <h2 className="text-sm font-black text-black dark:text-white">Bottleneck Annotations</h2>
             <Button
               onClick={() => setShowAddBottleneck(!showAddBottleneck)}
               className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
