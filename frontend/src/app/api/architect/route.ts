@@ -48,7 +48,7 @@ If a node is selected (see 'selectedNodeId' in context), prioritize modification
 
 Respond deterministically. No generic chat.`
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,9 +69,9 @@ Respond deterministically. No generic chat.`
         const errorData = await response.json()
         const errorMessage = errorData.error?.message || 'Gemini API request failed'
         const statusCode = response.status === 503 ? 503 : 500
-        
+
         console.error('Gemini error:', errorData)
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: errorMessage,
           code: errorData.error?.code,
           status: errorData.error?.status

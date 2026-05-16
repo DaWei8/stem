@@ -26,7 +26,7 @@ export function ModeSwitcher() {
                 key={mode.id}
                 onClick={() => setActiveMode(mode.id)}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                  "relative flex items-center justify-center gap-2 px-3 py-2.5 text-[10px] font-black  transition-all duration-300",
                   isActive
                     ? "text-black dark:text-zinc-200"
                     : "text-zinc-400 dark:text-zinc-600 hover:text-black dark:hover:text-zinc-300 group-hover/container:opacity-50 hover:opacity-100!"

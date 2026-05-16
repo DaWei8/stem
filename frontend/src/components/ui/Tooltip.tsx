@@ -28,7 +28,7 @@ export function Tooltip({ content, children, className }: TooltipProps) {
             exit={{ opacity: 0, y: 5, scale: 0.95 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "absolute top-full left-1/2 -translate-x-1/2 px-2.5 py-1.5 z-100 whitespace-nowrap",
+              "absolute bottom-full left-1/2 -translate-x-1/2 px-2.5 py-1.5 z-100 whitespace-nowrap",
               "bg-zinc-900 border border-zinc-800 text-white rounded-lg shadow-xl",
               "text-[10px] font-bold pointer-events-none",
               className

@@ -62,7 +62,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
       footer={
         <Button
           onClick={handleSave}
-          className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black uppercase tracking-widest"
+          className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black "
         >
           Deploy Policy
         </Button>
@@ -70,7 +70,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
     >
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Policy Identifier</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Policy Identifier</Label>
           <Input
             value={data.name}
             onChange={e => patchData({ name: e.target.value.replace(/\s+/g, '_').toUpperCase() })}
@@ -81,7 +81,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Target Entity</Label>
+            <Label className="text-[10px] font-black text-zinc-400 ">Target Entity</Label>
             <Select value={data.table_id} onValueChange={v => patchData({ table_id: v ?? '' })}>
               <SelectTrigger className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs text-black dark:text-white w-full">
                 <SelectValue placeholder="Select Table" />
@@ -93,7 +93,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">User Archetype</Label>
+            <Label className="text-[10px] font-black text-zinc-400 ">User Archetype</Label>
             <Select value={data.user_type_id} onValueChange={v => patchData({ user_type_id: v ?? 'all' })}>
               <SelectTrigger className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs text-black dark:text-white w-full">
                 <SelectValue placeholder="Select Role" />
@@ -107,7 +107,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Action Type</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Action Type</Label>
           <Select
             value={data.policy_type}
             onValueChange={v => patchData({ policy_type: (v ?? 'select') as PolicyData['policy_type'] })}
@@ -124,7 +124,7 @@ export function PolicyFormModal({ isOpen, tables, userTypes, onClose, onSave }: 
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Policy Expression (SQL / Logic)</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Policy Expression (SQL / Logic)</Label>
           <textarea
             value={data.policy_logic}
             onChange={e => patchData({ policy_logic: e.target.value })}

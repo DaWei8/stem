@@ -67,11 +67,11 @@ export function PermissionMatrix({ userTypes, policies, tables, pages }: Props) 
       <table className="w-full text-[10px] font-mono border-collapse">
         <thead>
           <tr className="bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
-            <th className="text-left px-4 py-3 font-black text-zinc-400 uppercase tracking-widest w-48 border-r border-zinc-200 dark:border-zinc-800">
+            <th className="text-left px-4 py-3 font-black text-zinc-400  w-48 border-r border-zinc-200 dark:border-zinc-800">
               Table / Role →
             </th>
             {userTypes.map(ut => (
-              <th key={ut.id} className="px-4 py-3 text-center font-black text-black dark:text-white uppercase tracking-widest border-r border-zinc-100 dark:border-zinc-900 last:border-r-0">
+              <th key={ut.id} className="px-4 py-3 text-center font-black text-black dark:text-white  border-r border-zinc-100 dark:border-zinc-900 last:border-r-0">
                 {ut.name}
               </th>
             ))}
@@ -95,7 +95,7 @@ export function PermissionMatrix({ userTypes, policies, tables, pages }: Props) 
                       {isAdmin ? (
                         <div className="flex items-center justify-center gap-0.5" title="Super Admin — full access">
                           {POLICY_OPS.map(op => (
-                            <span key={op} className={cn('text-[8px] font-black uppercase', OP_COLOR[op])}>{op[0]}</span>
+                            <span key={op} className={cn('text-[8px] font-black ', OP_COLOR[op])}>{op[0]}</span>
                           ))}
                         </div>
                       ) : ops.length === 0 ? (
@@ -105,7 +105,7 @@ export function PermissionMatrix({ userTypes, policies, tables, pages }: Props) 
                       ) : (
                         <div className="flex items-center justify-center gap-0.5">
                           {ops.map(op => (
-                            <span key={op} className={cn('text-[8px] font-black uppercase', OP_COLOR[op])}>{op[0]}</span>
+                            <span key={op} className={cn('text-[8px] font-black ', OP_COLOR[op])}>{op[0]}</span>
                           ))}
                         </div>
                       )}
@@ -119,7 +119,7 @@ export function PermissionMatrix({ userTypes, policies, tables, pages }: Props) 
           {Object.entries(folders).length > 0 && (
             <>
               <tr className="bg-zinc-100 dark:bg-zinc-900">
-                <td colSpan={userTypes.length + 1} className="px-4 py-2 text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                <td colSpan={userTypes.length + 1} className="px-4 py-2 text-[9px] font-black  text-zinc-400">
                   UI Flows — Folder Access
                 </td>
               </tr>
@@ -142,7 +142,7 @@ export function PermissionMatrix({ userTypes, policies, tables, pages }: Props) 
       <div className="px-4 py-2 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-4">
         {POLICY_OPS.map(op => (
           <div key={op} className="flex items-center gap-1">
-            <span className={cn('text-[9px] font-black uppercase', OP_COLOR[op])}>{op[0]}</span>
+            <span className={cn('text-[9px] font-black ', OP_COLOR[op])}>{op[0]}</span>
             <span className="text-[9px] text-zinc-400">{op}</span>
           </div>
         ))}

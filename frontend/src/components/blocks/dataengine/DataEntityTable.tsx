@@ -53,7 +53,7 @@ export function DataEntityTable({
     if (validCols.length === 0) return
 
     const existingNames = new Set(columns.filter(c => c.table_id === editingTable.id).map(c => c.name.toLowerCase()))
-    
+
     for (const col of validCols) {
       if (existingNames.has(col.name.toLowerCase())) {
         toast.error(`Column "${col.name}" already exists. Skipping.`)
@@ -61,7 +61,7 @@ export function DataEntityTable({
       }
       await onAddColumn(editingTable.id, col)
     }
-    
+
     setPendingColumns([{ id: Math.random().toString(), name: '', type: 'uuid', is_primary_key: false, variable_id: '' }])
     setIsDefiningColumn(false)
   }
@@ -85,10 +85,10 @@ export function DataEntityTable({
         <Table>
           <TableHeader>
             <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent bg-zinc-50 dark:bg-black/50">
-              <TableHead className="text-[10px] font-black text-zinc-400 py-4 pl-6 uppercase tracking-widest">Table</TableHead>
-              <TableHead className="text-[10px] font-black text-zinc-400 py-4 uppercase tracking-widest">Columns</TableHead>
-              <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center uppercase tracking-widest">Primary Key</TableHead>
-              <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center uppercase tracking-widest">Linked Vars</TableHead>
+              <TableHead className="text-[10px] font-black text-zinc-400 py-4 pl-6 ">Table</TableHead>
+              <TableHead className="text-[10px] font-black text-zinc-400 py-4 ">Columns</TableHead>
+              <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center ">Primary Key</TableHead>
+              <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center ">Linked Vars</TableHead>
               <TableHead className="w-[80px] py-4"></TableHead>
             </TableRow>
           </TableHeader>
@@ -104,7 +104,7 @@ export function DataEntityTable({
                     className="group border-zinc-200 dark:border-zinc-800/50 hover:bg-zinc-50/80 dark:hover:bg-black/40 transition-colors">
                     <TableCell className="py-3.5 pl-6">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black tracking-wider text-black dark:text-white uppercase">{table.name}</span>
+                        <span className="text-xs font-black tracking-wider text-black dark:text-white ">{table.name}</span>
                         <span className="text-[10px] text-zinc-400 font-medium mt-0.5">Persistent Entity</span>
                       </div>
                     </TableCell>
@@ -129,7 +129,7 @@ export function DataEntityTable({
                           <span className="text-[10px] font-mono text-zinc-500">{pk.name}</span>
                         </div>
                       ) : (
-                        <span className="text-[9px] font-bold text-red-500 uppercase">Missing PK</span>
+                        <span className="text-[9px] font-bold text-red-500 ">Missing PK</span>
                       )}
                     </TableCell>
                     <TableCell className="py-3.5 text-center">
@@ -181,7 +181,7 @@ export function DataEntityTable({
           isDefiningColumn ? (
             <div className="flex gap-2 w-full">
               <Button onClick={() => setIsDefiningColumn(false)} variant="outline" className="flex-1 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs text-black dark:text-white">Cancel</Button>
-              <Button onClick={handleSaveColumns} className="flex-[2] bg-black dark:bg-white text-white dark:text-black rounded-none h-12 text-xs">Deploy Fields</Button>
+              <Button onClick={handleSaveColumns} className="flex-2 bg-black dark:bg-white text-white dark:text-black rounded-none h-12 text-xs">Deploy Fields</Button>
             </div>
           ) : (
             <Button onClick={() => { if (editingTable) onUpdateTable(editingTable.id, editingTable.name); setIsEditModalOpen(false) }}
@@ -192,7 +192,7 @@ export function DataEntityTable({
         {editingTable && (
           <div className="space-y-8">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Table Identity</Label>
+              <Label className="text-[10px] font-black text-zinc-400 ">Table Identity</Label>
               <Input value={editingTable.name}
                 onChange={e => setEditingTable({ ...editingTable, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
                 className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white" />
@@ -201,39 +201,39 @@ export function DataEntityTable({
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Define Schema Fields</Label>
-                    <Button onClick={addPendingRow} variant="outline" className="h-7 px-3 text-[10px] border-zinc-200 dark:border-zinc-800 rounded-none font-black text-black dark:text-white uppercase">
+                    <Label className="text-[10px] font-black text-zinc-400 ">Define Schema Fields</Label>
+                    <Button onClick={addPendingRow} variant="outline" className="h-7 px-3 text-[10px] border-zinc-200 dark:border-zinc-800 rounded-none font-black text-black dark:text-white ">
                       <Plus className="size-3 mr-1" /> Add Row
                     </Button>
                   </div>
-                  
+
                   <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {pendingColumns.map((col, idx) => (
                       <div key={col.id} className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-4 relative group/row">
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1.5">
-                            <Label className="text-[9px] font-bold text-zinc-400 uppercase">Name</Label>
-                            <Input 
-                              value={col.name} 
+                            <Label className="text-[9px] font-bold text-zinc-400 ">Name</Label>
+                            <Input
+                              value={col.name}
                               onChange={e => updatePendingRow(col.id, { name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
-                              placeholder="column_name" 
-                              className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs font-mono" 
+                              placeholder="column_name"
+                              className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs font-mono"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-[9px] font-bold text-zinc-400 uppercase">Type</Label>
+                            <Label className="text-[9px] font-bold text-zinc-400 ">Type</Label>
                             <Select value={col.type} onValueChange={v => updatePendingRow(col.id, { type: v })}>
                               <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs w-full"><SelectValue /></SelectTrigger>
                               <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
-                                {['uuid','varchar','int4','timestamp','jsonb','boolean','text'].map(t => <SelectItem key={t} value={t}>{t.toUpperCase()}</SelectItem>)}
+                                {['uuid', 'varchar', 'int4', 'timestamp', 'jsonb', 'boolean', 'text'].map(t => <SelectItem key={t} value={t}>{t.toUpperCase()}</SelectItem>)}
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-4">
                           <div className="flex-1 space-y-1.5">
-                            <Label className="text-[9px] font-bold text-zinc-400 uppercase">Registry Binding</Label>
+                            <Label className="text-[9px] font-bold text-zinc-400 ">Registry Binding</Label>
                             <Select value={col.variable_id} onValueChange={v => updatePendingRow(col.id, { variable_id: v })}>
                               <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs w-full"><SelectValue placeholder="Map to variable..." /></SelectTrigger>
                               <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
@@ -242,18 +242,18 @@ export function DataEntityTable({
                             </Select>
                           </div>
                           <div className="flex items-center gap-2 pt-4">
-                            <Checkbox 
-                              id={`pk-${col.id}`} 
-                              checked={col.is_primary_key} 
+                            <Checkbox
+                              id={`pk-${col.id}`}
+                              checked={col.is_primary_key}
                               onCheckedChange={c => updatePendingRow(col.id, { is_primary_key: !!c })}
-                              className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white" 
+                              className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
                             />
-                            <Label htmlFor={`pk-${col.id}`} className="text-[10px] font-bold text-zinc-500 uppercase cursor-pointer">PK</Label>
+                            <Label htmlFor={`pk-${col.id}`} className="text-[10px] font-bold text-zinc-500  cursor-pointer">PK</Label>
                           </div>
                         </div>
-                        
+
                         {pendingColumns.length > 1 && (
-                          <button 
+                          <button
                             onClick={() => removePendingRow(col.id)}
                             className="absolute -top-2 -right-2 size-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity shadow-lg"
                           >
@@ -268,7 +268,7 @@ export function DataEntityTable({
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                  <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Fields & Schema</Label>
+                  <Label className="text-[10px] font-black text-zinc-400 ">Fields & Schema</Label>
                   <Button onClick={() => setIsDefiningColumn(true)} variant="outline"
                     className="h-7 px-3 text-xs border-zinc-200 dark:border-zinc-800 rounded-none font-bold text-black dark:text-white">
                     <Plus className="size-3 mr-1" /> Add Field
@@ -283,7 +283,7 @@ export function DataEntityTable({
                         </div>
                         <div className="flex flex-col">
                           <span className="text-xs font-bold font-mono text-black dark:text-white">{col.name}</span>
-                          <span className="text-[10px] font-mono text-zinc-400 uppercase">{col.type}</span>
+                          <span className="text-[10px] font-mono text-zinc-400 ">{col.type}</span>
                         </div>
                       </div>
                     </div>

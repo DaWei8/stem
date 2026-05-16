@@ -59,7 +59,7 @@ function TokenPreview({ color, label }: { color: string; label: string }) {
   return (
     <div className="space-y-2">
       <div className={cn("aspect-square rounded-xl border border-border shadow-inner", color)} />
-      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center">{label}</p>
+      <p className="text-[10px] font-bold text-muted-foreground  text-center">{label}</p>
     </div>
   )
 }

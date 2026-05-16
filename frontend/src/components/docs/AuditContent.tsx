@@ -45,11 +45,11 @@ export function AuditContent() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-6 bg-card border border-border rounded-2xl">
-              <h4 className="font-bold text-red-500 text-xs uppercase tracking-widest">Type A: Violation</h4>
+              <h4 className="font-bold text-red-500 text-xs ">Type A: Violation</h4>
               <p className="text-[11px] text-muted-foreground mt-2">A direct breach of security or logic invariants. System deployment is blocked.</p>
             </div>
             <div className="p-6 bg-card border border-border rounded-2xl">
-              <h4 className="font-bold text-amber-500 text-xs uppercase tracking-widest">Type B: Warning</h4>
+              <h4 className="font-bold text-amber-500 text-xs ">Type B: Warning</h4>
               <p className="text-[11px] text-muted-foreground mt-2">A non-critical optimization or "edge case" identified by the Bot.</p>
             </div>
           </div>

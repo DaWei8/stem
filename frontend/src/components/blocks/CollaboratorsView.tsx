@@ -55,9 +55,9 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'owner': return <span className="px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black text-[9px] font-black uppercase transition-colors">Owner</span>
-      case 'editor': return <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[9px] font-black uppercase border border-zinc-200 dark:border-zinc-700 transition-colors">Editor</span>
-      case 'viewer': return <span className="px-2 py-0.5 bg-zinc-50 dark:bg-black text-zinc-400 dark:text-zinc-600 text-[9px] font-black uppercase border border-zinc-100 dark:border-zinc-900 transition-colors">Viewer</span>
+      case 'owner': return <span className="px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black text-[9px] font-black  transition-colors">Owner</span>
+      case 'editor': return <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[9px] font-black  border border-zinc-200 dark:border-zinc-700 transition-colors">Editor</span>
+      case 'viewer': return <span className="px-2 py-0.5 bg-zinc-50 dark:bg-black text-zinc-400 dark:text-zinc-600 text-[9px] font-black  border border-zinc-100 dark:border-zinc-900 transition-colors">Viewer</span>
       default: return null
     }
   }
@@ -130,7 +130,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             {collaborators.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-4 group hover:bg-zinc-50 dark:hover:bg-white/5 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="size-10 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-400 dark:text-zinc-500 uppercase transition-colors">
+                  <div className="size-10 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-400 dark:text-zinc-500  transition-colors">
                     {(user.user.full_name || 'Anonymous').split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className="space-y-0.5">

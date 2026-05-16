@@ -1,9 +1,9 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { 
-  Laptop, Layout, PanelRight, MessageSquare, 
-  ShieldAlert, Zap, AlertTriangle, Minimize2, Maximize2 
+import {
+  Laptop, Layout, PanelRight, MessageSquare,
+  ShieldAlert, Zap, AlertTriangle, Minimize2, Maximize2
 } from 'lucide-react'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { motion } from 'framer-motion'
@@ -55,7 +55,7 @@ export function NodeHeader({
             {config.icon}
           </div>
           <span className={cn(
-            'text-[9px] uppercase font-black tracking-[0.15em] transition-colors',
+            'text-[9px]  font-black tracking-[0.15em] transition-colors',
             filterType === 'screens' ? 'text-white' : config.color
           )}>
             {config.label}
@@ -114,7 +114,7 @@ export function NodeHeader({
             e.stopPropagation()
             onTriggerFailure?.()
           }}
-          className="mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-widest transition-colors"
+          className="mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-[9px] font-black  transition-colors"
         >
           <Zap className="size-3" /> Inject Fault
         </motion.button>

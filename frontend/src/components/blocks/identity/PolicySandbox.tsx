@@ -94,7 +94,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Cpu className="size-4 text-violet-400" />
-            <span className="text-xs font-black text-violet-400 uppercase tracking-widest">Policy Sandbox</span>
+            <span className="text-xs font-black text-violet-400 ">Policy Sandbox</span>
             <span className="text-[10px] font-mono text-zinc-500 ml-2">{policy.name}</span>
           </div>
           <button onClick={onClose} className="text-zinc-600 hover:text-white transition-colors">
@@ -110,7 +110,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
 
         {/* Mock Variables */}
         <div className="space-y-2">
-          <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Mock Session Variables</p>
+          <p className="text-[9px] font-black text-zinc-500 ">Mock Session Variables</p>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
             {mockVars.map((v, i) => (
               <div key={i} className="flex items-center gap-2 p-2 bg-black border border-zinc-800">
@@ -119,7 +119,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
                   <button
                     onClick={() => updateVar(i, !v.value)}
                     className={cn(
-                      'text-[9px] font-black uppercase px-2 py-0.5 border transition-all',
+                      'text-[9px] font-black  px-2 py-0.5 border transition-all',
                       v.value
                         ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
                         : 'border-red-500/40 text-red-400 bg-red-500/10'

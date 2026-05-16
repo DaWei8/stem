@@ -114,21 +114,21 @@ export function LifecycleView() {
             <Flag className="size-4 text-zinc-400" />
             <div>
               <p className="text-2xl font-black tracking-tighter text-black dark:text-white">{featureFlags.length}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Feature Flags</p>
+              <p className="text-[10px] font-bold  text-zinc-400 mt-1">Feature Flags</p>
             </div>
           </div>
           <div className="p-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
             <ToggleRight className="size-4 text-green-500" />
             <div>
               <p className="text-2xl font-black tracking-tighter text-green-500">{activeFlags.length}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Active Flags</p>
+              <p className="text-[10px] font-bold  text-zinc-400 mt-1">Active Flags</p>
             </div>
           </div>
           <div className="p-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
             <FileCode2 className="size-4 text-zinc-400" />
             <div>
               <p className="text-2xl font-black tracking-tighter text-black dark:text-white">{migrations.length}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Schema Migrations</p>
+              <p className="text-[10px] font-bold  text-zinc-400 mt-1">Schema Migrations</p>
             </div>
           </div>
         </div>
@@ -184,7 +184,7 @@ export function LifecycleView() {
                           <span className="text-xs font-bold text-black dark:text-white">{flag.label}</span>
                           <span className="text-[10px] font-mono text-zinc-400 ml-2">{flag.flag_key}</span>
                         </div>
-                        <span className={cn("text-[9px] font-bold uppercase px-2 py-0.5 border", stageColor[flag.lifecycle_stage] || '')}>
+                        <span className={cn("text-[9px] font-bold  px-2 py-0.5 border", stageColor[flag.lifecycle_stage] || '')}>
                           {flag.lifecycle_stage}
                         </span>
                       </div>
@@ -216,7 +216,7 @@ export function LifecycleView() {
 
                             <div className="flex items-center gap-2">
                               <Shield className="size-3 text-zinc-400" />
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Gated Screens ({gates.length})</span>
+                              <span className="text-[10px] font-bold text-zinc-500 ">Gated Screens ({gates.length})</span>
                             </div>
 
                             {gates.map(gate => {
@@ -299,7 +299,7 @@ export function LifecycleView() {
                     <span className="text-[10px] font-mono text-zinc-400">
                       {mig.from_version} → {mig.to_version}
                     </span>
-                    <span className={cn("text-[9px] font-bold uppercase px-2 py-0.5 rounded-sm", statusColor[mig.status] || '')}>
+                    <span className={cn("text-[9px] font-bold  px-2 py-0.5 rounded-sm", statusColor[mig.status] || '')}>
                       {mig.status}
                     </span>
                   </div>

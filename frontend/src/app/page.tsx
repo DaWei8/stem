@@ -53,7 +53,7 @@ const HeroSection = () => {
 
           <div className="flex items-center gap-4">
             <div className="h-px w-2 bg-zinc-800" />
-            <p className="text-xs font-mono text-zinc-500 tracking-widest uppercase">
+            <p className="text-xs font-mono text-zinc-500 tracking-widest ">
               Systemic Technical Engine Manager
             </p>
           </div>

@@ -44,7 +44,7 @@ function SectionShell({
   return (
     <div className={cn(
       'px-4 py-2.5 transition-all duration-300 group/section',
-      isActiveFilter ? 'bg-white/[0.03] border-l-2 border-white/20' : ''
+      isActiveFilter ? 'bg-white/3 border-l-2 border-white/20' : ''
     )}>
       {/* Section Header — clickable to collapse */}
       <div className="flex items-center justify-between mb-1.5">
@@ -64,7 +64,7 @@ function SectionShell({
             {icon}
           </div>
           <span className={cn(
-            'text-[9px] font-black uppercase tracking-[0.15em] transition-colors',
+            'text-[9px] font-black transition-colors',
             isActiveFilter ? 'text-white' : 'text-zinc-600'
           )}>
             {title}
@@ -183,10 +183,10 @@ export function InputsSection({
                 {linkedVar?.scope && (
                   <Tooltip content={`Scope: ${linkedVar.scope}`}>
                     <span className={cn(
-                      'text-[7px] font-black uppercase tracking-wider px-1 py-0.5 border cursor-help',
+                      'text-[7px] font-black  px-1 py-0.5 border cursor-help',
                       linkedVar.scope === 'persistent' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' :
-                      linkedVar.scope === 'transient' ? 'text-amber-500 border-amber-500/20 bg-amber-500/5' :
-                      'text-violet-400 border-violet-400/20 bg-violet-400/5'
+                        linkedVar.scope === 'transient' ? 'text-amber-500 border-amber-500/20 bg-amber-500/5' :
+                          'text-violet-400 border-violet-400/20 bg-violet-400/5'
                     )}>
                       {linkedVar.scope === 'persistent' ? 'GLOBAL' : linkedVar.scope === 'transient' ? 'LOCAL' : 'CTX'}
                     </span>
@@ -237,7 +237,7 @@ export function ActionsSection({
           >
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-tight">
+                <span className="text-[9px] font-black text-zinc-600  tracking-tight">
                   {action.action_type?.split('_')[0] || 'EXEC'}
                 </span>
                 <ArrowRight className="w-2.5 h-2.5 text-zinc-800 group-hover/item:text-zinc-500 group-hover/item:translate-x-0.5 transition-all shrink-0" />
@@ -328,7 +328,7 @@ export function OutputsSection({
               <div className="flex items-center gap-1 shrink-0">
                 <code className="text-[8px] font-mono text-zinc-600 bg-black/50 px-1.5 py-0.5 border border-zinc-800/50">
                   {output.output_type === 'state_update' ? 'MUTATE' :
-                   output.output_type === 'webhook' ? 'WEBHOOK' : 'SYNC'}
+                    output.output_type === 'webhook' ? 'WEBHOOK' : 'SYNC'}
                 </code>
                 {onRemove && <ItemDeleteButton onDelete={() => onRemove(output.id)} />}
               </div>

@@ -249,7 +249,7 @@ export function ObservabilityView() {
                       {!bn.is_resolved && (
                         <button
                           onClick={() => resolveBottleneck(projectId, bn.id)}
-                          className="text-[9px] font-bold uppercase text-green-500 hover:underline"
+                          className="text-[9px] font-bold  text-green-500 hover:underline"
                         >
                           Resolve
                         </button>
@@ -278,7 +278,7 @@ function SummaryCard({ icon, label, value, accent }: { icon: React.ReactNode; la
       <div className="text-zinc-400">{icon}</div>
       <div>
         <p className={cn("text-2xl font-black tracking-tighter", accent)}>{value}</p>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mt-1">{label}</p>
+        <p className="text-[10px] font-bold  text-zinc-400 mt-1">{label}</p>
       </div>
     </div>
   )

@@ -33,7 +33,7 @@ export function BulkEdit({ selectedNodes, updatePage }: Props) {
     <div className="flex flex-col h-full overflow-hidden bg-zinc-50 dark:bg-black transition-colors">
       <div className="p-6 border-b border-zinc-200 dark:border-zinc-900 bg-white dark:bg-black shrink-0">
         <h2 className="text-lg font-bold text-black dark:text-white">Bulk Actions</h2>
-        <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">
+        <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500  mt-1">
           {selectedNodes.length} Elements Selected
         </p>
       </div>
@@ -41,7 +41,7 @@ export function BulkEdit({ selectedNodes, updatePage }: Props) {
       <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-8 custom-scrollbar">
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Move to Folder</label>
+            <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Move to Folder</label>
             <div className="relative">
               <Folder className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400" />
               <Input
@@ -64,14 +64,14 @@ export function BulkEdit({ selectedNodes, updatePage }: Props) {
         </div>
 
         <div className="pt-6 border-t border-zinc-200 dark:border-zinc-900">
-          <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4 block">Selected Elements</label>
+          <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  mb-4 block">Selected Elements</label>
           <div className="space-y-2">
             {selectedNodes.map(node => (
               <div key={node.id} className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center justify-between">
                 <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300 truncate max-w-[150px]">
                   {node.data?.label || 'Untitled Screen'}
                 </span>
-                <span className="text-[9px] font-mono text-zinc-400 dark:text-zinc-600 uppercase">
+                <span className="text-[9px] font-mono text-zinc-400 dark:text-zinc-600 ">
                   {node.data?.page?.folder || 'No Folder'}
                 </span>
               </div>

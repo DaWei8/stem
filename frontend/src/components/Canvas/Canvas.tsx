@@ -2,7 +2,6 @@
 
 import { ReactFlow, MiniMap, Controls, Background, BackgroundVariant } from '@xyflow/react'
 import { PageNode } from './PageNode'
-import { Folder } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useCanvasLayout } from '@/hooks/useCanvasLayout'
@@ -19,20 +18,8 @@ import { ValidationModal } from './ValidationModal'
 import { CanvasToolbar } from './CanvasToolbar'
 import { CommandPalette } from './CommandPalette'
 
-const GroupNode = ({ data }: any) => (
-  <div className="relative w-full h-full p-6">
-    <div className="absolute -top-7 left-2 flex items-center gap-2">
-      <div className="p-1.5 bg-zinc-900 rounded-md border border-zinc-800">
-        <Folder className="size-3 text-zinc-400" />
-      </div>
-      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500/60">{data.label}</span>
-    </div>
-  </div>
-)
-
 const nodeTypes = {
   screen: PageNode,
-  group: GroupNode,
 }
 
 export function Canvas() {
@@ -45,7 +32,8 @@ export function Canvas() {
     nodes, edges, onNodesChange, onEdgesChange, onConnect,
     onReconnect, onReconnectEnd, onEdgeClick, onNodeDrag, onNodeDragStop,
     isSimulating, isLoaded, toggleSimulation, handleAddManualScreen,
-    setNodes, simulationParams, setSimulationParams, runFlowSimulation, activePath
+    setNodes, simulationParams, setSimulationParams, runFlowSimulation, activePath,
+    simulationStatus, simulationLogs, simulationStep, autoLayout
   } = useCanvasLayout(projectId)
 
   const { pages, removePage, inputs, actions, outputs, transitions, setSelectedNodeId } = usePages()
@@ -158,6 +146,7 @@ export function Canvas() {
         <CanvasToolbar
           onAddScreen={handleAddManualScreen}
           onValidate={handleValidate}
+          onAutoLayout={autoLayout}
           onCreateSnapshot={handleCreateSnapshot}
           toggleSimulation={toggleSimulation}
           isSimulating={isSimulating}
@@ -179,6 +168,9 @@ export function Canvas() {
             handleTraceNarrative={handleTraceNarrative}
             runFlowSimulation={runFlowSimulation}
             activePath={activePath}
+            simulationStatus={simulationStatus}
+            simulationLogs={simulationLogs}
+            simulationStep={simulationStep}
           />
         )}
 
@@ -189,7 +181,6 @@ export function Canvas() {
           nodeTypes={nodeTypes} colorMode={isDark ? 'dark' : 'light'} fitView
           minZoom={0.1} maxZoom={1.5}
         >
-
           <Controls className="bg-white/10 dark:bg-black border-zinc-200 dark:border-zinc-800 fill-black dark:fill-white shadow-sm! rounded-none!" />
           <MiniMap className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none!" nodeColor="#a1a1aa" maskColor="rgba(0,0,0,0.1)" />
           <Background variant={BackgroundVariant.Dots} gap={32} size={1} color={isDark ? '#ffffff' : '#000000'} />

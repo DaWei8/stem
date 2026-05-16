@@ -97,7 +97,7 @@ export type Node = {
                 </div>
                 <div className="flex items-center gap-2">
                   <Bot className="size-3.5 text-zinc-400" />
-                  <span className="text-[10px] font-mono font-bold text-zinc-500 tracking-wider uppercase">Stem Architect</span>
+                  <span className="text-[10px] font-mono font-bold text-zinc-500 tracking-wider ">Stem Architect</span>
                 </div>
               </div>
               <div className="font-mono text-xs text-zinc-300 flex items-start gap-3 h-10">
@@ -199,7 +199,7 @@ export type Node = {
                 </div>
               </div>
               <div className="bg-black/80 px-3 py-2 border border-zinc-800 backdrop-blur-sm flex flex-col items-center">
-                <span className="text-[10px] font-bold font-mono tracking-widest text-zinc-400 uppercase whitespace-nowrap">
+                <span className="text-[10px] font-bold font-mono tracking-widest text-zinc-400  whitespace-nowrap">
                   {pillar.label}
                 </span>
                 <span className="text-[8px] font-mono font-bold text-emerald-500/80 mt-0.5 tracking-widest">

@@ -335,7 +335,7 @@ export function DesignSystem() {
                   <div className="size-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
                     <Plus className="size-6 text-zinc-400 dark:text-zinc-500" />
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-600">Register New Pattern</span>
+                  <span className="text-[10px] font-black  text-zinc-400 dark:text-zinc-600">Register New Pattern</span>
                 </button>
               </div>
             </div>
@@ -360,7 +360,7 @@ export function DesignSystem() {
       >
         <div className="space-y-8">
           <div className="space-y-4">
-            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Token Identifier</Label>
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Token Identifier</Label>
             <Input
               value={newTokenName}
               onChange={(e) => setNewTokenName(e.target.value)}
@@ -371,7 +371,7 @@ export function DesignSystem() {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+              <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">
                 {activeModal === 'typography' ? 'Typography Definition' : 'Value Definition'}
               </Label>
               {activeModal === 'color' && (
@@ -489,14 +489,14 @@ export function DesignSystem() {
               ) : activeModal === 'color' ? (
                 <div className="space-y-6">
                   <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 space-y-4">
-                    <Label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-wider">Dynamic Shade Engine</Label>
+                    <Label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 ">Dynamic Shade Engine</Label>
                     <div className="flex gap-4">
                       <div className="relative group cursor-pointer size-16">
                         <div
                           className="absolute inset-0 border border-black/10 dark:border-white/20 shadow-2xl transition-transform group-hover:scale-105"
                           style={{ backgroundColor: newTokenValue || '#ffffff' }}
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-black dark:bg-white text-white dark:text-black text-[8px] font-black px-1.5 py-0.5 uppercase z-20 pointer-events-none shadow-sm">Pick</div>
+                        <div className="absolute -bottom-2 -right-2 bg-black dark:bg-white text-white dark:text-black text-[8px] font-black px-1.5 py-0.5  z-20 pointer-events-none shadow-sm">Pick</div>
                         <input
                           type="color"
                           value={newTokenValue || '#ffffff'}
@@ -516,7 +516,7 @@ export function DesignSystem() {
                   </div>
 
                   <div className="p-4 bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-900">
-                    <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase mb-4 tracking-wider">Color Palette (50 — 950)</p>
+                    <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600  mb-4 tracking-wider">Color Palette (50 — 950)</p>
                     <div className="flex flex-col gap-1.5">
                       <div className="flex gap-1 h-12">
                         {generateShades(newTokenValue).map((color, idx) => (
@@ -534,7 +534,7 @@ export function DesignSystem() {
                       </div>
                       <div className="flex justify-between px-0.5">
                         <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700">50</span>
-                        <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700 uppercase">Shade Spectrum</span>
+                        <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700 ">Shade Spectrum</span>
                         <span className="text-[8px] font-black text-zinc-300 dark:text-zinc-700">950</span>
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export function DesignSystem() {
         footer={
           <Button
             onClick={handleSaveComponent}
-            className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black uppercase tracking-widest transition-all"
+            className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black  transition-all"
           >
             {editingComponentId ? 'Update Blueprint' : 'Create Component'}
           </Button>
@@ -569,11 +569,11 @@ export function DesignSystem() {
       >
         <div className="space-y-8">
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Component name</Label>
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Component name</Label>
             <Input value={newCompName} onChange={(e) => setNewCompName(e.target.value)} className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors" />
           </div>
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Classification</Label>
+            <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Classification</Label>
             <Select value={newCompType} onValueChange={(v) => v && setNewCompType(v as any)}>
               <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 w-full border-zinc-200 dark:border-zinc-800 rounded-none h-12! text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors font-mono"><SelectValue /></SelectTrigger>
               <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white capitalize rounded-none">

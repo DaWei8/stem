@@ -118,7 +118,7 @@ export default function DocsPage() {
                 <div key={cat.title} className="space-y-4">
                   <div className="flex items-center gap-2.5 text-zinc-400">
                     <cat.icon className="size-3.5" />
-                    <h3 className="text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-600">
+                    <h3 className="text-[10px] font-bold tracking-[0.15em]  text-zinc-600">
                       {cat.title}
                     </h3>
                   </div>
@@ -174,7 +174,7 @@ export default function DocsPage() {
               className="space-y-16"
             >
               {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+              <div className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground ">
                 <span>Docs</span>
                 <ChevronRight className="size-3" />
                 <span>{activeCategory.title}</span>
@@ -191,7 +191,7 @@ export default function DocsPage() {
         {/* Table of Contents */}
         <aside className="w-64 hidden xl:flex flex-col h-[calc(100vh-5rem)] sticky top-20 py-16 px-6 border-l border-border/50">
           <div className="space-y-6">
-            <h4 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">On this page</h4>
+            <h4 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground ">On this page</h4>
             <nav className="space-y-4">
               <TOCLinks slug={activeSlug} />
             </nav>
@@ -201,7 +201,7 @@ export default function DocsPage() {
             <div className="p-5 bg-foreground text-background rounded-2xl space-y-4">
               <h4 className="font-bold text-sm leading-tight">Need custom architecture?</h4>
               <p className="text-[10px] font-medium leading-relaxed opacity-70">Our engineering team can help you build mission-critical blueprints.</p>
-              <button className="w-full bg-background text-foreground text-[10px] font-black py-2.5 rounded-lg hover:opacity-90 transition-all uppercase tracking-widest border border-border/20">
+              <button className="w-full bg-background text-foreground text-[10px] font-black py-2.5 rounded-lg hover:opacity-90 transition-all  border border-border/20">
                 Contact Sales
               </button>
             </div>

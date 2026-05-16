@@ -75,20 +75,20 @@ function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string):
 
   const transitionList = snapshot.transitions.length > 0
     ? snapshot.transitions.map(t => {
-        const from = snapshot.pages.find(p => p.id === t.from_page_id)
-        const to = snapshot.pages.find(p => p.id === t.to_page_id)
-        return `  - ${from?.title || 'Unknown'} → ${to?.title || 'Unknown'} (${t.trigger_type})`
-      }).join('\n')
+      const from = snapshot.pages.find(p => p.id === t.from_page_id)
+      const to = snapshot.pages.find(p => p.id === t.to_page_id)
+      return `  - ${from?.title || 'Unknown'} → ${to?.title || 'Unknown'} (${t.trigger_type})`
+    }).join('\n')
     : '  - No transitions defined'
 
   const tableDetails = snapshot.tables.length > 0
     ? snapshot.tables.map(t => {
-        const cols = snapshot.columns.filter(c => c.table_id === t.id)
-        const colList = cols.length > 0
-          ? cols.map(c => `    - ${c.name} (${c.type})`).join('\n')
-          : '    - No columns'
-        return `  ### ${t.name}\n${colList}`
-      }).join('\n\n')
+      const cols = snapshot.columns.filter(c => c.table_id === t.id)
+      const colList = cols.length > 0
+        ? cols.map(c => `    - ${c.name} (${c.type})`).join('\n')
+        : '    - No columns'
+      return `  ### ${t.name}\n${colList}`
+    }).join('\n\n')
     : '  No tables defined'
 
   const variableList = snapshot.variables.length > 0
@@ -112,7 +112,7 @@ function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string):
     : '  - No components defined'
 
   const isSparse = snapshot.tables.length === 0 && snapshot.userTypes.length === 0;
-  
+
   let aiInference = '';
   if (isSparse) {
     aiInference = `

@@ -45,7 +45,7 @@ export function PathsContent() {
           </div>
           <div className="p-8 bg-card border border-border rounded-2xl flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bot Status</p>
+              <p className="text-[10px] font-bold text-muted-foreground ">Bot Status</p>
               <h4 className="text-lg font-bold text-foreground">100% Logic Coverage</h4>
             </div>
             <Activity className="size-8 text-green-500 animate-pulse" />

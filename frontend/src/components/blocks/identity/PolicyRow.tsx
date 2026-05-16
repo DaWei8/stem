@@ -62,7 +62,7 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs font-black uppercase tracking-tight text-black dark:text-white">{policy.name}</p>
+            <p className="text-xs font-black  tracking-tight text-black dark:text-white">{policy.name}</p>
             {referencedVars.length > 0 && (
               <div className="flex items-center gap-1 text-violet-500" title="Constraint Lineage: references tracked variables">
                 <Link2 className="size-3" />
@@ -72,13 +72,13 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={cn('text-[10px] font-black px-2 py-0.5 border uppercase tracking-widest', POLICY_STYLE[policy.policy_type])}>
+            <span className={cn('text-[10px] font-black px-2 py-0.5 border ', POLICY_STYLE[policy.policy_type])}>
               {policy.policy_type}
             </span>
             <span className="text-[10px] text-zinc-400">on</span>
             <span className="text-[10px] font-mono font-black text-black dark:text-white">{table?.name || 'entity'}</span>
             <span className="text-[10px] text-zinc-400">for</span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300">
+            <span className="text-[10px] font-black  px-2 py-0.5 bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300">
               {userType?.name || 'all'}
             </span>
           </div>
@@ -89,7 +89,7 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
           {/* Constraint Lineage pills */}
           {referencedVars.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[9px] text-zinc-400 uppercase tracking-widest">Lineage:</span>
+              <span className="text-[9px] text-zinc-400 ">Lineage:</span>
               {referencedVars.slice(0, 4).map(v => (
                 <span key={v.id} className="text-[9px] font-mono px-1.5 py-0.5 bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400">
                   {v.name || v.label}
@@ -104,7 +104,7 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
           <button
             onClick={onOpenSandbox}
             className={cn(
-              'flex items-center gap-1.5 px-2 py-1.5 text-[9px] font-black uppercase border transition-all',
+              'flex items-center gap-1.5 px-2 py-1.5 text-[9px] font-black  border transition-all',
               isActive
                 ? 'border-violet-500/50 text-violet-500 bg-violet-500/10'
                 : 'border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-violet-500/50 hover:text-violet-500'

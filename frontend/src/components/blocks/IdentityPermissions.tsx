@@ -152,7 +152,7 @@ export function IdentityPermissions() {
             {sandboxPolicy && (
               <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/10 border border-violet-500/20">
                 <Cpu className="size-3 text-violet-500" />
-                <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest">Sandbox Active</span>
+                <span className="text-[9px] font-black text-violet-500 ">Sandbox Active</span>
               </div>
             )}
           </div>
@@ -195,7 +195,7 @@ export function IdentityPermissions() {
           <div className="py-20 border border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-4">
             <ShieldCheck className="size-12 text-zinc-200 dark:text-zinc-800" />
             <div className="text-center">
-              <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Security model uninitialized.</p>
+              <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Security model uninitialized.</p>
               <p className="text-[10px] text-zinc-300 dark:text-zinc-700 font-medium italic mt-1">Define RLS policies to secure your data entities.</p>
             </div>
           </div>

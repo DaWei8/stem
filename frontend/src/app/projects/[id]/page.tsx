@@ -1,11 +1,9 @@
 'use client'
 
 import { Canvas } from '@/components/Canvas/Canvas'
-import { DataEngine } from '@/components/blocks/DataEngine'
-import { LogicLayer } from '@/components/blocks/LogicLayer'
 import { IdentityPermissions } from '@/components/blocks/IdentityPermissions'
 import { DesignSystem } from '@/components/blocks/DesignSystem'
-import { ExportView } from '@/components/blocks/ExportView'
+import { SystemEngine } from '@/components/blocks/SystemEngine'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
 import { DocumentationView } from '@/components/blocks/DocumentationView'
 import { ObservabilityView } from '@/components/blocks/ObservabilityView'
@@ -98,7 +96,7 @@ export default function ProjectEditorPage() {
   }
 
   const downloadDocFile = (htmlContent: string, filename: string) => {
-    const blob = new Blob(['\\ufeff', htmlContent], { type: 'application/msword' })
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -194,14 +192,14 @@ export default function ProjectEditorPage() {
       fetchMessages(projectId)
     }
   }, [
-    id, 
-    fetchProjectById, 
-    fetchVariables, 
-    fetchProjectPages, 
-    fetchDatabaseData, 
-    fetchIdentityData, 
+    id,
+    fetchProjectById,
+    fetchVariables,
+    fetchProjectPages,
+    fetchDatabaseData,
+    fetchIdentityData,
     fetchLogicData,
-    fetchObservabilityData, 
+    fetchObservabilityData,
     fetchLifecycleData,
     fetchMessages
   ])
@@ -213,17 +211,13 @@ export default function ProjectEditorPage() {
   const renderContent = () => {
     switch (activeView) {
       case 'dataengine':
-        return <DataEngine />
+      case 'logic':
+        return <SystemEngine />
       case 'identity':
         return <IdentityPermissions />
-      case 'logic':
-        return <LogicLayer />
       case 'design':
         return <DesignSystem />
       case 'export':
-        return <ExportView />
-      case 'collaborators':
-        return <CollaboratorsView />
       case 'documentation':
         return <DocumentationView />
       case 'observability':
@@ -298,7 +292,7 @@ export default function ProjectEditorPage() {
             className=" rounded-none h-10 px-4 text-[10px] font-black gap-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
           >
             <Download className="size-3.5" />
-            Export Options
+            Export
           </Button>
           <Button
             className="bg-black dark:bg-white border-black dark:border-white text-[10px] font-black text-white dark:text-black hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-none h-10 px-4 gap-2 transition-colors"

@@ -13,17 +13,17 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 const TYPE_STYLE: Record<string, string> = {
-  string:  'border-blue-500/20 text-blue-600 dark:text-blue-400 bg-blue-500/5',
-  number:  'border-amber-500/20 text-amber-600 dark:text-amber-400 bg-amber-500/5',
+  string: 'border-blue-500/20 text-blue-600 dark:text-blue-400 bg-blue-500/5',
+  number: 'border-amber-500/20 text-amber-600 dark:text-amber-400 bg-amber-500/5',
   boolean: 'border-emerald-500/20 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5',
-  date:    'border-purple-500/20 text-purple-600 dark:text-purple-400 bg-purple-500/5',
-  object:  'border-orange-500/20 text-orange-600 dark:text-orange-400 bg-orange-500/5',
-  array:   'border-pink-500/20 text-pink-600 dark:text-pink-400 bg-pink-500/5',
+  date: 'border-purple-500/20 text-purple-600 dark:text-purple-400 bg-purple-500/5',
+  object: 'border-orange-500/20 text-orange-600 dark:text-orange-400 bg-orange-500/5',
+  array: 'border-pink-500/20 text-pink-600 dark:text-pink-400 bg-pink-500/5',
 }
 
 const SCOPE_STYLE: Record<string, { label: string; color: string }> = {
   persistent: { label: 'DB', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
-  transient:  { label: 'RAM', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+  transient: { label: 'RAM', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
   contextual: { label: 'Flow', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
 }
 
@@ -51,12 +51,12 @@ export function DataStateTable({ variables, searchQuery, orphanIds, varSourceMap
       <Table>
         <TableHeader>
           <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent bg-zinc-50 dark:bg-black/50">
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 pl-6 uppercase tracking-widest">Identifier</TableHead>
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 uppercase tracking-widest">Source</TableHead>
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 uppercase tracking-widest">Registry UUID</TableHead>
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center uppercase tracking-widest">Type</TableHead>
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center uppercase tracking-widest">Scope</TableHead>
-            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center uppercase tracking-widest">Health</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 pl-6 ">Identifier</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 ">Source</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 ">Registry UUID</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center ">Type</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center ">Scope</TableHead>
+            <TableHead className="text-[10px] font-black text-zinc-400 py-4 text-center ">Health</TableHead>
             <TableHead className="w-[80px] py-4"></TableHead>
           </TableRow>
         </TableHeader>

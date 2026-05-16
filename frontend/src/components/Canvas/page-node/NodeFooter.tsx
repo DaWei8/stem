@@ -67,7 +67,7 @@ export function NodeFooter({
         {isPermissionDenied && (
           <div className="flex items-center gap-1 text-red-500">
             <Lock className="size-2.5" />
-            <span className="text-[8px] font-black uppercase tracking-widest">Restricted</span>
+            <span className="text-[8px] font-black ">Restricted</span>
           </div>
         )}
       </div>

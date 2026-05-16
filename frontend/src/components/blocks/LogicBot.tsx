@@ -57,7 +57,7 @@ export function LogicBot() {
     if (pages.length !== prevPagesLength.current) {
       const added = pages.length > prevPagesLength.current
       const diff = Math.abs(pages.length - prevPagesLength.current)
-      
+
       useSystemArchitect.getState().addMessage({
         role: 'assistant',
         content: `[SYSTEM] ${added ? 'Detected' : 'Removed'} ${diff} node(s) on the canvas. I have updated my structural map accordingly.`
@@ -151,7 +151,7 @@ export function LogicBot() {
                   <div key={i} className="p-4 border border-zinc-100 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-950/50 hover:bg-zinc-100 dark:hover:bg-zinc-900/40 transition-colors group">
                     <div className="flex items-center gap-2 mb-1.5 opacity-50 group-hover:opacity-100 transition-opacity">
                       <div className="text-zinc-400 dark:text-zinc-500 group-hover:text-black dark:group-hover:text-zinc-300 transition-colors">{stat.icon}</div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 group-hover:text-black dark:group-hover:text-zinc-300 transition-colors">
+                      <span className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 group-hover:text-black dark:group-hover:text-zinc-300 transition-colors">
                         {stat.label}
                       </span>
                     </div>
@@ -165,7 +165,7 @@ export function LogicBot() {
               {/* Active Screens List */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-900 pb-2 transition-colors">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Active Screens</h4>
+                  <h4 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500">Active Screens</h4>
                   <span className="text-[10px] font-black text-zinc-300 dark:text-zinc-700 transition-colors">({pages.length})</span>
                 </div>
                 <div className="flex flex-col">
@@ -214,18 +214,18 @@ export function LogicBot() {
                     {msg.script && (
                       <div className="w-full flex flex-wrap gap-2 mb-1 px-1">
                         {msg.script.includes('DEFINE SCREEN') && (
-                          <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[8px] font-black uppercase tracking-widest border border-blue-500/20">
+                          <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[8px] font-black  border border-blue-500/20">
                             +{msg.script.match(/DEFINE SCREEN/g)?.length} Screen(s)
                           </span>
                         )}
                         {msg.script.includes('CONNECT') && (
-                          <span className="px-2 py-0.5 bg-purple-500/10 text-purple-500 text-[8px] font-black uppercase tracking-widest border border-purple-500/20">
+                          <span className="px-2 py-0.5 bg-purple-500/10 text-purple-500 text-[8px] font-black  border border-purple-500/20">
                             +{msg.script.match(/CONNECT/g)?.length} Connection(s)
                           </span>
                         )}
                         {(msg.script.includes('ADD INPUT') || msg.script.includes('ADD MUTATION')) && (
-                          <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">
-                            +{ (msg.script.match(/ADD INPUT|ADD MUTATION/g)?.length) } Logical Ops
+                          <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[8px] font-black  border border-emerald-500/20">
+                            +{(msg.script.match(/ADD INPUT|ADD MUTATION/g)?.length)} Logical Ops
                           </span>
                         )}
                       </div>
@@ -236,7 +236,7 @@ export function LogicBot() {
                         <div className="h-9 bg-zinc-50 dark:bg-zinc-900/80 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
                           <div className="flex items-center gap-2">
                             <Terminal className="size-3 text-zinc-400 dark:text-zinc-500" />
-                            <span className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-widest">STEM-script</span>
+                            <span className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 tracking-widest">STEM-script</span>
                           </div>
                           <button
                             onClick={() => handleCopy(msg.id, msg.script!)}
@@ -250,7 +250,7 @@ export function LogicBot() {
                         </pre>
                         <button
                           onClick={() => handleCommit(msg.script!)}
-                          className="w-full h-10 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] border-t border-zinc-200 dark:border-zinc-800"
+                          className="w-full h-10 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black  flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] border-t border-zinc-200 dark:border-zinc-800"
                         >
                           <Play className="size-3.5" />
                           Commit Architecture
@@ -263,7 +263,7 @@ export function LogicBot() {
                   <div className="flex flex-col items-start gap-3">
                     <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-4 flex items-center gap-3 backdrop-blur-sm transition-colors">
                       <Loader2 className="size-3.5 animate-spin text-black dark:text-white" />
-                      <span className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-widest animate-pulse">Synthesizing Logic...</span>
+                      <span className="text-[10px] font-black  text-zinc-400 dark:text-zinc-500 tracking-widest animate-pulse">Synthesizing Logic...</span>
                     </div>
                   </div>
                 )}

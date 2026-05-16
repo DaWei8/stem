@@ -36,6 +36,7 @@ export type PageNodeData = {
   isTraced?: boolean
   isNew?: boolean
   validationWarnings?: string[]
+  activeStep?: boolean
 }
 
 
@@ -48,11 +49,14 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
   const hasActiveFilter = filterType !== 'none'
   const { isChaosMode } = useUI()
   const variables = useVariables((s) => s.variables)
-  const { 
-    addInput, addAction, addOutput, 
-    removeInput, removeAction, removeOutput,
-    updateInput, updateOutput 
-  } = usePages()
+  const addInput = usePages(s => s.addInput)
+  const addAction = usePages(s => s.addAction)
+  const addOutput = usePages(s => s.addOutput)
+  const removeInput = usePages(s => s.removeInput)
+  const removeAction = usePages(s => s.removeAction)
+  const removeOutput = usePages(s => s.removeOutput)
+  const updateInput = usePages(s => s.updateInput)
+  const updateOutput = usePages(s => s.updateOutput)
   const isPermissionDenied = filterType === 'permission'
   const isEmpty = inputs.length === 0 && actions.length === 0 && outputs.length === 0
   
@@ -107,10 +111,12 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
       <div className={cn(
         "relative p-px transition-all duration-500 rounded-xl overflow-hidden",
         selected ? "bg-white" : (
-          (data.isStart || data.isEnd) ? "bg-green-500 shadow-[0_0_30px_rgba(34,197,94,0.4)]" :
-            (data.isHighlighted ? "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]" :
-              (data.isTraced ? "bg-white shadow-[0_0_40px_rgba(255,255,255,0.6)] scale-[1.05] z-50 animate-pulse" :
-                (isFiltered ? "bg-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-[1.02]" : "bg-zinc-800 group-hover:bg-zinc-600")))
+          data.activeStep ? "bg-green-500 shadow-[0_0_40px_rgba(34,197,94,0.6)] scale-[1.05] z-50" : (
+            (data.isStart || data.isEnd) ? "bg-green-500 shadow-[0_0_30px_rgba(34,197,94,0.4)]" :
+              (data.isHighlighted ? "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]" :
+                (data.isTraced ? "bg-white shadow-[0_0_40px_rgba(255,255,255,0.6)] scale-[1.05] z-50 animate-pulse" :
+                  (isFiltered ? "bg-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-[1.02]" : "bg-zinc-800 group-hover:bg-zinc-600")))
+          )
         ),
         data.simulationStatus === 'success' && !data.isStart && !data.isEnd && "bg-green-500",
         data.simulationStatus === 'error' && "bg-red-500",

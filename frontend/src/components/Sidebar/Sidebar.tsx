@@ -23,16 +23,14 @@ import { ModeSwitcher } from '../layout/ModeSwitcher'
 const allPillars = [
   { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys', modes: ['architect', 'design'] },
   { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens', modes: ['architect', 'design'] },
-  { id: 'dataengine', name: 'Data Engine', icon: Database, description: 'Schema & state', modes: ['architect', 'dev'] },
-  { id: 'logic', name: 'Logic Layer', icon: Code2, description: 'Cloud functions', modes: ['architect', 'dev'] },
+  { id: 'dataengine', name: 'System Engine', icon: Brain, description: 'Logic & Schema', modes: ['architect', 'dev', 'design'] },
   { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model', modes: ['architect', 'dev'] },
   { id: 'observability', name: 'Observability', icon: Activity, description: 'Latency & cost', modes: ['architect', 'dev'] },
   { id: 'lifecycle', name: 'Lifecycle', icon: GitBranch, description: 'Flags & migrations', modes: ['architect', 'dev'] },
 ]
 
 const secondaryActions = [
-  { id: 'export', name: 'Export', icon: Download, description: 'Export your stem file' },
-  { id: 'documentation', name: 'Docs', icon: FileText, description: 'Auto-generated specs' },
+  { id: 'documentation', name: 'Docs & Assets', icon: FileText, description: 'Specs & Blueprints' },
   { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
 ]
 
@@ -44,7 +42,7 @@ export function Sidebar() {
   useEffect(() => {
     const isPillarAvailable = pillars.some(p => p.id === activeView)
     const isSecondaryAction = secondaryActions.some(a => a.id === activeView)
-    
+
     if (!isPillarAvailable && !isSecondaryAction && pillars.length > 0) {
       setActiveView(pillars[0].id as PillarView)
     }
@@ -117,7 +115,7 @@ export function Sidebar() {
               "mb-4 px-4 transition-opacity",
               !sidebarVisible && "opacity-0"
             )}>
-              <span className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">System</span>
+              <span className="text-[10px] font-black text-zinc-700 tracking-widest ">System</span>
             </div>
             {secondaryActions.map((item) => {
               const Icon = item.icon

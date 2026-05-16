@@ -20,7 +20,7 @@ export function HeroVisual() {
             <div className="size-2 rounded-full bg-zinc-800" />
             <div className="size-2 rounded-full bg-zinc-800" />
             <div className="size-2 rounded-full bg-zinc-800" />
-            <span className="ml-4 text-[9px] font-mono text-zinc-600 font-bold tracking-widest uppercase">System Flow: authentication_v1.blueprint</span>
+            <span className="ml-4 text-[9px] font-mono text-zinc-600 font-bold tracking-widest ">System Flow: authentication_v1.blueprint</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="size-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
@@ -62,7 +62,7 @@ export function HeroVisual() {
           {/* Right Panel */}
           <div className="w-56 border-l border-zinc-900 bg-black/30 p-4 space-y-6">
             <div className="space-y-3">
-              <h4 className="text-[9px] font-black text-zinc-500 tracking-[0.2em] uppercase">Properties</h4>
+              <h4 className="text-[9px] font-black text-zinc-500 tracking-[0.2em] ">Properties</h4>
               <div className="space-y-2">
                 <Property label="Type" value="Mission Critical" />
                 <Property label="Latency" value="< 2ms" />
@@ -70,7 +70,7 @@ export function HeroVisual() {
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="text-[9px] font-black text-zinc-500 tracking-[0.2em] uppercase">Metrics</h4>
+              <h4 className="text-[9px] font-black text-zinc-500 tracking-[0.2em] ">Metrics</h4>
               <div className="h-20 bg-black/50 border border-zinc-800 rounded-lg flex items-end justify-between p-2 gap-1">
                 {[40, 70, 45, 90, 65, 80, 55, 75].map((h, i) => (
                   <motion.div

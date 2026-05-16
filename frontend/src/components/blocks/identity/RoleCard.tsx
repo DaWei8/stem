@@ -79,13 +79,13 @@ export function RoleCard({ role, policies, isImpersonating, onEdit, onDuplicate,
             {role.is_admin && !isImpersonating && (
               <div className="flex items-center w-fit gap-1 px-2 py-0.5 bg-red-500/5 border border-red-500/20 rounded-full">
                 <div className="size-1 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-[8px] font-black text-red-500 uppercase tracking-widest">System Admin</span>
+                <span className="text-[8px] font-black text-red-500 ">System Admin</span>
               </div>
             )}
             {/* Persona active badge */}
             {isImpersonating && (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded-full!">
-                <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Active</span>
+                <span className="text-[8px] font-black text-amber-500 ">Active</span>
               </div>
             )}
           </CardTitle>
@@ -101,7 +101,7 @@ export function RoleCard({ role, policies, isImpersonating, onEdit, onDuplicate,
             <button
               onClick={onImpersonate}
               className={cn(
-                'text-[9px] font-black uppercase tracking-widest px-2 py-1 border transition-all',
+                'text-[9px] font-black  px-2 py-1 border transition-all',
                 isImpersonating
                   ? 'border-amber-500/50 text-amber-500 bg-amber-500/10'
                   : 'border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'

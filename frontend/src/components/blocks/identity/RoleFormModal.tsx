@@ -47,14 +47,14 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
       title={editingRole ? 'Modify Identity Role' : 'Define Identity Role'}
       description={editingRole ? 'Update archetype parameters and permissions.' : 'Establish a new user archetype and their global permissions.'}
       footer={
-        <Button onClick={handleSave} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black uppercase tracking-widest">
+        <Button onClick={handleSave} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black ">
           {editingRole ? 'Save Changes' : 'Establish Role'}
         </Button>
       }
     >
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Role Identifier</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Role Identifier</Label>
           <Input
             value={editingRole ? editingRole.name : name}
             onChange={e => editingRole ? null : setName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
@@ -63,7 +63,7 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Description</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Description</Label>
           <Textarea
             value={editingRole ? editingRole.description : description}
             onChange={e => editingRole ? null : setDescription(e.target.value)}
@@ -78,12 +78,12 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
             onCheckedChange={v => setIsAdmin(!!v)}
             className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
           />
-          <Label htmlFor="is_admin" className="text-[10px] font-black text-zinc-400 uppercase tracking-widest cursor-pointer">
+          <Label htmlFor="is_admin" className="text-[10px] font-black text-zinc-400  cursor-pointer">
             Grant Super-Admin Privileges
           </Label>
         </div>
         <div className="space-y-3">
-          <Label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Theme Marker</Label>
+          <Label className="text-[10px] font-black text-zinc-400 ">Theme Marker</Label>
           <div className="flex flex-wrap gap-2">
             {COLORS.map(c => (
               <button

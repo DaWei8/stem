@@ -74,7 +74,7 @@ export default function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Display Name</Label>
+              <Label className="text-[10px] font-bold text-zinc-500 ">Display Name</Label>
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -83,7 +83,7 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Email Address</Label>
+              <Label className="text-[10px] font-bold text-zinc-500 ">Email Address</Label>
               <Input
                 value={email}
                 disabled
@@ -101,7 +101,7 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Company Name</Label>
+              <Label className="text-[10px] font-bold text-zinc-500 ">Company Name</Label>
               <Input
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
@@ -145,15 +145,15 @@ export default function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 border border-zinc-900 bg-black/30 space-y-4">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Current Plan</p>
+              <p className="text-[10px] font-black text-zinc-600 ">Current Plan</p>
               <div className="space-y-1">
-                <h3 className="text-xl font-black uppercase">{profile?.subscription_tier || 'Free'}</h3>
+                <h3 className="text-xl font-black ">{profile?.subscription_tier || 'Free'}</h3>
                 <p className="text-[10px] text-zinc-500 font-medium">Standard deterministic engine</p>
               </div>
-              <Button variant="ghost" className="text-white p-0 h-auto text-[10px] font-bold uppercase tracking-widest">Upgrade to Pro</Button>
+              <Button variant="ghost" className="text-white p-0 h-auto text-[10px] font-bold ">Upgrade to Pro</Button>
             </div>
             <div className="p-6 border border-zinc-900 bg-black/30 space-y-4">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Projects Used</p>
+              <p className="text-[10px] font-black text-zinc-600 ">Projects Used</p>
               <div className="space-y-1">
                 <h3 className="text-xl font-black">0 / {profile?.max_projects || 5}</h3>
                 <div className="w-full h-1 bg-black rounded-full overflow-hidden">
@@ -162,7 +162,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="p-6 border border-zinc-900 bg-black/30 space-y-4">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Collaborators</p>
+              <p className="text-[10px] font-black text-zinc-600 ">Collaborators</p>
               <div className="space-y-1">
                 <h3 className="text-xl font-black">0 / {profile?.max_collaborators || 3}</h3>
                 <div className="w-full h-1 bg-black rounded-full overflow-hidden">
@@ -182,7 +182,7 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex items-center justify-between p-6 border border-zinc-900 bg-black/30">
               <div className="space-y-1">
-                <h4 className="text-xs font-bold uppercase tracking-widest">Deterministic Mode</h4>
+                <h4 className="text-xs font-bold ">Deterministic Mode</h4>
                 <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">Strict validation for all flow logic and state transitions.</p>
               </div>
               <button
@@ -201,7 +201,7 @@ export default function SettingsPage() {
 
             <div className="p-6 border border-zinc-900 bg-black/30 flex items-center justify-between opacity-50 cursor-not-allowed">
               <div className="space-y-1">
-                <h4 className="text-xs font-bold uppercase tracking-widest">Edge Computing</h4>
+                <h4 className="text-xs font-bold ">Edge Computing</h4>
                 <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">Deploy system logic to globally distributed nodes.</p>
               </div>
               <div className="w-11 h-6 bg-black relative">

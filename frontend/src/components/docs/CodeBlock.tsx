@@ -17,7 +17,7 @@ export function CodeBlock({ title, code, handleCopy, copied }: CodeBlockProps) {
           <div className="size-2.5 rounded-full bg-red-500/20 border border-red-500/30" />
           <div className="size-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/30" />
           <div className="size-2.5 rounded-full bg-green-500/20 border border-green-500/30" />
-          <span className="ml-3 text-[10px] font-mono font-bold tracking-widest text-muted-foreground uppercase">{title}</span>
+          <span className="ml-3 text-[10px] font-mono font-bold tracking-widest text-muted-foreground ">{title}</span>
         </div>
         <button
           onClick={() => handleCopy(code)}

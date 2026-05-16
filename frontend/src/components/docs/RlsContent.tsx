@@ -46,7 +46,7 @@ export function RlsContent() {
           <div className="p-6 bg-card border border-border rounded-2xl space-y-4">
             <div className="flex items-center gap-3">
               <CheckCircle className="size-4 text-green-500" />
-              <span className="text-[10px] font-mono font-bold tracking-widest text-muted-foreground uppercase">Audit: PASS</span>
+              <span className="text-[10px] font-mono font-bold tracking-widest text-muted-foreground ">Audit: PASS</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               The Logic Bot performs exhaustive SQL analysis to ensure that your RLS policies contain no vulnerabilities like infinite recursion or bypass conditions.

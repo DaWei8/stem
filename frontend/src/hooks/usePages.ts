@@ -138,7 +138,7 @@ export const usePages = create<PagesState>((set) => ({
         project_id: projectId,
         from_page_id: sourceId, 
         to_page_id: targetId,
-        trigger_type: triggerType || 'user_action',
+        trigger_type: triggerType || (isFailurePath ? 'failure' : 'auto'),
         is_failure_path: isFailurePath || false
       }])
       .select()

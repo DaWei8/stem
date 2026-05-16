@@ -4,15 +4,15 @@ import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function SidebarSection({ title, icon, onAdd, items, renderItem }: { 
-  title: string; icon: React.ReactNode; onAdd: () => void; items: any[]; renderItem: (item: any) => React.ReactNode 
+export function SidebarSection({ title, icon, onAdd, items, renderItem }: {
+  title: string; icon: React.ReactNode; onAdd: () => void; items: any[]; renderItem: (item: any) => React.ReactNode
 }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{title}</span>
+          <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">{title}</span>
         </div>
         <button onClick={onAdd} className="size-5 rounded-md border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/20 transition-all">
           <Plus className="size-3" />
@@ -31,8 +31,8 @@ export function SidebarSection({ title, icon, onAdd, items, renderItem }: {
   )
 }
 
-export function OverviewSection({ title, count, items, renderItem }: { 
-  title: string; count: number; items: any[]; renderItem: (item: any) => React.ReactNode 
+export function OverviewSection({ title, count, items, renderItem }: {
+  title: string; count: number; items: any[]; renderItem: (item: any) => React.ReactNode
 }) {
   const [showAll, setShowAll] = useState(false)
   if (items.length === 0) return null
@@ -60,10 +60,10 @@ export function OverviewSection({ title, count, items, renderItem }: {
   )
 }
 
-export function StatMini({ 
-  label, value, icon, status, onClick, active 
-}: { 
-  label: string; value: any; icon: React.ReactNode; status?: 'active'; onClick?: () => void; active?: boolean 
+export function StatMini({
+  label, value, icon, status, onClick, active
+}: {
+  label: string; value: any; icon: React.ReactNode; status?: 'active'; onClick?: () => void; active?: boolean
 }) {
   return (
     <div
@@ -84,7 +84,7 @@ export function StatMini({
           active ? "text-black dark:text-white" : "text-black dark:text-white"
         )}>{value}</p>
         <p className={cn(
-          "text-[9px] font-bold uppercase tracking-tighter transition-colors",
+          "text-[9px] font-bold  tracking-tighter transition-colors",
           active ? "text-black/60 dark:text-white/60" : "text-zinc-400 dark:text-zinc-600"
         )}>{label}</p>
       </div>

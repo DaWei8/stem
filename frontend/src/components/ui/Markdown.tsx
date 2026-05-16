@@ -11,9 +11,9 @@ interface MarkdownProps {
 export function Markdown({ content, className }: MarkdownProps) {
   // Simple regex-based markdown formatter for the chat
   // Supports: bold, italic, inline code, headings, and lists
-  
+
   const lines = content.split('\n')
-  
+
   return (
     <div className={cn("space-y-2", className)}>
       {lines.map((line, i) => {
@@ -22,10 +22,10 @@ export function Markdown({ content, className }: MarkdownProps) {
 
         // Headings
         if (line.startsWith('### ')) {
-          return <h3 key={i} className="text-sm font-black text-black dark:text-white mt-4 mb-1 uppercase tracking-tight">{formatInline(line.slice(4))}</h3>
+          return <h3 key={i} className="text-sm font-black text-black dark:text-white mt-4 mb-1  tracking-tight">{formatInline(line.slice(4))}</h3>
         }
         if (line.startsWith('## ')) {
-          return <h2 key={i} className="text-base font-black text-black dark:text-white mt-6 mb-2 uppercase tracking-tighter">{formatInline(line.slice(3))}</h2>
+          return <h2 key={i} className="text-base font-black text-black dark:text-white mt-6 mb-2  tracking-tighter">{formatInline(line.slice(3))}</h2>
         }
 
         // Ordered List
@@ -67,7 +67,7 @@ function formatInline(text: string) {
 
   // This is a very basic inline parser
   // Handles **bold**, `code`, and _italic_
-  
+
   const regex = /(\*\*.*?\*\*|`.*?`|_.*?_)/g
   const segments = currentText.split(regex)
 

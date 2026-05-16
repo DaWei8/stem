@@ -59,7 +59,7 @@ export function ValidationModal({
                         onLocate(issue.pageId!);
                         onClose();
                       }}
-                      className="mt-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+                      className="mt-2 text-[10px] font-black  text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
                     >
                       Locate Screen →
                     </button>

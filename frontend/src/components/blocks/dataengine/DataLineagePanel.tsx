@@ -74,7 +74,7 @@ export function DataLineagePanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-blue-500" />
-            <span className="text-xs font-black text-black dark:text-white uppercase tracking-widest">Lineage</span>
+            <span className="text-xs font-black text-black dark:text-white ">Lineage</span>
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
             <X className="size-4" />
@@ -162,7 +162,7 @@ function LineageSection({ icon, title, count, color, children }: {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{title}</span>
+          <span className="text-[10px] font-black text-zinc-500 ">{title}</span>
         </div>
         <span className={cn('text-[10px] font-bold', `text-${color}-500`)}>{count}</span>
       </div>

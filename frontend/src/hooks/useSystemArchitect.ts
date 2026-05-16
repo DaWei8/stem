@@ -1,7 +1,6 @@
 'use client'
 
 import { create } from 'zustand'
-import { Screen, Transition } from '@/types'
 import { usePages } from './usePages'
 import { useVariables } from './useVariables'
 import { toast } from 'sonner'
@@ -55,7 +54,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
     }
 
     if (data && data.length > 0) {
-      set({ 
+      set({
         messages: data.map(m => ({
           id: m.id,
           role: m.role,
@@ -78,7 +77,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
 
   generateSystem: async (prompt, projectId) => {
     set({ isArchitecting: true })
-    
+
     try {
       const { pages, transitions, inputs, actions, outputs, selectedNodeId } = usePages.getState()
       const { variables } = useVariables.getState()
@@ -86,8 +85,8 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
       const projectData = {
         projectId,
         selectedNodeId,
-        architecture: { 
-          pages: pages.map(p => ({ id: p.id, title: p.title, type: p.page_type })), 
+        architecture: {
+          pages: pages.map(p => ({ id: p.id, title: p.title, type: p.page_type })),
           transitions: transitions.map(t => ({ from: t.from_page_id, to: t.to_page_id })),
           counts: {
             inputs: inputs.length,
@@ -113,7 +112,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
       let response;
       let retries = 0;
       const maxRetries = 3;
-      
+
       while (retries < maxRetries) {
         response = await fetch('/api/architect', {
           method: 'POST',
@@ -125,16 +124,16 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
         })
 
         if (response.ok) break;
-        
+
         const errorData = await response.json();
         if (response.status === 503 && retries < maxRetries - 1) {
           retries++;
           const delay = Math.pow(2, retries) * 1000;
-          toast.loading(`Gemini is busy. Retrying in ${delay/1000}s... (Attempt ${retries}/${maxRetries})`, { id: 'ai-retry' });
+          toast.loading(`Gemini is busy. Retrying in ${delay / 1000}s... (Attempt ${retries}/${maxRetries})`, { id: 'ai-retry' });
           await new Promise(r => setTimeout(r, delay));
           continue;
         }
-        
+
         throw new Error(errorData.error || 'API Request failed');
       }
 
@@ -168,15 +167,17 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
   commitScript: async (script, projectId) => {
     const { addPage, addTransition, addInput, addAction, addOutput, pages } = usePages.getState()
     const { variables } = useVariables.getState()
-    
+
     toast.loading('Executing architecture transactions...')
-    
+
     try {
       const lines = script.split('\n')
       const screenMap: Record<string, string> = {} // name -> id
-      
+
       // Seed existing screens
       pages.forEach(p => { if (p.title) screenMap[p.title] = p.id })
+
+      const { inputs: existingInputs, actions: existingActions, outputs: existingOutputs } = usePages.getState()
       
       for (const line of lines) {
         const cleanLine = line.trim()
@@ -200,7 +201,10 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
           const pageId = screenMap[screenName]
           const variableId = variables.find(v => v.label === varLabel)?.id
           if (pageId && variableId) {
-            await addInput(pageId, { name, input_type: type as any, variable_id: variableId })
+            const exists = existingInputs.some(i => i.page_id === pageId && i.name === name)
+            if (!exists) {
+              await addInput(pageId, { name, input_type: type as any, variable_id: variableId })
+            }
           }
           continue
         }
@@ -211,7 +215,10 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
           const [_, screenName, name, type] = actionMatch
           const pageId = screenMap[screenName]
           if (pageId) {
-            await addAction(pageId, { name, action_type: type as any })
+            const exists = existingActions.some(a => a.page_id === pageId && a.name === name)
+            if (!exists) {
+              await addAction(pageId, { name, action_type: type as any })
+            }
           }
           continue
         }
@@ -223,7 +230,10 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
           const pageId = screenMap[screenName]
           const variableId = variables.find(v => v.label === varLabel)?.id
           if (pageId && variableId) {
-            await addOutput(pageId, { name, output_type: type as any, variable_id: variableId })
+            const exists = existingOutputs.some(o => o.page_id === pageId && o.name === name)
+            if (!exists) {
+              await addOutput(pageId, { name, output_type: type as any, variable_id: variableId })
+            }
           }
           continue
         }
@@ -240,7 +250,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
           continue
         }
       }
-      
+
       toast.dismiss()
       toast.success('Architecture synchronized successfully')
     } catch (error) {

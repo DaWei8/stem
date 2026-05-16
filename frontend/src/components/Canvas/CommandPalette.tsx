@@ -120,13 +120,13 @@ export function CommandPalette({ selectedNodeId, projectId }: { selectedNodeId?:
                 placeholder="Type a command (e.g., 'screen Dashboard', 'mutate user_status')"
                 className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-black dark:text-white placeholder:text-zinc-500"
               />
-              <div className="flex items-center gap-1 text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-900 px-2 py-1 rounded">
+              <div className="flex items-center gap-1 text-[10px] font-bold text-zinc-400  bg-zinc-100 dark:bg-zinc-900 px-2 py-1 rounded">
                 ENTER
               </div>
             </div>
 
             <div className="p-2 bg-zinc-50 dark:bg-zinc-900/50">
-              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Available Commands</div>
+              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 ">Available Commands</div>
               <div className="space-y-1">
                 <CommandItem icon={<Plus className="size-3" />} cmd="screen [name]" desc="Create a new screen node" />
                 <CommandItem icon={<Database className="size-3" />} cmd="mutate [var_name]" desc="Add a state mutation to selected screen" />

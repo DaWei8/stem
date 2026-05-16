@@ -37,7 +37,7 @@ export function PillarHeader({
             <div key={stat.label} className="flex items-center gap-6">
               {i > 0 && <div className="h-10 w-px bg-zinc-200 dark:bg-zinc-800" />}
               <div className="text-right">
-                <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider transition-colors">{stat.label}</p>
+                <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500  transition-colors">{stat.label}</p>
                 <p className="text-2xl font-black font-mono text-black dark:text-white transition-colors">{stat.value}</p>
               </div>
             </div>
