@@ -1,8 +1,8 @@
 'use client'
 
-import { create } from 'zustand'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { create } from 'zustand'
 
 interface UserProfile {
   id: string
@@ -63,11 +63,11 @@ export const useUser = create<UserState>((set) => ({
         .eq('id', user.id)
 
       if (error) throw error
-      
+
       set((state) => ({
         profile: state.profile ? { ...state.profile, ...updates } : null
       }))
-      
+
       toast.success('Profile updated successfully')
     } catch (error: any) {
       toast.error(`Update failed: ${error.message}`)
