@@ -24,9 +24,7 @@ const allPillars = [
   { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys', modes: ['architect', 'design'] },
   { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens', modes: ['architect', 'design'] },
   { id: 'dataengine', name: 'System Engine', icon: Brain, description: 'Logic & Schema', modes: ['architect', 'dev', 'design'] },
-  { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model', modes: ['architect', 'dev'] },
-  { id: 'observability', name: 'Observability', icon: Activity, description: 'Latency & cost', modes: ['architect', 'dev'] },
-  { id: 'lifecycle', name: 'Lifecycle', icon: GitBranch, description: 'Flags & migrations', modes: ['architect', 'dev'] },
+  { id: 'identity', name: 'User Types', icon: Users, description: 'Permission model', modes: ['architect', 'dev'] }
 ]
 
 const secondaryActions = [

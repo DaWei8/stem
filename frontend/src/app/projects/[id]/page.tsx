@@ -6,8 +6,6 @@ import { DesignSystem } from '@/components/blocks/DesignSystem'
 import { SystemEngine } from '@/components/blocks/SystemEngine'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
 import { DocumentationView } from '@/components/blocks/DocumentationView'
-import { ObservabilityView } from '@/components/blocks/ObservabilityView'
-import { LifecycleView } from '@/components/blocks/LifecycleView'
 import { useUI } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
 import { useVariables } from '@/hooks/useVariables'
@@ -23,8 +21,6 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useProjects } from '@/hooks/useProjects'
 import { usePages } from '@/hooks/usePages'
-import { useObservability } from '@/hooks/useObservability'
-import { useLifecycle } from '@/hooks/useLifecycle'
 import { useSystemArchitect } from '@/hooks/useSystemArchitect'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
@@ -43,8 +39,6 @@ export default function ProjectEditorPage() {
   const { tables, columns, fetchProjectData: fetchDatabaseData } = useDatabase()
   const { userTypes, policies, fetchIdentityData } = useIdentity()
   const { fetchLogicData } = useLogic()
-  const { fetchObservabilityData, latencyModels, costProjections, bottlenecks } = useObservability()
-  const { fetchLifecycleData, featureFlags, flagGates, migrations, transforms } = useLifecycle()
   const { fetchMessages } = useSystemArchitect()
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
@@ -119,8 +113,6 @@ export default function ProjectEditorPage() {
           identity: { userTypes, policies },
           logic: { variables },
           designSystem: { tokens, components },
-          observability: { latencyModels, costProjections, bottlenecks },
-          lifecycle: { featureFlags, flagGates, migrations, transforms },
           meta: { version: '0.1.0-alpha', exportedAt: new Date().toISOString(), engine: 'STEM-CORE-V1' }
         }
         const docText = generateProjectDocumentation(data)
@@ -140,8 +132,6 @@ export default function ProjectEditorPage() {
           identity: { userTypes, policies },
           logic: { variables },
           designSystem: { tokens, components },
-          observability: { latencyModels, costProjections, bottlenecks },
-          lifecycle: { featureFlags, flagGates, migrations, transforms },
           meta: { version: '0.1.0-alpha', exportedAt: new Date().toISOString(), engine: 'STEM-CORE-V1' }
         }
         downloadFile(data, `${currentProject?.name?.toLowerCase().replace(/\\s+/g, '_') || 'project'}.stem`)
@@ -187,8 +177,6 @@ export default function ProjectEditorPage() {
       fetchDatabaseData(projectId)
       fetchIdentityData(projectId)
       fetchLogicData(projectId)
-      fetchObservabilityData(projectId)
-      fetchLifecycleData(projectId)
       fetchMessages(projectId)
     }
   }, [
@@ -199,8 +187,6 @@ export default function ProjectEditorPage() {
     fetchDatabaseData,
     fetchIdentityData,
     fetchLogicData,
-    fetchObservabilityData,
-    fetchLifecycleData,
     fetchMessages
   ])
 
@@ -220,10 +206,6 @@ export default function ProjectEditorPage() {
       case 'export':
       case 'documentation':
         return <DocumentationView />
-      case 'observability':
-        return <ObservabilityView />
-      case 'lifecycle':
-        return <LifecycleView />
       case 'flows':
         return <Canvas />
       default:

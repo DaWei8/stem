@@ -309,12 +309,12 @@ export interface ProjectState {
     tokens: any[]
     components: any[]
   }
-  observability: {
+  observability?: {
     latencyModels: LatencyModel[]
     costProjections: CostProjection[]
     bottlenecks: BottleneckAnnotation[]
   }
-  lifecycle: {
+  lifecycle?: {
     featureFlags: FeatureFlag[]
     flagGates: FeatureFlagGate[]
     migrations: SchemaMigration[]

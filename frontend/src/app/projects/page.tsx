@@ -8,10 +8,12 @@ import { useProjects } from '@/hooks/useProjects'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutGrid, ListFilter, Search, Settings } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export default function ProjectsPage() {
   const { projects, isLoading, fetchProjects, createProject } = useProjects()
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   useEffect(() => {
     fetchProjects()
@@ -80,10 +82,20 @@ export default function ProjectsPage() {
             <div className="h-10 w-px bg-zinc-800 ml-auto" />
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="size-9 rounded-none bg-black border border-zinc-800 text-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setViewMode('grid')}
+                className={cn("size-9 rounded-none border transition-colors", viewMode === 'grid' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
+              >
                 <LayoutGrid className="size-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="size-9 rounded-none text-zinc-600 hover:text-white hover:bg-black">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setViewMode('list')}
+                className={cn("size-9 rounded-none border transition-colors", viewMode === 'list' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
+              >
                 <ListFilter className="size-4" />
               </Button>
             </div>
@@ -98,7 +110,7 @@ export default function ProjectsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-4")}
             >
               {[1, 2, 3, 4].map((n) => (
                 <div key={n} className="h-[280px] bg-black/10 border border-zinc-800/50 animate-pulse" />
@@ -107,7 +119,7 @@ export default function ProjectsPage() {
           ) : filteredProjects.length > 0 ? (
             <motion.div
               layout
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch"
+              className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch" : "flex flex-col gap-4")}
             >
               {filteredProjects.map((project, idx) => (
                 <motion.div
@@ -116,7 +128,7 @@ export default function ProjectsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 >
-                  <ProjectCard project={project} />
+                  <ProjectCard project={project} viewMode={viewMode} />
                 </motion.div>
               ))}
             </motion.div>

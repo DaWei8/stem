@@ -23,11 +23,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { motion } from 'framer-motion'
 
+import { cn } from '@/lib/utils'
+
 interface ProjectCardProps {
   project: Project
+  viewMode?: 'grid' | 'list'
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
   const { deleteProject, updateProject } = useProjects()
   const [isRenameOpen, setIsRenameOpen] = useState(false)
   const [newName, setNewName] = useState(project.name)
@@ -64,45 +67,50 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <>
       <motion.div
         whileHover={{ y: -4 }}
-        className="group relative flex flex-col h-full bg-black/10 border border-zinc-800/50 hover:border-zinc-500/50 transition-all duration-300"
+        className={cn(
+          "group relative flex bg-black/10 border border-zinc-800/50 hover:border-zinc-500/50 transition-all duration-300",
+          viewMode === 'grid' ? "flex-col h-full" : "flex-row items-center w-full"
+        )}
       >
         <div className="absolute inset-0 bg-linear-to-b from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-        {/* Card Header */}
-        <div className="p-6 pb-0 flex items-start justify-between">
-          <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 transition-colors">
+        {/* Header / Icon */}
+        <div className={cn("p-6 flex items-start justify-between shrink-0", viewMode === 'grid' ? "pb-0" : "pr-4")}>
+          <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 transition-colors shrink-0">
             <Fingerprint className="size-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  onClick={(e) => e.stopPropagation()}
-                  className="size-8 p-0 hover:bg-zinc-800 rounded-none text-zinc-500 hover:text-white transition-all"
-                >
-                  <MoreVertical className="size-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-none shadow-2xl min-w-[160px]">
-              <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-none transition-colors">
-                <Pencil className="size-3.5 text-blue-400" />
-                Rename Project
-              </DropdownMenuItem>
-              <div className="h-px bg-zinc-800 my-1" />
-              <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
-                <Trash2 className="size-3.5" />
-                Delete Project
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {viewMode === 'grid' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => e.stopPropagation()}
+                    className="size-8 p-0 hover:bg-zinc-800 rounded-none text-zinc-500 hover:text-white transition-all"
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-none shadow-2xl min-w-[160px]">
+                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-none transition-colors">
+                  <Pencil className="size-3.5 text-blue-400" />
+                  Rename Project
+                </DropdownMenuItem>
+                <div className="h-px bg-zinc-800 my-1" />
+                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                  <Trash2 className="size-3.5" />
+                  Delete Project
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Content */}
-        <Link href={`/projects/${project.id}`} className="p-6 flex-1 flex flex-col">
-          <div className="mb-3">
+        <Link href={`/projects/${project.id}`} className={cn("p-6 flex-1 flex", viewMode === 'grid' ? "flex-col" : "flex-row items-center gap-8 py-4")}>
+          <div className={cn(viewMode === 'grid' ? "mb-3" : "w-[200px] shrink-0")}>
             <h2 className="text-xl font-black tracking-tight text-zinc-200 group-hover:text-white transition-colors mb-1 line-clamp-1">
               {project.name}
             </h2>
@@ -111,23 +119,57 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
 
-          <p className="text-xs text-zinc-500 font-medium leading-relaxed line-clamp-3 mb-6 group-hover:text-zinc-400 transition-colors">
+          <p className={cn("text-xs text-zinc-500 font-medium leading-relaxed group-hover:text-zinc-400 transition-colors", viewMode === 'grid' ? "mb-6 line-clamp-3" : "flex-1 line-clamp-2")}>
             {project.description || "No specification provided for this system blueprint."}
           </p>
 
-          <div className="mt-auto flex items-center justify-between pt-6 border-t border-zinc-800/30">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 group-hover:text-zinc-500 transition-colors">
-              <Calendar className="size-3" />
+          <div className={cn("flex items-center", viewMode === 'grid' ? "mt-auto justify-between pt-6 border-t border-zinc-800/30" : "gap-8 shrink-0")}>
+            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 group-hover:text-zinc-500 transition-colors w-[100px]">
+              <Calendar className="size-3 shrink-0" />
               {formattedDate}
             </div>
-            <div className="size-6 flex items-center justify-center text-zinc-700 group-hover:text-white transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <ArrowUpRight className="size-4" />
-            </div>
+            {viewMode === 'grid' && (
+              <div className="size-6 flex items-center justify-center text-zinc-700 group-hover:text-white transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <ArrowUpRight className="size-4" />
+              </div>
+            )}
           </div>
         </Link>
 
+        {viewMode === 'list' && (
+          <div className="pr-6 shrink-0 flex items-center gap-4">
+            <div className="size-6 flex items-center justify-center text-zinc-700 group-hover:text-white transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight className="size-4" />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => e.stopPropagation()}
+                    className="size-8 p-0 hover:bg-zinc-800 rounded-none text-zinc-500 hover:text-white transition-all"
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-none shadow-2xl min-w-[160px]">
+                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-none transition-colors">
+                  <Pencil className="size-3.5 text-blue-400" />
+                  Rename Project
+                </DropdownMenuItem>
+                <div className="h-px bg-zinc-800 my-1" />
+                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                  <Trash2 className="size-3.5" />
+                  Delete Project
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
         {/* Interactive Bottom Bar */}
-        <div className="h-0.5 w-full bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+        <div className={cn("bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left", viewMode === 'grid' ? "h-0.5 w-full" : "h-full w-0.5 absolute left-0 scale-y-0 group-hover:scale-y-100 origin-top")} />
       </motion.div>
 
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>

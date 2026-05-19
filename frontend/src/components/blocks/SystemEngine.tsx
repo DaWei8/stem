@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Database, Code2, Layers, Search, Plus, ArrowRight, Package, Terminal
+  Database, Code2, Layers, Search, Plus, ArrowRight, Package, Terminal, Cpu
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -14,6 +14,7 @@ import { useDatabase } from '@/hooks/useDatabase'
 import { usePages } from '@/hooks/usePages'
 import { useLogic } from '@/hooks/useLogic'
 import { useIdentity } from '@/hooks/useIdentity'
+import { useEngineArchitect } from '@/hooks/useEngineArchitect'
 
 // UI Components
 import { PillarHeader } from '@/components/layout/PillarHeader'
@@ -29,6 +30,8 @@ import { DataLineagePanel } from './dataengine/DataLineagePanel'
 // Sub-components (Logic Layer)
 import { FunctionCard } from '@/components/logic/FunctionCard'
 import { ConstantCard } from '@/components/logic/ConstantCard'
+import { ConstantDrawer } from '@/components/logic/ConstantDrawer'
+import { EngineBot } from './EngineBot'
 
 export function SystemEngine() {
   const params = useParams()
@@ -36,6 +39,7 @@ export function SystemEngine() {
   const [activeTab, setActiveTab] = useState('state')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVarId, setSelectedVarId] = useState<string | null>(null)
+  const [selectedConstantId, setSelectedConstantId] = useState<string | null>(null)
 
   // Data Engine Hooks
   const { variables, deleteVariable } = useVariables()
@@ -45,8 +49,10 @@ export function SystemEngine() {
   // Logic Layer Hooks
   const { constants, functions, dependencies, deleteConstant, deleteFunction, deleteDependency } = useLogic()
   const { policies } = useIdentity()
+  const { isOpen, setIsOpen } = useEngineArchitect()
 
   const selectedVar = variables.find(v => v.id === selectedVarId)
+  const selectedConstant = constants.find(c => c.id === selectedConstantId)
 
   const tabs = [
     { id: 'state', name: 'State Registry', icon: Layers, count: variables.length + constants.length },
@@ -56,8 +62,8 @@ export function SystemEngine() {
   ]
 
   return (
-    <div className="flex h-full bg-white dark:bg-black transition-colors duration-300">
-      <div className={cn("flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar", selectedVarId && "pr-4")}>
+    <div className="flex h-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
+      <div className={cn("flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || isOpen) && "pr-4")}>
 
         <PillarHeader
           title="System Engine"
@@ -69,6 +75,12 @@ export function SystemEngine() {
           ]}
         >
           <div className="flex gap-2">
+            <Button
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn("px-4 h-10 text-xs font-bold rounded-none gap-2", isOpen ? "bg-emerald-500 text-white hover:bg-emerald-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
+            >
+              <Cpu className="size-3.5" /> AI Architect
+            </Button>
             <Button className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2 group">
               <Plus className="size-3" /> New Entry <ArrowRight className="size-0 group-hover:size-3 transition-all" />
             </Button>
@@ -113,22 +125,28 @@ export function SystemEngine() {
               <TabsContent value="state" className="m-0 space-y-8">
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest px-1">Global Constants</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {constants.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => (
-                      <ConstantCard key={c.id} constant={c} onDelete={id => deleteConstant(projectId, id)} />
+                      <ConstantCard 
+                        key={c.id} 
+                        constant={c} 
+                        onDelete={id => deleteConstant(projectId, id)} 
+                        onClick={() => { setSelectedConstantId(selectedConstantId === c.id ? null : c.id); setSelectedVarId(null); }}
+                        isSelected={selectedConstantId === c.id}
+                      />
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest px-1">State Registry (Variables)</h3>
+                  <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest px-1">Registry (Variables)</h3>
                   <DataStateTable
                     variables={variables}
                     searchQuery={searchQuery}
                     orphanIds={new Set()}
                     varSourceMap={{}}
                     selectedVarId={selectedVarId}
-                    onSelect={id => setSelectedVarId(selectedVarId === id ? null : id)}
+                    onSelect={id => { setSelectedVarId(selectedVarId === id ? null : id); setSelectedConstantId(null); }}
                     onEdit={() => { }}
                     onDelete={id => deleteVariable(projectId, id)}
                   />
@@ -191,6 +209,13 @@ export function SystemEngine() {
             onClose={() => setSelectedVarId(null)}
           />
         )}
+        {selectedConstant && (
+          <ConstantDrawer
+            constant={selectedConstant}
+            onClose={() => setSelectedConstantId(null)}
+          />
+        )}
+        {isOpen && <EngineBot />}
       </AnimatePresence>
     </div>
   )

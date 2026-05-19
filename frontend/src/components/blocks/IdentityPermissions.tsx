@@ -19,6 +19,8 @@ import { PolicyRow } from './identity/PolicyRow'
 import { PolicySandbox } from './identity/PolicySandbox'
 import { RoleFormModal } from './identity/RoleFormModal'
 import { PolicyFormModal } from './identity/PolicyFormModal'
+import { IdentityBot } from './IdentityBot'
+import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
 
 export function IdentityPermissions() {
   const { id: projectId } = useParams()
@@ -27,6 +29,7 @@ export function IdentityPermissions() {
   const { pages } = usePages()
   const { variables } = useVariables()
   const { setViewAsUserTypeId, viewAsUserTypeId } = useUI()
+  const { isOpen, setIsOpen } = useIdentityArchitect()
 
   const [viewMode, setViewMode] = useState<'cards' | 'matrix'>('cards')
   const [sandboxPolicy, setSandboxPolicy] = useState<any | null>(null)
@@ -48,8 +51,9 @@ export function IdentityPermissions() {
   const impersonatedRole = userTypes.find(ut => ut.id === viewAsUserTypeId)
 
   return (
-    <div className="p-8 space-y-8 bg-white dark:bg-black min-h-full text-black dark:text-white transition-colors duration-300">
-      <PillarHeader
+    <div className="flex h-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
+      <div className={cn("flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar text-black dark:text-white", isOpen && "pr-4")}>
+        <PillarHeader
         title="Identity & Permissions"
         description="Architect your system's security model with granular Row Level Security and hierarchical user roles."
         stats={[
@@ -105,6 +109,12 @@ export function IdentityPermissions() {
                 <Table2 className="size-3.5" />
               </button>
             </div>
+            <Button
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn("px-4 h-10 text-xs font-bold rounded-none gap-2", isOpen ? "bg-violet-500 text-white hover:bg-violet-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
+            >
+              <Cpu className="size-3.5" /> AI Architect
+            </Button>
             <Button
               onClick={() => setIsRoleModalOpen(true)}
               className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-none gap-2"
@@ -222,6 +232,11 @@ export function IdentityPermissions() {
         onClose={() => setIsPolicyModalOpen(false)}
         onSave={async (payload) => addPolicy(projectId as string, payload)}
       />
+      </div>
+
+      <AnimatePresence>
+        {isOpen && <IdentityBot />}
+      </AnimatePresence>
     </div>
   )
 }

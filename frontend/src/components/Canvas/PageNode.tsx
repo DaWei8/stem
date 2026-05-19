@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { Handle, Position, NodeProps, Node } from '@xyflow/react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, Fingerprint, Play, Database } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { ScreenInput, ScreenAction, ScreenOutput } from '@/types'
-import { motion } from 'framer-motion'
+import { usePages } from '@/hooks/usePages'
 import { useUI } from '@/hooks/useUI'
 import { useVariables } from '@/hooks/useVariables'
-import { usePages } from '@/hooks/usePages'
+import { cn } from '@/lib/utils'
+import { ScreenAction, ScreenInput, ScreenOutput } from '@/types'
+import { Handle, Node, NodeProps, Position } from '@xyflow/react'
+import { motion } from 'framer-motion'
+import { Database, Fingerprint, Play, Plus } from 'lucide-react'
+import { useState } from 'react'
 
-import { NodeHeader } from './page-node/NodeHeader'
-import { InputsSection, ActionsSection, OutputsSection } from './page-node/NodeSections'
 import { NodeFooter } from './page-node/NodeFooter'
+import { NodeHeader } from './page-node/NodeHeader'
+import { ActionsSection, InputsSection, OutputsSection } from './page-node/NodeSections'
 
 
 export type PageNodeData = {
@@ -59,7 +59,7 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
   const updateOutput = usePages(s => s.updateOutput)
   const isPermissionDenied = filterType === 'permission'
   const isEmpty = inputs.length === 0 && actions.length === 0 && outputs.length === 0
-  
+
   const [isCompact, setIsCompact] = useState(false)
 
   /* ─── Inline Add Handlers ─── */
