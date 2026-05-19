@@ -136,7 +136,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         if (varMatch) {
           const [_, label, type, scope] = varMatch
           if (!variables.some(v => v.label === label)) {
-            await addVariable(projectId, { label, type: type as any, scope: scope as any, source: 'Not linked' })
+            await addVariable(projectId, { label, type: type as any, scope: scope as any })
           }
           continue
         }
