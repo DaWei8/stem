@@ -1,23 +1,20 @@
 'use client'
 
+import { DesignPreview } from '@/components/design/DesignPreview'
+import { TokenSection } from '@/components/design/TokenSection'
+import { PillarHeader } from '@/components/layout/PillarHeader'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Palette, Type, Move, Layers, BoxSelect, Component, Eye } from 'lucide-react'
-import { useDesignSystem } from '@/hooks/useDesignSystem'
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { motion, AnimatePresence } from 'framer-motion'
-import { toast } from 'sonner'
-import { PillarHeader } from '@/components/layout/PillarHeader'
 import { SlideInModal } from '@/components/ui/SlideInModal'
-import { TokenSection } from '@/components/design/TokenSection'
-import { ComponentCard } from '@/components/design/ComponentCard'
-import { DesignPreview } from '@/components/design/DesignPreview'
-import clsx from 'clsx'
+import { useDesignSystem } from '@/hooks/useDesignSystem'
 import { cn } from '@/lib/utils'
+import clsx from 'clsx'
+import { BoxSelect, Eye, Layers, Move, Palette, Type } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface DesignToken {
   id: string
@@ -870,7 +867,7 @@ export function DesignSystem() {
           <div
             className="border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 shrink-0"
           >
-            <div className="absolute right-0 top-0 inset-0 w-[500px]">
+            <div className="absolute right-0 top-0 inset-0 min-w-[500px] max-w-4xl">
               <DesignPreview tokens={tokens} onClose={() => setIsPreviewOpen(false)} />
             </div>
           </div>
