@@ -191,8 +191,8 @@ export function SimulationPanel({
               <span className="text-xs font-bold text-black dark:text-white">{activePath.length} Hops</span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-[9px] font-black text-zinc-500  tracking-widest">Performance Budget</span>
-              <span className="text-xs font-bold text-green-500">{(activePath.length * 150).toFixed(0)}ms (EST)</span>
+              <span className="text-[9px] font-black text-zinc-500  tracking-widest">Estimated Latency</span>
+              <span className={cn("text-xs font-bold", activePath.length <= 3 ? "text-green-500" : activePath.length <= 5 ? "text-amber-400" : "text-red-400")}>{(activePath.length * 35).toFixed(0)}ms</span>
             </div>
           </div>
         )}

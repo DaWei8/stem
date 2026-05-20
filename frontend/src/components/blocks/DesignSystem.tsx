@@ -864,13 +864,7 @@ export function DesignSystem() {
         </SlideInModal>
 
         {isPreviewOpen && (
-          <div
-            className="border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 shrink-0"
-          >
-            <div className="absolute right-0 top-0 inset-0 min-w-[500px] max-w-4xl">
-              <DesignPreview tokens={tokens} onClose={() => setIsPreviewOpen(false)} />
-            </div>
-          </div>
+          <DesignPreview tokens={tokens} onClose={() => setIsPreviewOpen(false)} />
         )}
       </div>
 
