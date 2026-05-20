@@ -4,6 +4,27 @@ import { create } from 'zustand'
 import { toast } from 'sonner'
 import { Screen, ScreenAction, Variable, Transition } from '@/types'
 
+export interface TechRequirement {
+  id: string
+  category: string
+  title: string
+  desc: string
+  priority: 'Critical' | 'High' | 'Medium' | 'Low'
+}
+
+export interface CostItem {
+  id: string
+  service: string
+  metric: string
+  unitCost: number
+  volume: number
+}
+
+export interface DocMetadata {
+  requirements: TechRequirement[]
+  costs: CostItem[]
+}
+
 export interface DocVersion {
   id: string
   name: string
@@ -44,6 +65,23 @@ interface DocVersionsState {
   exportVersionAsMarkdown: (id: string, projectName?: string) => void
 }
 
+export function parseMetadata(content: string): DocMetadata {
+  const match = content.match(/<!-- STEM_METADATA_START([\s\S]*?)STEM_METADATA_END -->/)
+  if (match) {
+    try {
+      return JSON.parse(match[1].trim())
+    } catch {
+      // Ignored
+    }
+  }
+  return { requirements: [], costs: [] }
+}
+
+export function serializeMetadata(content: string, metadata: DocMetadata): string {
+  const stripped = content.replace(/<!-- STEM_METADATA_START[\s\S]*?STEM_METADATA_END -->/g, '').trim()
+  return `${stripped}\n\n<!-- STEM_METADATA_START\n${JSON.stringify(metadata, null, 2)}\nSTEM_METADATA_END -->`
+}
+
 const DEFAULT_VERSIONS: DocVersion[] = [
   {
     id: 'v-mvp',
@@ -65,7 +103,7 @@ const DEFAULT_VERSIONS: DocVersion[] = [
   }
 ]
 
-function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string): string {
+function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string, metadata?: DocMetadata): string {
   const now = new Date().toLocaleString()
   const name = projectName || 'Untitled System'
 
@@ -110,6 +148,20 @@ function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string):
   const componentList = snapshot.components.length > 0
     ? snapshot.components.map(c => `  - ${c.name}`).join('\n')
     : '  - No components defined'
+
+  const hasReqs = metadata && metadata.requirements && metadata.requirements.length > 0
+  const reqMarkdown = hasReqs
+    ? `| Category | Technical Requirement | Priority |\n| :--- | :--- | :---: |\n` +
+      metadata!.requirements.map(r => `| **${r.category.toUpperCase()}** | **${r.title}**: ${r.desc} | \`${r.priority}\` |`).join('\n')
+    : '*No custom technical requirements defined.*'
+
+  const hasCosts = metadata && metadata.costs && metadata.costs.length > 0
+  const totalCost = hasCosts ? metadata!.costs.reduce((sum, c) => sum + (c.unitCost * c.volume), 0) : 0
+  const costMarkdown = hasCosts
+    ? `| Service | Metric | Unit Cost | Projected Volume | Estimated Monthly Cost |\n| :--- | :--- | :---: | :---: | :---: |\n` +
+      metadata!.costs.map(c => `| **${c.service}** | ${c.metric} | $${c.unitCost.toFixed(2)} | ${c.volume} | $${(c.unitCost * c.volume).toFixed(2)} |`).join('\n') +
+      `\n\n**Total Estimated Monthly Budget:** $${totalCost.toFixed(2)}`
+    : '*No custom cost implications defined.*'
 
   const isSparse = snapshot.tables.length === 0 && snapshot.userTypes.length === 0;
 
@@ -166,7 +218,17 @@ ${transitionList}
 
 ---
 
-## 2. DATA SCHEMA
+## 2. TECHNICAL REQUIREMENTS
+${reqMarkdown}
+
+---
+
+## 3. COST IMPLICATIONS & PROJECTIONS
+${costMarkdown}
+
+---
+
+## 4. DATA SCHEMA
 
 **Tables:** ${snapshot.tables.length} | **Total Columns:** ${snapshot.columns.length}
 
@@ -174,7 +236,7 @@ ${tableDetails}
 
 ---
 
-## 3. STATE MANAGEMENT
+## 5. STATE MANAGEMENT
 
 **Global Variables:** ${snapshot.variables.length}
 
@@ -182,31 +244,31 @@ ${variableList}
 
 ---
 
-## 4. IDENTITY & ACCESS CONTROL
+## 6. IDENTITY & ACCESS CONTROL
 
 **User Personas:** ${snapshot.userTypes.length} | **Security Policies:** ${snapshot.policies.length}
 
-### 4.1 Personas
+### 6.1 Personas
 ${personaList}
 
-### 4.2 Access Policies
+### 6.2 Access Policies
 ${policyList}
 
 ---
 
-## 5. DESIGN LANGUAGE
+## 7. DESIGN LANGUAGE
 
 **Tokens:** ${snapshot.tokens.length} | **Components:** ${snapshot.components.length}
 
-### 5.1 Design Tokens
+### 7.1 Design Tokens
 ${tokenList}
 
-### 5.2 Component Library
+### 7.2 Component Library
 ${componentList}
 
 ---
 
-## 6. BUSINESS LOGIC
+## 8. BUSINESS LOGIC
 
 **Actions:** ${snapshot.actions.length}
 
@@ -325,21 +387,22 @@ export const useDocVersions = create<DocVersionsState>((set, get) => ({
   },
 
   generateAutoSpecs: (snapshot, projectName) => {
-    const specs = buildSpecsFromSnapshot(snapshot, projectName)
-    set(state => {
-      const newContent = state.editedContent
-        ? state.editedContent + '\n\n' + specs
-        : specs
-      return {
-        editedContent: newContent,
-        isEditing: true,
-        versions: state.versions.map(v =>
-          v.id === state.activeVersionId
-            ? { ...v, content: newContent, updatedAt: new Date().toISOString() }
-            : v
-        )
-      }
-    })
+    const current = get().versions.find(v => v.id === get().activeVersionId)
+    const currentContent = current?.content || ''
+    const currentMeta = parseMetadata(currentContent)
+
+    const specs = buildSpecsFromSnapshot(snapshot, projectName, currentMeta)
+    const newContent = serializeMetadata(specs, currentMeta)
+
+    set(state => ({
+      editedContent: newContent,
+      isEditing: false,
+      versions: state.versions.map(v =>
+        v.id === state.activeVersionId
+          ? { ...v, content: newContent, updatedAt: new Date().toISOString() }
+          : v
+      )
+    }))
     toast.success('Full system specifications generated')
   },
 

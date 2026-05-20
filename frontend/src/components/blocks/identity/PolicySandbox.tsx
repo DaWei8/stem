@@ -50,7 +50,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
       const fieldName = match[1]
       const lower = fieldName.toLowerCase()
       if (
-        !seenFields.has(fieldName) && 
+        !seenFields.has(fieldName) &&
         !['select', 'insert', 'update', 'delete', 'where', 'and', 'or', 'in', 'not', 'null', 'true', 'false', 'auth', 'current_user_id'].includes(lower)
       ) {
         seenFields.add(fieldName)
@@ -102,7 +102,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
       { name: 'is_verified', value: true, type: 'boolean' },
       { name: 'role', value: 'authenticated', type: 'string' },
     ]
-    
+
     defaults.forEach(def => {
       if (!detected.some(d => d.name === def.name)) {
         detected.push({
@@ -217,7 +217,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
       <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
         <div className="flex items-center gap-2">
           <Cpu className="size-4 text-violet-400" />
-          <span className="text-xs font-black text-violet-400 uppercase tracking-widest">WASM Policy Sandbox</span>
+          <span className="text-xs font-black text-violet-400 uppercase tracking-widest">Policy Sandbox</span>
           <span className="text-[10px] font-mono text-zinc-500 ml-2">Testing rule: {policy.name}</span>
         </div>
         <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
@@ -368,7 +368,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
           <Play className="size-3" />
           {isRunning ? 'Evaluating...' : 'Evaluate Policy'}
         </Button>
-        
+
         {result !== null && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -387,9 +387,9 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
           </motion.div>
         )}
 
-        <button 
-          onClick={() => { setMockVars(buildInitialVars()); setResult(null); setEvaluatedExpressionText(null) }} 
-          className="ml-auto text-zinc-500 hover:text-white transition-colors" 
+        <button
+          onClick={() => { setMockVars(buildInitialVars()); setResult(null); setEvaluatedExpressionText(null) }}
+          className="ml-auto text-zinc-500 hover:text-white transition-colors"
           title="Reset mockup settings"
         >
           <RotateCcw className="size-3.5" />

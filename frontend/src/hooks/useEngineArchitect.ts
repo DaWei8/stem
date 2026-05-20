@@ -113,6 +113,11 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         meta: { version: '0.2.0', engine: 'STEM-ENGINE-V1' }
       }
 
+      const openai = typeof window !== 'undefined' ? localStorage.getItem('openai_key') || '' : ''
+      const anthropic = typeof window !== 'undefined' ? localStorage.getItem('anthropic_key') || '' : ''
+      const google = typeof window !== 'undefined' ? localStorage.getItem('google_key') || '' : ''
+      const selectedModel = typeof window !== 'undefined' ? localStorage.getItem('active_architect_model') || 'gemini-2.5-flash' : 'gemini-2.5-flash'
+
       let response;
       let retries = 0;
       const maxRetries = 3;
@@ -123,7 +128,9 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt,
-            currentState: JSON.stringify(projectData, null, 2)
+            currentState: JSON.stringify(projectData, null, 2),
+            userKeys: { openai, anthropic, google },
+            selectedModel
           })
         })
 
@@ -143,6 +150,19 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
 
       toast.dismiss('ai-retry');
       const data = await response!.json()
+
+      // Log AI token usage
+      if (data.usage) {
+        const { useAIUsage } = await import('./useAIUsage')
+        useAIUsage.getState().logUsage({
+          provider: data.usage.provider,
+          model: data.usage.model,
+          inputTokens: data.usage.inputTokens,
+          outputTokens: data.usage.outputTokens,
+          costUsd: data.usage.costUsd,
+          promptSummary: prompt.substring(0, 60) + (prompt.length > 60 ? '...' : '')
+        })
+      }
 
       if (session?.user) {
         const { data: savedMsg } = await supabase.from('chat_messages').insert({
