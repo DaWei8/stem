@@ -32,7 +32,7 @@ export function Canvas() {
     nodes, edges, onNodesChange, onEdgesChange, onConnect,
     onReconnect, onReconnectEnd, onEdgeClick, onNodeDrag, onNodeDragStop,
     isSimulating, isLoaded, toggleSimulation, handleAddManualScreen,
-    setNodes, simulationParams, setSimulationParams, runFlowSimulation, activePath,
+    setNodes, simulationParams, setSimulationParams, runFlowSimulation, stopSimulation, activePath,
     simulationStatus, simulationLogs, simulationStep, autoLayout
   } = useCanvasLayout(projectId)
 
@@ -167,6 +167,7 @@ export function Canvas() {
             setNarrative={setNarrative}
             handleTraceNarrative={handleTraceNarrative}
             runFlowSimulation={runFlowSimulation}
+            stopSimulation={stopSimulation}
             activePath={activePath}
             simulationStatus={simulationStatus}
             simulationLogs={simulationLogs}
