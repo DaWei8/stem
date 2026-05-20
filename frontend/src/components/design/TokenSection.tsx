@@ -66,7 +66,7 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
                   </div>
                 )}
                 <div className="space-y-0.5 overflow-hidden">
-                  <p className="text-xs font-semibold text-white truncate">{token.name}</p>
+                  <p className="text-xs font-semibold text-white truncate">{token.name.includes('|') ? token.name.split('|')[1] : token.name}</p>
                   <p className="text-[10px] font-mono text-zinc-600 truncate">{token.value}</p>
                 </div>
               </div>

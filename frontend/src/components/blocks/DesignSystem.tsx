@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Palette, Type, Move, Layers, BoxSelect, Component } from 'lucide-react'
+import { Plus, Palette, Type, Move, Layers, BoxSelect, Component, Eye } from 'lucide-react'
 import { useDesignSystem } from '@/hooks/useDesignSystem'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -15,7 +15,9 @@ import { PillarHeader } from '@/components/layout/PillarHeader'
 import { SlideInModal } from '@/components/ui/SlideInModal'
 import { TokenSection } from '@/components/design/TokenSection'
 import { ComponentCard } from '@/components/design/ComponentCard'
+import { DesignPreview } from '@/components/design/DesignPreview'
 import clsx from 'clsx'
+import { cn } from '@/lib/utils'
 
 interface DesignToken {
   id: string
@@ -235,11 +237,13 @@ export function DesignSystem() {
 
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [presetModal, setPresetModal] = useState<'all' | 'color' | 'typography' | 'spacing' | 'shadow' | 'border-radius' | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isComponentModalOpen, setIsComponentModalOpen] = useState(false)
   const [editingTokenId, setEditingTokenId] = useState<string | null>(null)
   const [editingComponentId, setEditingComponentId] = useState<string | null>(null)
 
   const [newTokenName, setNewTokenName] = useState('')
+  const [newTokenRole, setNewTokenRole] = useState('none')
   const [newTokenValue, setNewTokenValue] = useState('')
   const [newCompName, setNewCompName] = useState('')
   const [newCompType, setNewCompType] = useState<'button' | 'input' | 'form' | 'custom' | 'container'>('container')
@@ -328,15 +332,17 @@ export function DesignSystem() {
       : newTokenValue
     if (!value) return
 
+    const finalName = newTokenRole !== 'none' ? `${newTokenRole}|${newTokenName}` : newTokenName;
+
     if (editingTokenId) {
-      await updateToken(projectId as string, editingTokenId, { name: newTokenName, value, category: type })
+      await updateToken(projectId as string, editingTokenId, { name: finalName, value, category: type })
     } else {
-      const isDuplicate = tokens.some(t => t.name.toLowerCase() === newTokenName.toLowerCase())
+      const isDuplicate = tokens.some(t => t.name.toLowerCase() === finalName.toLowerCase())
       if (isDuplicate) {
         toast.error(`A token with the name "${newTokenName}" already exists.`)
         return
       }
-      await addToken(projectId as string, { name: newTokenName, value, category: type })
+      await addToken(projectId as string, { name: finalName, value, category: type })
     }
 
     resetTokenForm()
@@ -344,6 +350,7 @@ export function DesignSystem() {
 
   const resetTokenForm = () => {
     setNewTokenName('')
+    setNewTokenRole('none')
     setNewTokenValue('')
     setEditingTokenId(null)
     setActiveModal(null)
@@ -384,7 +391,14 @@ export function DesignSystem() {
 
   const openEditTokenModal = (token: DesignToken) => {
     setEditingTokenId(token.id)
-    setNewTokenName(token.name)
+    if (token.name.includes('|')) {
+      const [role, name] = token.name.split('|')
+      setNewTokenRole(role)
+      setNewTokenName(name)
+    } else {
+      setNewTokenRole('none')
+      setNewTokenName(token.name)
+    }
     setActiveModal(token.category)
 
     if (token.category === 'typography') {
@@ -467,12 +481,20 @@ export function DesignSystem() {
         title="Design System"
         description="The visual source of truth. Manage architectural tokens and UI patterns."
       >
-        <Button
-          onClick={() => setPresetModal('all')}
-          className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2"
-        >
-          <Layers className="size-3.5" /> Use Preset Pack
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setIsPreviewOpen(!isPreviewOpen)}
+            className={cn("border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-none h-10 text-xs font-bold gap-2", isPreviewOpen ? "bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white" : "bg-white dark:bg-black text-black dark:text-white")}
+          >
+            <Eye className="size-3.5" /> {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
+          </Button>
+          <Button
+            onClick={() => setPresetModal('all')}
+            className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2"
+          >
+            <Layers className="size-3.5" /> Use Preset Pack
+          </Button>
+        </div>
       </PillarHeader>
 
       <div className="flex-1 overflow-y-auto pb-8 custom-scrollbar">
@@ -668,7 +690,26 @@ export function DesignSystem() {
                     </div>
                   </div>
                 ) : activeModal === 'color' ? (
-                  <div className="space-y-6">
+                  <div className="space-y-6 w-full">
+                    <div className="space-y-2 w-full">
+                      <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-600">Color Classification</Label>
+                      <Select value={newTokenRole} onValueChange={(v) => { if (v) setNewTokenRole(v) }}>
+                        <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-10 text-[10px] font-bold">
+                          <SelectValue placeholder="Select a role..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
+                          <SelectItem value="none" className="text-[10px]">None (Custom)</SelectItem>
+                          <SelectItem value="color-primary" className="text-[10px]">Primary</SelectItem>
+                          <SelectItem value="color-secondary" className="text-[10px]">Secondary</SelectItem>
+                          <SelectItem value="color-tertiary" className="text-[10px]">Tertiary</SelectItem>
+                          <SelectItem value="color-accent" className="text-[10px]">Accent</SelectItem>
+                          <SelectItem value="color-background" className="text-[10px]">Background</SelectItem>
+                          <SelectItem value="color-text" className="text-[10px]">Foreground / Text</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[9px] text-zinc-500 mt-1">Bind this color to a specific architectural function for the preview engine.</p>
+                    </div>
+
                     <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 space-y-4">
                       <Label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-600 ">Dynamic Shade Engine</Label>
                       <div className="flex gap-4">
@@ -686,7 +727,7 @@ export function DesignSystem() {
                           />
                         </div>
                         <div className="flex-1 space-y-2">
-                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Select a base hue to generate an architectural scale.</p>
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Select a base color to generate an hue scale.</p>
                           <Input
                             value={newTokenValue}
                             onChange={(e) => setNewTokenValue(e.target.value)}
@@ -824,7 +865,18 @@ export function DesignSystem() {
             ))}
           </div>
         </SlideInModal>
+
+        {isPreviewOpen && (
+          <div
+            className="border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 shrink-0"
+          >
+            <div className="absolute right-0 top-0 inset-0 w-[500px]">
+              <DesignPreview tokens={tokens} onClose={() => setIsPreviewOpen(false)} />
+            </div>
+          </div>
+        )}
       </div>
+
     </div>
   )
 }
