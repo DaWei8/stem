@@ -88,7 +88,7 @@ export function useLogicBot() {
     try {
       return engine.evaluate(expression)
     } catch (err: any) {
-      console.error('Evaluation failed:', err)
+      console.warn('Evaluation failed (WASM):', err.message || err)
       return null
     }
   }
