@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowRight, RefreshCw, Square } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tooltip } from '@/components/ui/Tooltip'
 
@@ -19,6 +19,7 @@ export function SimulationPanel({
   setNarrative,
   handleTraceNarrative,
   runFlowSimulation,
+  stopSimulation,
   activePath,
   simulationStatus,
   simulationLogs,
@@ -36,6 +37,7 @@ export function SimulationPanel({
   setNarrative: (val: string) => void
   handleTraceNarrative: () => void
   runFlowSimulation: () => void
+  stopSimulation: () => void
   activePath: any[]
   simulationStatus: 'idle' | 'running' | 'path_found' | 'path_not_found'
   simulationLogs: string[]
@@ -175,13 +177,23 @@ export function SimulationPanel({
             )}
           </div>
 
-          <Button
-            onClick={runFlowSimulation}
-            disabled={simulationStatus === 'running'}
-            className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none text-[10px] font-black  tracking-widest h-11 transition-all"
-          >
-            {simulationStatus === 'running' ? 'Tracing...' : 'Run Simulation'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={runFlowSimulation}
+              disabled={simulationStatus === 'running'}
+              className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none text-[10px] font-black  tracking-widest h-11 transition-all"
+            >
+              {simulationStatus === 'running' ? 'Tracing...' : 'Run Simulation'}
+            </Button>
+            {(simulationStatus === 'running' || activePath.length > 0) && (
+              <Button
+                onClick={stopSimulation}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-none text-[10px] font-black tracking-widest h-11 px-4 transition-all"
+              >
+                <Square className="size-3 fill-white" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {activePath.length > 0 && (
