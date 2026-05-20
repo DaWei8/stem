@@ -416,7 +416,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             )}
 
             {invites.map((invite) => (
-              <div key={invite.email} className="flex items-center justify-between p-4 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
+              <div key={invite.email} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="size-10 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500 shrink-0">
                     <Mail className="size-4" />
@@ -431,7 +431,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-3 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
                   {/* Status Indicator */}
                   {invite.status === 'pending' && (
                     <span className="flex items-center gap-1 px-2.5 py-0.5 border border-amber-500/20 bg-amber-500/5 text-amber-500 text-[9px] font-black uppercase tracking-wider animate-pulse">
@@ -450,19 +450,19 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   )}
 
                   {/* Simulator buttons for presentation */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 opacity-0 sm:group-hover:opacity-100 max-sm:opacity-100 transition-opacity">
                     {invite.status === 'pending' && (
                       <>
                         <button
                           onClick={() => simulateInviteAction(invite.email, 'accepted')}
-                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all size-7 flex items-center justify-center"
+                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
                           title="Simulate Accept"
                         >
                           <Check className="size-3.5" />
                         </button>
                         <button
                           onClick={() => simulateInviteAction(invite.email, 'rejected')}
-                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white transition-all size-7 flex items-center justify-center"
+                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
                           title="Simulate Reject"
                         >
                           <X className="size-3.5" />
@@ -473,7 +473,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                     {invite.status === 'rejected' && (
                       <button
                         onClick={() => simulateInviteAction(invite.email, 'pending')}
-                        className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:bg-zinc-300 dark:hover:bg-zinc-800 transition-all size-7 flex items-center justify-center"
+                        className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:bg-zinc-300 dark:hover:bg-zinc-800 transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
                         title="Re-send Invitation"
                       >
                         <RefreshCw className="size-3.5" />
@@ -482,7 +482,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
 
                     <button
                       onClick={() => removeInviteFromList(invite.email)}
-                      className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all size-7 flex items-center justify-center"
+                      className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
                       title="Delete Invitation log"
                     >
                       <Trash2 className="size-3.5" />
@@ -509,15 +509,15 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             )}
 
             {revokedLogs.map((log) => (
-              <div key={log.email} className="flex items-center justify-between p-4 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
+              <div key={log.email} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="size-10 bg-zinc-100/50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500 shrink-0">
                     <Trash2 className="size-4 text-red-500/70" />
                   </div>
                   <div className="space-y-0.5 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="text-xs font-black text-zinc-500 dark:text-zinc-400 transition-colors truncate">{log.name}</h4>
-                      <span className="px-1.5 py-0.2 border border-red-500/20 text-red-500 text-[8px] font-black uppercase bg-red-500/5">
+                      <span className="px-1.5 py-0.2 border border-red-500/20 text-red-500 text-[8px] font-black uppercase bg-red-500/5 whitespace-nowrap">
                         Access Revoked
                       </span>
                     </div>
@@ -525,15 +525,15 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-[9px] text-zinc-400 dark:text-zinc-600">
+                <div className="flex flex-row items-center justify-between sm:justify-end gap-4 shrink-0 w-full sm:w-auto">
+                  <span className="text-[9px] text-zinc-400 dark:text-zinc-650 font-medium whitespace-nowrap">
                     Revoked {new Date(log.timestamp).toLocaleDateString()}
                   </span>
 
                   <Button
                     onClick={() => restoreRevokedAccess(log)}
                     size="sm"
-                    className="h-8 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-[10px] font-black uppercase text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-none hover:bg-zinc-100 dark:hover:bg-zinc-900 gap-1"
+                    className="h-8 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-[10px] font-black uppercase text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-none hover:bg-zinc-100 dark:hover:bg-zinc-900 gap-1.5 px-3 shrink-0"
                   >
                     <Undo2 className="size-3" />
                     Restore Access
