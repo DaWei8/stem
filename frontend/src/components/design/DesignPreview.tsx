@@ -79,7 +79,7 @@ export function DesignPreview({ tokens, onClose }: DesignPreviewProps) {
 
       {/* ─── Canvas ───────────────────────────────────── */}
       <div
-        className="flex-1 overflow-y-auto p-6 flex items-start justify-center custom-scrollbar transition-colors duration-300"
+        className="flex-1 overflow-y-auto p-6 flex items-center justify-center custom-scrollbar transition-colors duration-300"
         style={{ backgroundColor: isDark ? '#111118' : '#f0f0f4' }}
       >
         {mode === 'desktop' && <DesktopView t={t} />}
