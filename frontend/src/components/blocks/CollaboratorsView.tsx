@@ -303,8 +303,8 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
         )}
 
         {isModal && (
-          <form onSubmit={handleInvite} className="flex gap-2 w-full items-center mb-6">
-            <div className="relative w-full flex-1">
+          <form onSubmit={handleInvite} className="grid grid-cols-1 sm:grid-cols-12 gap-2 w-full mb-6">
+            <div className="relative col-span-1 sm:col-span-7">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 dark:text-zinc-600 transition-colors" />
               <Input
                 type="email"
@@ -312,13 +312,13 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                 placeholder="Enter collaborator email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white"
+                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white w-full"
               />
             </div>
             <select
               value={roleSelection}
               onChange={(e: any) => setRoleSelection(e.target.value)}
-              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 col-span-1 sm:col-span-3 w-full"
             >
               <option value="editor">Editor</option>
               <option value="viewer">Viewer</option>
@@ -326,7 +326,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             <Button
               type="submit"
               disabled={isInviting}
-              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-colors"
+              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-colors col-span-1 sm:col-span-2 w-full shrink-0 flex items-center justify-center"
             >
               {isInviting ? <Loader2 className="size-3.5 animate-spin" /> : 'Invite'}
             </Button>
@@ -356,7 +356,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             )}
 
             {activeMembersList.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
+              <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="size-10 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-600 dark:text-zinc-400 transition-colors select-none shrink-0">
                     {(user.user?.full_name || 'A U').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
@@ -370,13 +370,13 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 shrink-0">
+                <div className="flex items-center gap-4 shrink-0 justify-end">
                   {user.role !== 'owner' ? (
                     <>
                       <select
                         value={user.role}
                         onChange={(e) => updateRole(projectId as string, user.id, e.target.value)}
-                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-8 px-2 rounded-none focus:outline-none focus:border-zinc-400 cursor-pointer"
+                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-8 px-2 rounded-none focus:outline-none focus:border-zinc-400 cursor-pointer animate-fade-in"
                       >
                         <option value="editor">Editor</option>
                         <option value="viewer">Viewer</option>
@@ -386,14 +386,14 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         onClick={() => handleDelete(user)}
                         size="icon"
                         variant="ghost"
-                        className="size-8 rounded-none border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all opacity-0 group-hover:opacity-100"
+                        className="size-8 rounded-none border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all opacity-0 sm:group-hover:opacity-100 max-sm:opacity-100"
                         title="Revoke collaborator access"
                       >
                         <Trash2 className="size-3.5" />
                       </Button>
                     </>
                   ) : (
-                    getRoleBadge(user.role)
+                    null
                   )}
                 </div>
               </div>
