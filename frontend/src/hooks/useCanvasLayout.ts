@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useEffect, useMemo } from 'react'
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react'
 import {
   useNodesState,
   useEdgesState,
@@ -60,6 +60,7 @@ export function useCanvasLayout(projectId: string | undefined) {
   const [simulationStep, setSimulationStep] = useState(-1)
   const [simulationStatus, setSimulationStatus] = useState<'idle' | 'running' | 'path_found' | 'path_not_found'>('idle')
   const [simulationLogs, setSimulationLogs] = useState<string[]>([])
+  const simulationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { isLoaded, createEngine } = useLogicBot()
 
   useEffect(() => {
@@ -482,7 +483,7 @@ export function useCanvasLayout(projectId: string | undefined) {
             `[${step * 200}ms] Resolved: "${pageTitle}" (+${latency}ms logic overhead)`
           ])
           step++
-          setTimeout(animate, 450)
+          simulationTimerRef.current = setTimeout(animate, 450)
         }
       } else {
         if (blockedIndex === -1) {
@@ -497,6 +498,17 @@ export function useCanvasLayout(projectId: string | undefined) {
     }
     animate()
   }, [simulationParams, transitions, pages])
+
+  const stopSimulation = useCallback(() => {
+    if (simulationTimerRef.current) {
+      clearTimeout(simulationTimerRef.current)
+      simulationTimerRef.current = null
+    }
+    setSimulationStatus('idle')
+    setActivePath([])
+    setSimulationStep(-1)
+    setSimulationLogs([])
+  }, [])
 
   const autoLayout = useCallback(async () => {
     if (pages.length === 0) return
@@ -696,6 +708,7 @@ export function useCanvasLayout(projectId: string | undefined) {
     simulationParams,
     setSimulationParams,
     runFlowSimulation,
+    stopSimulation,
     activePath,
     simulationStatus,
     simulationLogs,
