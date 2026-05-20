@@ -14,6 +14,7 @@ interface Message {
   content: string
   script?: string
   timestamp: number
+  is_committed?: boolean
 }
 
 interface IdentityArchitectState {
@@ -21,10 +22,10 @@ interface IdentityArchitectState {
   isArchitecting: boolean
   isOpen: boolean
   setIsOpen: (open: boolean) => void
-  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void
+  addMessage: (message: Omit<Message, 'id' | 'timestamp'> & { id?: string, timestamp?: number }) => void
   fetchMessages: (projectId: string) => Promise<void>
   generateSystem: (prompt: string, projectId: string) => Promise<void>
-  commitScript: (script: string, projectId: string) => Promise<void>
+  commitScript: (script: string, projectId: string, messageId?: string) => Promise<void>
   clearHistory: () => void
 }
 
@@ -36,27 +37,65 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
   setIsOpen: (open) => set({ isOpen: open }),
 
   addMessage: (msg) => set((state) => ({
-    messages: [...state.messages, { ...msg, id: Math.random().toString(36).substring(7), timestamp: Date.now() }]
+    messages: [...state.messages, { ...msg, id: msg.id || Math.random().toString(36).substring(7), timestamp: msg.timestamp || Date.now() }]
   })),
 
   clearHistory: () => set({ messages: [] }),
 
   fetchMessages: async (projectId) => {
-    // For now, let's use a simpler approach without full DB persistence to keep it isolated
-    set({
-      messages: [{
-        id: 'welcome',
-        role: 'assistant',
-        content: 'I am the STEM Identity Architect. Describe your user roles and permissions, and I will generate the deterministic RLS policies for your system.',
-        timestamp: Date.now()
-      }]
-    })
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return
+
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('architect_type', 'identity')
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    if (!data || data.length === 0) {
+      set({
+        messages: [{
+          id: 'welcome',
+          role: 'assistant',
+          content: 'I am the STEM Identity Architect. Describe your user roles and permissions, and I will generate the deterministic RLS policies for your system.',
+          timestamp: Date.now()
+        }]
+      })
+    } else {
+      set({
+        messages: data.map(m => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          script: m.script,
+          is_committed: m.is_committed,
+          timestamp: new Date(m.created_at).getTime()
+        }))
+      })
+    }
   },
 
   generateSystem: async (prompt, projectId) => {
     set({ isArchitecting: true })
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        await supabase.from('chat_messages').insert({
+          project_id: projectId,
+          user_id: session.user.id,
+          role: 'user',
+          content: prompt,
+          architect_type: 'identity'
+        })
+      }
+
       const { userTypes, policies } = useIdentity.getState()
       const { tables } = useDatabase.getState()
 
@@ -101,10 +140,35 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
       toast.dismiss('ai-retry');
       const data = await response!.json()
 
+      if (session?.user) {
+        const { data: savedMsg } = await supabase.from('chat_messages').insert({
+          project_id: projectId,
+          user_id: session.user.id,
+          role: 'assistant',
+          content: data.content,
+          script: data.script,
+          architect_type: 'identity',
+          is_committed: false
+        }).select().single()
+
+        if (savedMsg) {
+          get().addMessage({
+            id: savedMsg.id,
+            role: 'assistant',
+            content: data.content,
+            script: data.script,
+            is_committed: false,
+            timestamp: new Date(savedMsg.created_at).getTime()
+          })
+          return
+        }
+      }
+
       get().addMessage({
         role: 'assistant',
         content: data.content,
-        script: data.script
+        script: data.script,
+        is_committed: false
       })
     } catch (error) {
       console.error(error)
@@ -114,52 +178,55 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
     }
   },
 
-  commitScript: async (script, projectId) => {
+  commitScript: async (script, projectId, messageId) => {
     const { addUserType, addPolicy, deleteUserType, deletePolicy, userTypes, policies } = useIdentity.getState()
     const { tables } = useDatabase.getState()
 
     toast.loading('Executing architecture transactions...')
 
     try {
-      const lines = script.split('\n')
-      
-      for (const line of lines) {
-        const cleanLine = line.trim()
-        if (!cleanLine || cleanLine.startsWith('#')) continue
-
-        // 1. DEFINE ROLE "Name" { description: "..." }
-        const roleMatch = cleanLine.match(/DEFINE ROLE\s+"([^"]+)"(?:\s+\{\s*description:\s*"([^"]*)"\s*\})?/)
-        if (roleMatch) {
-          const name = roleMatch[1]
-          const description = roleMatch[2] || ''
-          const exists = userTypes.some(u => u.name === name)
-          if (!exists) {
-            await addUserType(projectId, { name, description })
-          }
-          continue
+      // 1. DEFINE ROLE
+      const roleMatches = [...script.matchAll(/DEFINE ROLE\s+"([^"]+)"(?:\s*\{([^}]*)\})?/g)]
+      for (const match of roleMatches) {
+        const name = match[1]
+        const description = match[2]?.match(/description:\s*"([^"]*)"/)?.[1] || ''
+        
+        const currentRoles = useIdentity.getState().userTypes
+        if (!currentRoles.some(u => u.name === name)) {
+          await addUserType(projectId, { name, description })
         }
+      }
 
-        // 2. DEFINE POLICY "Name" ON "Table" FOR "Role" { type: "...", logic: "..." }
-        const policyMatch = cleanLine.match(/DEFINE POLICY\s+"([^"]+)"\s+ON\s+"([^"]+)"\s+FOR\s+"([^"]+)"\s+\{\s*type:\s*"([^"]+)",\s*logic:\s*"([^"]*)"\s*\}/)
-        if (policyMatch) {
-          const [_, name, tableName, roleName, type, logic] = policyMatch
-          
-          // Refetch to get latest roles if one was just added
-          const currentRoles = useIdentity.getState().userTypes
-          const roleId = currentRoles.find(r => r.name === roleName)?.id
-          const tableId = tables.find(t => t.name === tableName)?.id
-          
-          if (roleId && tableId) {
-            await addPolicy(projectId, {
-              name,
-              user_type_id: roleId,
-              table_id: tableId,
-              policy_type: type as any,
-              policy_logic: logic
-            })
-          }
-          continue
+      // 2. DEFINE POLICY
+      const policyMatches = [...script.matchAll(/DEFINE POLICY\s+"([^"]+)"\s+ON\s+"([^"]+)"\s+FOR\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of policyMatches) {
+        const name = match[1]
+        const tableName = match[2]
+        const roleName = match[3]
+        
+        const type = match[4]?.match(/type:\s*"([^"]+)"/)?.[1] || 'select'
+        const logic = match[4]?.match(/logic:\s*"([^"]*)"/)?.[1] || 'true'
+
+        const currentRoles = useIdentity.getState().userTypes
+        const roleId = currentRoles.find(r => r.name === roleName)?.id
+        const tableId = useDatabase.getState().tables.find(t => t.name === tableName)?.id
+        
+        if (roleId && tableId) {
+          await addPolicy(projectId, {
+            name,
+            user_type_id: roleId,
+            table_id: tableId,
+            policy_type: type.toLowerCase() as any,
+            policy_logic: logic
+          })
         }
+      }
+
+      if (messageId) {
+        await supabase.from('chat_messages').update({ is_committed: true }).eq('id', messageId)
+        set(state => ({
+          messages: state.messages.map(m => m.id === messageId ? { ...m, is_committed: true } : m)
+        }))
       }
 
       toast.dismiss()

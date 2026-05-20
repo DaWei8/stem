@@ -179,25 +179,25 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
 
       const { inputs: existingInputs, actions: existingActions, outputs: existingOutputs } = usePages.getState()
       
-      for (const line of lines) {
-        const cleanLine = line.trim()
-        if (!cleanLine || cleanLine.startsWith('#')) continue
-
-        // 1. DEFINE SCREEN "Name"
-        const defineMatch = cleanLine.match(/DEFINE SCREEN\s+"([^"]+)"/)
-        if (defineMatch) {
-          const name = defineMatch[1]
-          if (!screenMap[name]) {
-            const page = await addPage(projectId, name)
-            if (page) screenMap[name] = page.id
-          }
-          continue
+      // 1. DEFINE SCREEN
+      const screenMatches = [...script.matchAll(/DEFINE SCREEN\s+"([^"]+)"/g)]
+      for (const match of screenMatches) {
+        const name = match[1]
+        if (!screenMap[name]) {
+          const page = await addPage(projectId, name)
+          if (page) screenMap[name] = page.id
         }
+      }
 
-        // 2. ADD INPUT TO "Screen" { name: "...", type: "...", var: "..." }
-        const inputMatch = cleanLine.match(/ADD INPUT TO\s+"([^"]+)"\s+\{\s*name:\s*"([^"]+)",\s*type:\s*"([^"]+)",\s*var:\s*"([^"]+)"\s*\}/)
-        if (inputMatch) {
-          const [_, screenName, name, type, varLabel] = inputMatch
+      // 2. ADD INPUT TO SCREEN
+      const inputMatches = [...script.matchAll(/ADD INPUT TO\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of inputMatches) {
+        const screenName = match[1]
+        const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
+        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1]
+        const varLabel = match[2]?.match(/var:\s*"([^"]+)"/)?.[1]
+        
+        if (name && type && varLabel) {
           const pageId = screenMap[screenName]
           const variableId = variables.find(v => v.label === varLabel)?.id
           if (pageId && variableId) {
@@ -206,13 +206,17 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
               await addInput(pageId, { name, input_type: type as any, variable_id: variableId })
             }
           }
-          continue
         }
+      }
 
-        // 3. ADD TRIGGER TO "Screen" { name: "...", type: "..." }
-        const actionMatch = cleanLine.match(/ADD TRIGGER TO\s+"([^"]+)"\s+\{\s*name:\s*"([^"]+)",\s*type:\s*"([^"]+)"\s*\}/)
-        if (actionMatch) {
-          const [_, screenName, name, type] = actionMatch
+      // 3. ADD TRIGGER TO SCREEN
+      const actionMatches = [...script.matchAll(/ADD TRIGGER TO\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of actionMatches) {
+        const screenName = match[1]
+        const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
+        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1]
+        
+        if (name && type) {
           const pageId = screenMap[screenName]
           if (pageId) {
             const exists = existingActions.some(a => a.page_id === pageId && a.name === name)
@@ -220,13 +224,18 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
               await addAction(pageId, { name, action_type: type as any })
             }
           }
-          continue
         }
+      }
 
-        // 4. ADD MUTATION TO "Screen" { name: "...", type: "...", var: "..." }
-        const outputMatch = cleanLine.match(/ADD MUTATION TO\s+"([^"]+)"\s+\{\s*name:\s*"([^"]+)",\s*type:\s*"([^"]+)",\s*var:\s*"([^"]+)"\s*\}/)
-        if (outputMatch) {
-          const [_, screenName, name, type, varLabel] = outputMatch
+      // 4. ADD MUTATION TO SCREEN
+      const outputMatches = [...script.matchAll(/ADD MUTATION TO\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of outputMatches) {
+        const screenName = match[1]
+        const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
+        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1]
+        const varLabel = match[2]?.match(/var:\s*"([^"]+)"/)?.[1]
+        
+        if (name && type && varLabel) {
           const pageId = screenMap[screenName]
           const variableId = variables.find(v => v.label === varLabel)?.id
           if (pageId && variableId) {
@@ -235,19 +244,18 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
               await addOutput(pageId, { name, output_type: type as any, variable_id: variableId })
             }
           }
-          continue
         }
+      }
 
-        // 5. CONNECT "A" -> "B" [FAILURE]
-        const connectMatch = cleanLine.match(/CONNECT\s+"([^"]+)"\s*->\s*"([^"]+)"(?:\s+\[(FAILURE)\])?/)
-        if (connectMatch) {
-          const sourceId = screenMap[connectMatch[1]]
-          const targetId = screenMap[connectMatch[2]]
-          const isFailure = connectMatch[3] === 'FAILURE'
-          if (sourceId && targetId) {
-            await addTransition(sourceId, targetId, undefined, isFailure)
-          }
-          continue
+      // 5. CONNECT A -> B [FAILURE]
+      const connectMatches = [...script.matchAll(/CONNECT\s+"([^"]+)"\s*->\s*"([^"]+)"(?:\s+\[(FAILURE)\])?/g)]
+      for (const match of connectMatches) {
+        const sourceId = screenMap[match[1]]
+        const targetId = screenMap[match[2]]
+        const isFailure = match[3] === 'FAILURE'
+        
+        if (sourceId && targetId) {
+          await addTransition(sourceId, targetId, undefined, isFailure)
         }
       }
 

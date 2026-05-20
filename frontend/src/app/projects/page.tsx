@@ -36,7 +36,7 @@ export default function ProjectsPage() {
                 Projects Dashboard
               </h1>
               <p className="text-xs text-zinc-500 font-medium max-w-md leading-relaxed">
-                Manage your deterministic system blueprints and architectural simulations from a centralized node.
+                Manage your system blueprints and architectural simulations from a centralized dashboard.
               </p>
             </div>
 
@@ -82,17 +82,17 @@ export default function ProjectsPage() {
             <div className="h-10 w-px bg-zinc-800 ml-auto" />
 
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setViewMode('grid')}
                 className={cn("size-9 rounded-none border transition-colors", viewMode === 'grid' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
               >
                 <LayoutGrid className="size-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setViewMode('list')}
                 className={cn("size-9 rounded-none border transition-colors", viewMode === 'list' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
               >

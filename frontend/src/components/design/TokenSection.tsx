@@ -11,9 +11,10 @@ interface TokenSectionProps {
   onAdd: () => void
   onEdit: (token: any) => void
   onDelete: (id: string) => void
+  onPreset?: () => void
 }
 
-export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete }: TokenSectionProps) {
+export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onPreset }: TokenSectionProps) {
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { type: 'spring' as const, stiffness: 100, damping: 15 } }
@@ -28,12 +29,22 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete }: T
           </div>
           <h3 className="text-xl font-bold tracking-tight">{title}</h3>
         </div>
-        <Button
-          onClick={onAdd}
-          className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-none transition-all"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {onPreset && (
+            <Button
+              onClick={onPreset}
+              className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-3 rounded-none transition-all text-xs"
+            >
+              Presets
+            </Button>
+          )}
+          <Button
+            onClick={onAdd}
+            className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-none transition-all"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-3">

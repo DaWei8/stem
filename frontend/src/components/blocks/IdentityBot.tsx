@@ -66,9 +66,9 @@ export function IdentityBot() {
     toast.success('STEM-script copied')
   }
 
-  const handleCommit = async (script: string) => {
+  const handleCommit = async (msgId: string, script: string) => {
     if (!projectId) return
-    await commitScript(script, projectId as string)
+    await commitScript(script, projectId as string, msgId)
   }
 
   return (
@@ -146,11 +146,17 @@ export function IdentityBot() {
                         <code>{msg.script}</code>
                       </pre>
                       <button
-                        onClick={() => handleCommit(msg.script!)}
-                        className="w-full h-10 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] border-t border-zinc-200 dark:border-zinc-800"
+                        onClick={() => handleCommit(msg.id, msg.script!)}
+                        disabled={msg.is_committed}
+                        className={cn(
+                          "w-full h-10 text-[10px] font-black flex items-center justify-center gap-2 transition-all border-t border-zinc-200 dark:border-zinc-800",
+                          msg.is_committed
+                            ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
+                            : "bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98]"
+                        )}
                       >
-                        <Play className="size-3.5" />
-                        Commit Architecture
+                        {msg.is_committed ? <Check className="size-3.5" /> : <Play className="size-3.5" />}
+                        {msg.is_committed ? 'Architecture Committed' : 'Commit Architecture'}
                       </button>
                     </div>
                   )}

@@ -48,7 +48,7 @@ If a node is selected (see 'selectedNodeId' in context), prioritize modification
 
 Respond deterministically. No generic chat.`
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ Respond deterministically. No generic chat.`
           generationConfig: {
             temperature: 0.1,
             topP: 0.95,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 8192,
           }
         })
       })
@@ -82,9 +82,9 @@ Respond deterministically. No generic chat.`
       const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
       // Parse content and script
-      const scriptMatch = fullText.match(/<script>([\s\S]*?)<\/script>/)
+      const scriptMatch = fullText.match(/<script>([\s\S]*?)(?:<\/script>|$)/i) || fullText.match(/```(?:stem-script|script|xml)?\s*\n([\s\S]*?)(?:```|$)/i)
       const script = scriptMatch ? scriptMatch[1].trim() : ''
-      const content = fullText.replace(/<script>[\s\S]*?<\/script>/, '').trim()
+      const content = fullText.replace(/<script>[\s\S]*?(?:<\/script>|$)/i, '').replace(/```(?:stem-script|script|xml)?\s*\n[\s\S]*?(?:```|$)/i, '').trim()
 
       return NextResponse.json({ content, script })
     }

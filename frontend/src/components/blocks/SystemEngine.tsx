@@ -55,16 +55,15 @@ export function SystemEngine() {
   const selectedConstant = constants.find(c => c.id === selectedConstantId)
 
   const tabs = [
-    { id: 'state', name: 'State Registry', icon: Layers, count: variables.length + constants.length },
+    { id: 'state', name: 'Variables', icon: Layers, count: variables.length + constants.length },
     { id: 'schema', name: 'Data Schema', icon: Database, count: tables.length },
     { id: 'logic', name: 'Cloud Logic', icon: Code2, count: functions.length },
     { id: 'deps', name: 'Dependencies', icon: Package, count: dependencies.length },
   ]
 
   return (
-    <div className="flex h-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
-      <div className={cn("flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || isOpen) && "pr-4")}>
-
+    <div className="flex h-full w-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
+      <div className={cn("flex-1 w-full overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || isOpen) && "pr-4")}>
         <PillarHeader
           title="System Engine"
           description="The unified backend of your system. Orchestrate persistent schemas, transient state, and deterministic cloud logic."
@@ -87,14 +86,14 @@ export function SystemEngine() {
           </div>
         </PillarHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full items-start space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <TabsList className="bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 p-0 h-11 rounded-none inline-flex overflow-hidden transition-colors">
+            <TabsList className="bg-zinc-50 flex max-w-2xl dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 p-0 rounded-none overflow-hidden transition-colors">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="px-6 h-full rounded-none data-[state=active]:bg-black dark:data-[state=active]:bg-white data-[state=active]:text-white dark:data-[state=active]:text-black text-zinc-400 dark:text-zinc-500 text-[10px] font-black  tracking-widest transition-all gap-2"
+                  className="px-6 h-12 border-white/20 w-full text-nowrap rounded-none data-[state=active]:bg-black dark:data-[state=active]:bg-white data-[state=active]:text-white dark:data-[state=active]:text-black text-zinc-400 dark:text-zinc-500 text-[10px] font-black border tracking-widest transition-all gap-2"
                 >
                   <tab.icon className="size-3" />
                   {tab.name}
@@ -103,7 +102,7 @@ export function SystemEngine() {
               ))}
             </TabsList>
 
-            <div className="flex-1 max-w-xs relative group">
+            <div className="flex-1 max-w-2xl relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
               <Input
                 value={searchQuery}
@@ -127,10 +126,10 @@ export function SystemEngine() {
                   <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest px-1">Global Constants</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {constants.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => (
-                      <ConstantCard 
-                        key={c.id} 
-                        constant={c} 
-                        onDelete={id => deleteConstant(projectId, id)} 
+                      <ConstantCard
+                        key={c.id}
+                        constant={c}
+                        onDelete={id => deleteConstant(projectId, id)}
                         onClick={() => { setSelectedConstantId(selectedConstantId === c.id ? null : c.id); setSelectedVarId(null); }}
                         isSelected={selectedConstantId === c.id}
                       />

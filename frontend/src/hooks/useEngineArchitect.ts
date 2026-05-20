@@ -15,6 +15,7 @@ interface Message {
   content: string
   script?: string
   timestamp: number
+  is_committed?: boolean
 }
 
 interface EngineArchitectState {
@@ -22,10 +23,10 @@ interface EngineArchitectState {
   isArchitecting: boolean
   isOpen: boolean
   setIsOpen: (open: boolean) => void
-  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void
+  addMessage: (message: Omit<Message, 'id' | 'timestamp'> & { id?: string, timestamp?: number }) => void
   fetchMessages: (projectId: string) => Promise<void>
   generateSystem: (prompt: string, projectId: string) => Promise<void>
-  commitScript: (script: string, projectId: string) => Promise<void>
+  commitScript: (script: string, projectId: string, messageId?: string) => Promise<void>
   clearHistory: () => void
 }
 
@@ -37,26 +38,65 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
   setIsOpen: (open) => set({ isOpen: open }),
 
   addMessage: (msg) => set((state) => ({
-    messages: [...state.messages, { ...msg, id: Math.random().toString(36).substring(7), timestamp: Date.now() }]
+    messages: [...state.messages, { ...msg, id: msg.id || Math.random().toString(36).substring(7), timestamp: msg.timestamp || Date.now() }]
   })),
 
   clearHistory: () => set({ messages: [] }),
 
   fetchMessages: async (projectId) => {
-    set({
-      messages: [{
-        id: 'welcome',
-        role: 'assistant',
-        content: 'I am the STEM Engine Architect. Describe your variables, schemas, logic functions, or dependencies, and I will orchestrate them deterministically.',
-        timestamp: Date.now()
-      }]
-    })
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return
+
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('architect_type', 'engine')
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    if (!data || data.length === 0) {
+      set({
+        messages: [{
+          id: 'welcome',
+          role: 'assistant',
+          content: 'I am the STEM Engine Architect. Describe your variables, schemas, logic functions, or dependencies, and I will orchestrate them deterministically.',
+          timestamp: Date.now()
+        }]
+      })
+    } else {
+      set({
+        messages: data.map(m => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          script: m.script,
+          is_committed: m.is_committed,
+          timestamp: new Date(m.created_at).getTime()
+        }))
+      })
+    }
   },
 
   generateSystem: async (prompt, projectId) => {
     set({ isArchitecting: true })
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        await supabase.from('chat_messages').insert({
+          project_id: projectId,
+          user_id: session.user.id,
+          role: 'user',
+          content: prompt,
+          architect_type: 'engine'
+        })
+      }
+
       const { variables } = useVariables.getState()
       const { tables, columns } = useDatabase.getState()
       const { constants, functions, dependencies } = useLogic.getState()
@@ -104,10 +144,35 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       toast.dismiss('ai-retry');
       const data = await response!.json()
 
+      if (session?.user) {
+        const { data: savedMsg } = await supabase.from('chat_messages').insert({
+          project_id: projectId,
+          user_id: session.user.id,
+          role: 'assistant',
+          content: data.content,
+          script: data.script,
+          architect_type: 'engine',
+          is_committed: false
+        }).select().single()
+
+        if (savedMsg) {
+          get().addMessage({
+            id: savedMsg.id,
+            role: 'assistant',
+            content: data.content,
+            script: data.script,
+            is_committed: false,
+            timestamp: new Date(savedMsg.created_at).getTime()
+          })
+          return
+        }
+      }
+
       get().addMessage({
         role: 'assistant',
         content: data.content,
-        script: data.script
+        script: data.script,
+        is_committed: false
       })
     } catch (error) {
       console.error(error)
@@ -117,7 +182,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
     }
   },
 
-  commitScript: async (script, projectId) => {
+  commitScript: async (script, projectId, messageId) => {
     const { addVariable, variables } = useVariables.getState()
     const { addTable, addColumn, tables } = useDatabase.getState()
     const { addConstant, addFunction, addDependency, constants, functions, dependencies } = useLogic.getState()
@@ -125,75 +190,80 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
     toast.loading('Executing engine transactions...')
 
     try {
-      const lines = script.split('\n')
-      
-      for (const line of lines) {
-        const cleanLine = line.trim()
-        if (!cleanLine || cleanLine.startsWith('#')) continue
-
-        // 1. DEFINE VARIABLE
-        const varMatch = cleanLine.match(/DEFINE VARIABLE\s+"([^"]+)"\s+\{\s*type:\s*"([^"]+)",\s*scope:\s*"([^"]+)"\s*\}/)
-        if (varMatch) {
-          const [_, label, type, scope] = varMatch
-          if (!variables.some(v => v.label === label)) {
-            await addVariable(projectId, { label, type: type as any, scope: scope as any })
-          }
-          continue
+      // 1. DEFINE VARIABLE
+      const varMatches = [...script.matchAll(/DEFINE VARIABLE\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of varMatches) {
+        const label = match[1]
+        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string'
+        const scope = match[2]?.match(/scope:\s*"([^"]+)"/)?.[1] || 'persistent'
+        if (!useVariables.getState().variables.some(v => v.label === label)) {
+          await addVariable(projectId, { label, type: type as any, scope: scope as any })
         }
+      }
 
-        // 2. DEFINE CONSTANT
-        const constMatch = cleanLine.match(/DEFINE CONSTANT\s+"([^"]+)"\s+\{\s*type:\s*"([^"]+)",\s*value:\s*"([^"]*)"\s*\}/)
-        if (constMatch) {
-          const [_, name, type, value] = constMatch
-          if (!constants.some(c => c.name === name)) {
-            await addConstant(projectId, name, value, type)
-          }
-          continue
+      // 2. DEFINE CONSTANT
+      const constMatches = [...script.matchAll(/DEFINE CONSTANT\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of constMatches) {
+        const name = match[1]
+        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string'|'number'|'boolean'|'json'
+        const value = match[2]?.match(/value:\s*"([^"]*)"/)?.[1] || ''
+        if (!useLogic.getState().constants.some(c => c.name === name)) {
+          await addConstant(projectId, name, value, type)
         }
+      }
 
-        // 3. DEFINE TABLE
-        const tableMatch = cleanLine.match(/DEFINE TABLE\s+"([^"]+)"/)
-        if (tableMatch) {
-          const name = tableMatch[1]
-          if (!tables.some(t => t.name === name)) {
-            await addTable(projectId, name)
-          }
-          continue
+      // 3. DEFINE TABLE
+      const tableMatches = [...script.matchAll(/DEFINE TABLE\s+"([^"]+)"/g)]
+      for (const match of tableMatches) {
+        const name = match[1]
+        if (!useDatabase.getState().tables.some(t => t.name === name)) {
+          await addTable(projectId, name)
         }
+      }
 
-        // 4. ADD COLUMN TO TABLE
-        const colMatch = cleanLine.match(/ADD COLUMN TO\s+"([^"]+)"\s+\{\s*name:\s*"([^"]+)",\s*type:\s*"([^"]+)",\s*pk:\s*(true|false)\s*\}/)
-        if (colMatch) {
-          const [_, tableName, name, type, pkStr] = colMatch
-          // Need latest tables because one might have just been added
+      // 4. ADD COLUMN TO TABLE
+      const colMatches = [...script.matchAll(/ADD COLUMN TO\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of colMatches) {
+        const tableName = match[1]
+        const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
+        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'text'
+        const pkStr = match[2]?.match(/pk:\s*(true|false)/)?.[1]
+        
+        if (name) {
           const currentTables = useDatabase.getState().tables
           const tableId = currentTables.find(t => t.name === tableName)?.id
           if (tableId) {
             await addColumn(projectId, tableId, { name, type, is_primary_key: pkStr === 'true' })
           }
-          continue
         }
+      }
 
-        // 5. DEFINE FUNCTION
-        const funcMatch = cleanLine.match(/DEFINE FUNCTION\s+"([^"]+)"(?:\s+\{\s*description:\s*"([^"]*)"\s*\})?/)
-        if (funcMatch) {
-          const name = funcMatch[1]
-          const description = funcMatch[2] || ''
-          if (!functions.some(f => f.name === name)) {
-            await addFunction(projectId, name, description)
-          }
-          continue
+      // 5. DEFINE FUNCTION
+      const funcMatches = [...script.matchAll(/DEFINE FUNCTION\s+"([^"]+)"(?:\s*\{([^}]*)\})?/g)]
+      for (const match of funcMatches) {
+        const name = match[1]
+        const description = match[2]?.match(/description:\s*"([^"]*)"/)?.[1] || ''
+        if (!useLogic.getState().functions.some(f => f.name === name)) {
+          await addFunction(projectId, name, description)
         }
+      }
 
-        // 6. ADD DEPENDENCY
-        const depMatch = cleanLine.match(/ADD DEPENDENCY\s+"([^"]+)"\s+\{\s*version:\s*"([^"]+)",\s*type:\s*"([^"]+)"\s*\}/)
-        if (depMatch) {
-          const [_, name, version, type] = depMatch
-          if (!dependencies.some(d => d.name === name)) {
-            await addDependency(projectId, name, version, type)
-          }
-          continue
+      // 6. ADD DEPENDENCY
+      const depMatches = [...script.matchAll(/ADD DEPENDENCY\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      for (const match of depMatches) {
+        const name = match[1]
+        const version = match[2]?.match(/version:\s*"([^"]+)"/)?.[1] || 'latest'
+        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm'|'api'|'service'
+        if (!useLogic.getState().dependencies.some(d => d.name === name)) {
+          await addDependency(projectId, name, version, type)
         }
+      }
+
+      if (messageId) {
+        await supabase.from('chat_messages').update({ is_committed: true }).eq('id', messageId)
+        set(state => ({
+          messages: state.messages.map(m => m.id === messageId ? { ...m, is_committed: true } : m)
+        }))
       }
 
       toast.dismiss()
