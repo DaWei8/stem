@@ -322,7 +322,7 @@ export default function ProjectEditorPage() {
         onClose={() => setIsShareModalOpen(false)}
         title="Project Collaboration"
         description="Invite colleagues to collaborate on this deterministic system blueprint."
-        className="max-w-3xl"
+        className="sm:max-w-3xl"
       >
         <div className="max-h-[70vh] overflow-y-auto py-2 custom-scrollbar">
           <CollaboratorsView isModal={true} />

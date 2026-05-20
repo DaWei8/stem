@@ -48,6 +48,7 @@ Respond deterministically. No generic chat.`
 
   } catch (error: any) {
     console.error('API /architect error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to process request' }, { status: 500 })
+    const status = error.status || 500
+    return NextResponse.json({ error: error.message || 'Failed to process request' }, { status })
   }
 }

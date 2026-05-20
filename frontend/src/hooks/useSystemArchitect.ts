@@ -133,10 +133,12 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
         if (response.ok) break;
 
         const errorData = await response.json();
-        if (response.status === 503 && retries < maxRetries - 1) {
+        const retryableStatuses = [429, 503, 529];
+        if (retryableStatuses.includes(response.status) && retries < maxRetries - 1) {
           retries++;
           const delay = Math.pow(2, retries) * 1000;
-          toast.loading(`Gemini is busy. Retrying in ${delay / 1000}s... (Attempt ${retries}/${maxRetries})`, { id: 'ai-retry' });
+          const reason = response.status === 429 ? 'Rate limited' : 'Model busy';
+          toast.loading(`${reason}. Retrying in ${delay / 1000}s... (Attempt ${retries}/${maxRetries})`, { id: 'ai-retry' });
           await new Promise(r => setTimeout(r, delay));
           continue;
         }
@@ -176,9 +178,10 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
         content: data.content,
         script: data.script
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      toast.error('AI Architecting failed')
+      toast.dismiss('ai-retry');
+      toast.error(error.message || 'AI Architecting failed')
     } finally {
       set({ isArchitecting: false })
     }

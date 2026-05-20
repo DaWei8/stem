@@ -28,6 +28,15 @@ const MODEL_RATES: Record<string, { input: number; output: number }> = {
   'claude-3-5-haiku': { input: 0.80, output: 4.00 }
 }
 
+export class UpstreamAPIError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'UpstreamAPIError'
+    this.status = status
+  }
+}
+
 export async function executeLLMRequest(
   prompt: string,
   systemInstructions: string,
@@ -103,8 +112,8 @@ export async function executeLLMRequest(
     })
 
     if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.error?.message || `Gemini API call failed for model ${geminiModelName}`)
+      const err = await response.json().catch(() => ({}))
+      throw new UpstreamAPIError(err.error?.message || `Gemini API call failed for model ${geminiModelName}`, response.status)
     }
 
     const data = await response.json()
@@ -134,8 +143,8 @@ export async function executeLLMRequest(
     })
 
     if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.error?.message || `OpenAI API call failed for model ${activeModel}`)
+      const err = await response.json().catch(() => ({}))
+      throw new UpstreamAPIError(err.error?.message || `OpenAI API call failed for model ${activeModel}`, response.status)
     }
 
     const data = await response.json()
@@ -169,8 +178,8 @@ export async function executeLLMRequest(
     })
 
     if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.error?.message || `Anthropic API call failed for model ${activeModel}`)
+      const err = await response.json().catch(() => ({}))
+      throw new UpstreamAPIError(err.error?.message || `Anthropic API call failed for model ${activeModel}`, response.status)
     }
 
     const data = await response.json()
