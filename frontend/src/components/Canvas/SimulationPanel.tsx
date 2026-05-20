@@ -83,7 +83,9 @@ export function SimulationPanel({
                 onValueChange={(v) => setSimulationParams({ ...simulationParams, startPageId: v || '' })}
               >
                 <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
-                  <SelectValue placeholder="Start" />
+                  <SelectValue placeholder="Start">
+                    {simulationParams.startPageId ? (pages.find((p: any) => p.id === simulationParams.startPageId)?.title || pages.find((p: any) => p.id === simulationParams.startPageId)?.name) : "Start"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
                   {pages.map((p: any) => (
@@ -100,7 +102,9 @@ export function SimulationPanel({
                 onValueChange={(v) => setSimulationParams({ ...simulationParams, endPageId: v || '' })}
               >
                 <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
-                  <SelectValue placeholder="End" />
+                  <SelectValue placeholder="End">
+                    {simulationParams.endPageId ? (pages.find((p: any) => p.id === simulationParams.endPageId)?.title || pages.find((p: any) => p.id === simulationParams.endPageId)?.name) : "End"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
                   {pages.map((p: any) => (
@@ -118,7 +122,9 @@ export function SimulationPanel({
               onValueChange={(v) => setSimulationParams({ ...simulationParams, userTypeId: v || '' })}
             >
               <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
-                <SelectValue placeholder="Default Permission Set" />
+                <SelectValue placeholder="Default Permission Set">
+                  {simulationParams.userTypeId ? userTypes.find((ut: any) => ut.id === simulationParams.userTypeId)?.name : "Default Permission Set"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
                 {userTypes.map((ut: any) => (
