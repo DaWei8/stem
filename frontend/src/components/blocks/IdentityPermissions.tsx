@@ -225,7 +225,7 @@ export function IdentityPermissions() {
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/40 overflow-hidden divide-y divide-zinc-150 dark:divide-zinc-900">
             {filteredPolicies.map(pol => (
               <PolicyRow
                 key={pol.id}

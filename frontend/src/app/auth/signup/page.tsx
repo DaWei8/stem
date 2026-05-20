@@ -111,6 +111,7 @@ export default function SignUpPage() {
                     id="email"
                     type="email"
                     required
+                    autoComplete="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-black/30 border-zinc-800 text-white rounded-xl h-12 px-4 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-800"
@@ -126,6 +127,7 @@ export default function SignUpPage() {
                     id="password"
                     type="password"
                     required
+                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-black/30 border-zinc-800 text-white rounded-xl h-12 px-4 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
@@ -141,6 +143,7 @@ export default function SignUpPage() {
                     id="confirmPassword"
                     type="password"
                     required
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="bg-black/30 border-zinc-800 text-white rounded-xl h-12 px-4 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"

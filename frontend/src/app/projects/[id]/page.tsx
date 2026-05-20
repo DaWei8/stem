@@ -206,6 +206,8 @@ export default function ProjectEditorPage() {
       case 'export':
       case 'documentation':
         return <DocumentationView />
+      case 'collaborators':
+        return <CollaboratorsView />
       case 'flows':
         return <Canvas />
       default:

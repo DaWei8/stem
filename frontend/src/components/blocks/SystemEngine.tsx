@@ -112,7 +112,7 @@ export function SystemEngine() {
         }
         let mappedType: 'string' | 'number' | 'boolean' | 'json' = 'string'
         let finalVal = constValue.trim()
-        
+
         if (constType === 'array') {
           mappedType = 'json'
           if (!finalVal) finalVal = '[]'
@@ -188,7 +188,7 @@ export function SystemEngine() {
             >
               <Cpu className="size-3.5" /> AI Architect
             </Button>
-            <Button 
+            <Button
               onClick={() => setIsNewEntryOpen(true)}
               className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2 group"
             >
@@ -363,7 +363,7 @@ export function SystemEngine() {
       <StandardModal
         isOpen={isNewEntryOpen}
         onClose={() => setIsNewEntryOpen(false)}
-        title="Add New Engine Element"
+        title="Add New Element"
         confirmText="Add Element"
         onConfirm={handleSubmitEntry}
         className="max-w-xl"
@@ -497,8 +497,8 @@ export function SystemEngine() {
                     onChange={e => setConstValue(e.target.value)}
                     placeholder={
                       constType === 'array' ? 'e.g. ["item1", "item2"]' :
-                      constType === 'object' || constType === 'dictionary' ? 'e.g. { "key": "value" }' :
-                      constType === 'boolean' ? 'true or false' : 'e.g. 0.15'
+                        constType === 'object' || constType === 'dictionary' ? 'e.g. { "key": "value" }' :
+                          constType === 'boolean' ? 'true or false' : 'e.g. 0.15'
                     }
                     rows={3}
                     className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"

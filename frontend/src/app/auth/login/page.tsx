@@ -101,6 +101,7 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     required
+                    autoComplete="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-black/30 border-zinc-800 text-white rounded-xl h-12 px-4 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-800"
@@ -118,6 +119,7 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     required
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-black/30 border-zinc-800 text-white rounded-xl h-12 px-4 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"

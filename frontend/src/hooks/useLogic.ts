@@ -9,7 +9,8 @@ import {
   addDependencyAction,
   deleteConstantAction,
   deleteFunctionAction,
-  deleteDependencyAction
+  deleteDependencyAction,
+  updateConstantAction
 } from '@/lib/actions/logic'
 
 interface LogicConstant {
@@ -41,6 +42,7 @@ interface LogicState {
   isLoading: boolean
   fetchLogicData: (projectId: string) => Promise<void>
   addConstant: (projectId: string, name: string, value: string, type: string) => Promise<void>
+  updateConstant: (projectId: string, id: string, name: string, value: string, type: string) => Promise<void>
   deleteConstant: (projectId: string, id: string) => Promise<void>
   addFunction: (projectId: string, name: string, description?: string) => Promise<void>
   deleteFunction: (projectId: string, id: string) => Promise<void>
@@ -88,6 +90,18 @@ export const useLogic = create<LogicState>((set) => ({
       toast.success('Constant defined')
     } catch (error: any) {
       toast.error(`Failed to add constant: ${error.message}`)
+    }
+  },
+
+  updateConstant: async (projectId, id, name, value, type) => {
+    try {
+      const data = await updateConstantAction(projectId, id, name, value, type)
+      set((state) => ({
+        constants: state.constants.map(c => c.id === id ? data : c)
+      }))
+      toast.success('Constant updated successfully')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
     }
   },
 

@@ -1,10 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Hash, Copy, Check, Table, Eye, Terminal } from 'lucide-react'
+import { X, Hash, Copy, Check, Table, Eye, Terminal, Edit3, Save, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useParams } from 'next/navigation'
+import { useLogic } from '@/hooks/useLogic'
 
 interface Props {
   constant: any
@@ -12,10 +14,28 @@ interface Props {
 }
 
 export function ConstantDrawer({ constant, onClose }: Props) {
+  const params = useParams()
+  const projectId = params?.id as string
+  const { updateConstant } = useLogic()
+
   const [activeTab, setActiveTab] = useState<'explorer' | 'raw' | 'table'>('explorer')
   const [copied, setCopied] = useState(false)
 
-  // Robust parser for database-stored values which might have trailing semicolons or double-encoding
+  // Editing State
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState(constant.name)
+  const [editValue, setEditValue] = useState(constant.value)
+  const [editType, setEditType] = useState(constant.type)
+
+  // Reset editing values when constant changes
+  useEffect(() => {
+    setEditName(constant.name)
+    setEditValue(constant.value)
+    setEditType(constant.type)
+    setIsEditing(false)
+  }, [constant])
+
+  // Robust parser for database-stored values which might have trailing semicolons, double-encoding, or JS object/array literal notation
   const parsedValue = useMemo(() => {
     const rawVal = constant.value
     if (typeof rawVal !== 'string') return rawVal
@@ -30,17 +50,29 @@ export function ConstantDrawer({ constant, onClose }: Props) {
       try {
         const parsed = JSON.parse(clean)
         if (typeof parsed === 'string') {
-          return JSON.parse(parsed)
+          clean = parsed.trim()
+        } else {
+          return parsed
         }
-        return parsed
       } catch (e) {}
     }
 
+    // 1. Try standard JSON parse
     try {
       return JSON.parse(clean)
     } catch (e) {}
 
-    // Fallback: try converting single quotes to double quotes for basic JS object strings
+    // 2. Try parsing as JavaScript Object/Array Literal (e.g. unquoted keys, trailing commas)
+    try {
+      if ((clean.startsWith('{') && clean.endsWith('}')) || (clean.startsWith('[') && clean.endsWith(']'))) {
+        const parsed = new Function(`return (${clean})`)()
+        if (parsed && typeof parsed === 'object') {
+          return parsed
+        }
+      }
+    } catch (e) {}
+
+    // 3. Fallback: try converting single quotes to double quotes for basic JSON format conversion
     try {
       const formatted = clean.replace(/'/g, '"')
       return JSON.parse(formatted)
@@ -54,6 +86,29 @@ export function ConstantDrawer({ constant, onClose }: Props) {
     setCopied(true)
     toast.success('Constant value copied to clipboard')
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSave = async () => {
+    if (!editName.trim()) {
+      toast.error('Constant name is required')
+      return
+    }
+
+    if (editType === 'json') {
+      try {
+        JSON.parse(editValue)
+      } catch (e) {
+        toast.error('Value is not a valid JSON string. Check brackets and quotes.')
+        return
+      }
+    }
+
+    try {
+      await updateConstant(projectId, constant.id, editName.trim(), editValue, editType)
+      setIsEditing(false)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const renderValue = (val: any, depth = 0): React.ReactNode => {
@@ -144,142 +199,227 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         </div>
 
         {/* Identity block */}
-        <div className="p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-black text-black dark:text-white font-mono break-all">{constant.name}</p>
-            <span className="text-[9px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-2 py-0.5 uppercase">{constant.type}</span>
-          </div>
+        <div className="p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-3">
+          {isEditing ? (
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Constant Identifier</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Type Specifier</label>
+                <select
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value)}
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+                >
+                  <option value="string">String (Text)</option>
+                  <option value="number">Number (Float/Int)</option>
+                  <option value="boolean">Boolean (True/False)</option>
+                  <option value="json">JSON (Array/Object/Map)</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-black text-black dark:text-white font-mono break-all">{constant.name}</p>
+              <span className="text-[9px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-2 py-0.5 uppercase">{constant.type}</span>
+            </div>
+          )}
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-zinc-200 dark:border-zinc-800">
-          <button
-            onClick={() => setActiveTab('explorer')}
-            className={cn(
-              "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
-              activeTab === 'explorer'
-                ? "border-black dark:border-white text-black dark:text-white"
-                : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
-            )}
-          >
-            <Eye className="size-3" /> Explorer
-          </button>
-          <button
-            onClick={() => setActiveTab('raw')}
-            className={cn(
-              "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
-              activeTab === 'raw'
-                ? "border-black dark:border-white text-black dark:text-white"
-                : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
-            )}
-          >
-            <Terminal className="size-3" /> Raw JSON
-          </button>
-          {isTabular && (
+        {/* Toolbar & Tabs */}
+        {!isEditing && (
+          <div className="flex border-b border-zinc-200 dark:border-zinc-800">
             <button
-              onClick={() => setActiveTab('table')}
+              onClick={() => setActiveTab('explorer')}
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
-                activeTab === 'table'
+                activeTab === 'explorer'
                   ? "border-black dark:border-white text-black dark:text-white"
                   : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
               )}
             >
-              <Table className="size-3" /> Table View
+              <Eye className="size-3" /> Explorer
             </button>
-          )}
-        </div>
+            <button
+              onClick={() => setActiveTab('raw')}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
+                activeTab === 'raw'
+                  ? "border-black dark:border-white text-black dark:text-white"
+                  : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
+            )}
+            >
+              <Terminal className="size-3" /> Raw JSON
+            </button>
+            {isTabular && (
+              <button
+                onClick={() => setActiveTab('table')}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
+                  activeTab === 'table'
+                    ? "border-black dark:border-white text-black dark:text-white"
+                    : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
+                )}
+              >
+                <Table className="size-3" /> Table View
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Dynamic content */}
         <div className="flex-1 flex flex-col min-h-0">
-          {activeTab === 'explorer' && (
+          {isEditing ? (
             <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Value Explorer</h3>
+              <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Payload Editor</label>
+              <textarea
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                rows={15}
+                className="flex-1 p-4 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] text-black dark:text-zinc-300 rounded-none focus:outline-none focus:border-zinc-400 resize-none overflow-auto whitespace-pre leading-relaxed shadow-inner"
+                placeholder={editType === 'json' ? 'e.g. { "name": "Stem" }' : 'Enter constant value...'}
+              />
+              <div className="flex gap-2 pt-2">
                 <button
-                  onClick={copyToClipboard}
-                  className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                  onClick={handleSave}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-wider transition-all"
                 >
-                  {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  <Save className="size-3.5" /> Save Changes
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-wider transition-all bg-white dark:bg-black"
+                >
+                  <RotateCcw className="size-3.5" /> Cancel
                 </button>
               </div>
-              <div className="flex-1 p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 overflow-auto">
-                {renderValue(parsedValue)}
-              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {activeTab === 'explorer' && (
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Value Explorer</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                      >
+                        <Edit3 className="size-3" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={copyToClipboard}
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                      >
+                        {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
+                        <span>{copied ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 overflow-auto">
+                    {renderValue(parsedValue)}
+                  </div>
+                </div>
+              )}
 
-          {activeTab === 'raw' && (
-            <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Formatted JSON</h3>
-                <button
-                  onClick={copyToClipboard}
-                  className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
-                >
-                  {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-              <pre className="flex-1 p-4 bg-black border border-zinc-800 font-mono text-[11px] text-zinc-300 overflow-auto select-all whitespace-pre-wrap leading-relaxed">
-                {typeof parsedValue === 'object' ? JSON.stringify(parsedValue, null, 2) : String(parsedValue)}
-              </pre>
-            </div>
-          )}
+              {activeTab === 'raw' && (
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Formatted JSON</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                      >
+                        <Edit3 className="size-3" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={copyToClipboard}
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                      >
+                        {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
+                        <span>{copied ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <pre className="flex-1 p-4 bg-black border border-zinc-800 font-mono text-[11px] text-zinc-300 overflow-auto select-all whitespace-pre-wrap leading-relaxed">
+                    {typeof parsedValue === 'object' ? JSON.stringify(parsedValue, null, 2) : String(parsedValue)}
+                  </pre>
+                </div>
+              )}
 
-          {activeTab === 'table' && isTabular && (
-            <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Tabular View</h3>
-              <div className="flex-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black overflow-auto">
-                {Array.isArray(parsedValue) ? (
-                  <table className="w-full text-left border-collapse text-[10px] font-mono">
-                    <thead>
-                      <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-                        <th className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">Index</th>
-                        {Object.keys(parsedValue[0] || {}).map(k => (
-                          <th key={k} className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">{k}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {parsedValue.map((row, idx) => (
-                        <tr key={idx} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50">
-                          <td className="p-2 border-r border-zinc-200 dark:border-zinc-800 text-zinc-400 font-bold">{idx}</td>
-                          {Object.keys(parsedValue[0] || {}).map(k => {
-                            const val = row[k]
-                            return (
-                              <td key={k} className="p-2 border-r border-zinc-200 dark:border-zinc-800 max-w-[150px] truncate">
+              {activeTab === 'table' && isTabular && (
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Tabular View</h3>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                    >
+                      <Edit3 className="size-3" />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                  <div className="flex-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black overflow-auto">
+                    {Array.isArray(parsedValue) ? (
+                      <table className="w-full text-left border-collapse text-[10px] font-mono">
+                        <thead>
+                          <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+                            <th className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">Index</th>
+                            {Object.keys(parsedValue[0] || {}).map(k => (
+                              <th key={k} className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">{k}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {parsedValue.map((row, idx) => (
+                            <tr key={idx} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50">
+                              <td className="p-2 border-r border-zinc-200 dark:border-zinc-800 text-zinc-400 font-bold">{idx}</td>
+                              {Object.keys(parsedValue[0] || {}).map(k => {
+                                const val = row[k]
+                                return (
+                                  <td key={k} className="p-2 border-r border-zinc-200 dark:border-zinc-800 max-w-[150px] truncate">
+                                    {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <table className="w-full text-left border-collapse text-[10px] font-mono">
+                        <thead>
+                          <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+                            <th className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">Key</th>
+                            <th className="p-2 font-bold">Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(parsedValue || {}).map(([key, val]) => (
+                            <tr key={key} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50">
+                              <td className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold text-violet-400">"{key}"</td>
+                              <td className="p-2 max-w-[200px] truncate">
                                 {typeof val === 'object' ? JSON.stringify(val) : String(val)}
                               </td>
-                            )
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <table className="w-full text-left border-collapse text-[10px] font-mono">
-                    <thead>
-                      <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-                        <th className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold">Key</th>
-                        <th className="p-2 font-bold">Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(parsedValue || {}).map(([key, val]) => (
-                        <tr key={key} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50">
-                          <td className="p-2 border-r border-zinc-200 dark:border-zinc-800 font-bold text-violet-400">"{key}"</td>
-                          <td className="p-2 max-w-[200px] truncate">
-                            {typeof val === 'object' ? JSON.stringify(val) : String(val)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

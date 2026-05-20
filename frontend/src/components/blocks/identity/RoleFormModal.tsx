@@ -44,7 +44,7 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
     <SlideInModal
       isOpen={isOpen}
       onClose={onClose}
-      title={editingRole ? 'Modify Identity Role' : 'Define Identity Role'}
+      title={editingRole ? 'Modify User Role' : 'Define User Role'}
       description={editingRole ? 'Update archetype parameters and permissions.' : 'Establish a new user archetype and their global permissions.'}
       footer={
         <Button onClick={handleSave} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black ">

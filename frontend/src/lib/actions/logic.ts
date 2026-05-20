@@ -80,3 +80,17 @@ export async function deleteDependencyAction(projectId: string, id: string) {
   if (error) throw new Error(error.message)
   revalidatePath(`/projects/${projectId}`)
 }
+
+export async function updateConstantAction(projectId: string, id: string, name: string, value: string, type: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('constants')
+    .update({ name, value, type })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
