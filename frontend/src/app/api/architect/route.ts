@@ -1,14 +1,34 @@
 import { NextResponse } from 'next/server'
 import { executeLLMRequest } from '@/lib/ai-provider'
-
-export const runtime = 'edge'
+import { createClient } from '@/lib/supabase/server'
+import { decrypt } from '@/lib/encryption'
 
 export async function POST(req: Request) {
   try {
-    const { prompt, currentState, userKeys, selectedModel } = await req.json()
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { prompt, currentState, selectedModel } = await req.json()
 
     if (!prompt) {
       return NextResponse.json({ error: 'Missing prompt' }, { status: 400 })
+    }
+
+    // Load and decrypt keys from database
+    const { data: keysData } = await supabase
+      .from('user_api_keys')
+      .select('openai_key, anthropic_key, google_key')
+      .eq('user_id', user.id)
+      .single()
+
+    const userKeys = {
+      openai: keysData?.openai_key ? decrypt(keysData.openai_key) : '',
+      anthropic: keysData?.anthropic_key ? decrypt(keysData.anthropic_key) : '',
+      google: keysData?.google_key ? decrypt(keysData.google_key) : ''
     }
 
     const systemInstructions = `You are the STEM System Architect, a powerful AI co-author for mission-critical software logic.
