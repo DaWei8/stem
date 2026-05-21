@@ -1,21 +1,62 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { decrypt } from '@/lib/encryption'
 
-export const runtime = 'edge'
+function isMaskedKey(key: string): boolean {
+  if (!key) return false
+  return key.includes('...') || key.includes('••••')
+}
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { provider, key } = await req.json()
 
     if (!provider || !key) {
       return NextResponse.json({ ok: false, error: 'Missing provider or key' }, { status: 400 })
     }
 
-    const testPrompt = 'Say ok'
     const trimmedKey = key.trim()
+    let actualKey = trimmedKey
+
+    if (isMaskedKey(trimmedKey)) {
+      const { data, error } = await supabase
+        .from('user_api_keys')
+        .select('openai_key, anthropic_key, google_key')
+        .eq('user_id', user.id)
+        .single()
+
+      if (error || !data) {
+        return NextResponse.json({ ok: false, error: 'API key not configured in database' })
+      }
+
+      let encryptedKey = ''
+      if (provider === 'openai') encryptedKey = data.openai_key || ''
+      else if (provider === 'anthropic') encryptedKey = data.anthropic_key || ''
+      else if (provider === 'google') encryptedKey = data.google_key || ''
+
+      if (!encryptedKey) {
+        return NextResponse.json({ ok: false, error: `No stored key found for provider: ${provider}` })
+      }
+
+      const decrypted = decrypt(encryptedKey)
+      if (!decrypted) {
+        return NextResponse.json({ ok: false, error: 'Failed to decrypt the stored key' })
+      }
+      actualKey = decrypted
+    }
+
+    const testPrompt = 'Say ok'
 
     if (provider === 'google') {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${trimmedKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${actualKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -38,7 +79,7 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${trimmedKey}`
+          Authorization: `Bearer ${actualKey}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
@@ -59,7 +100,7 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': trimmedKey,
+          'x-api-key': actualKey,
           'anthropic-version': '2023-06-01',
           'dangerously-allow-developer-api-keys': 'true'
         } as any,
