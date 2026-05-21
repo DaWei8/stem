@@ -806,7 +806,7 @@ export default function SettingsPage() {
 
           {/* Detailed logs table */}
           {logs.length === 0 ? (
-            <div className="border border-zinc-900 p-12 text-center flex flex-col items-center justify-center gap-2">
+            <div className="border border-zinc-900 p-12 text-center text-nowrap flex flex-col items-center justify-center gap-2">
               <Cpu className="size-8 text-zinc-850" />
               <p className="text-xs font-black text-zinc-500 uppercase tracking-wider">No tokens recorded yet</p>
               <p className="text-[10px] text-zinc-600 font-medium">Invoke the AI Architect or sync blueprints to audit credits.</p>

@@ -217,7 +217,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string'
         const scope = match[2]?.match(/scope:\s*"([^"]+)"/)?.[1] || 'persistent'
         if (!useVariables.getState().variables.some(v => v.label === label)) {
-          await addVariable(projectId, { label, type: type as any, scope: scope as any })
+          await addVariable(projectId, { label, type: type as any, scope: scope as any }, true)
         }
       }
 
@@ -228,7 +228,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string'|'number'|'boolean'|'json'
         const value = match[2]?.match(/value:\s*"([^"]*)"/)?.[1] || ''
         if (!useLogic.getState().constants.some(c => c.name === name)) {
-          await addConstant(projectId, name, value, type)
+          await addConstant(projectId, name, value, type, true)
         }
       }
 
@@ -237,7 +237,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       for (const match of tableMatches) {
         const name = match[1]
         if (!useDatabase.getState().tables.some(t => t.name === name)) {
-          await addTable(projectId, name)
+          await addTable(projectId, name, true)
         }
       }
 
@@ -253,7 +253,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
           const currentTables = useDatabase.getState().tables
           const tableId = currentTables.find(t => t.name === tableName)?.id
           if (tableId) {
-            await addColumn(projectId, tableId, { name, type, is_primary_key: pkStr === 'true' })
+            await addColumn(projectId, tableId, { name, type, is_primary_key: pkStr === 'true' }, true)
           }
         }
       }
@@ -264,7 +264,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const name = match[1]
         const description = match[2]?.match(/description:\s*"([^"]*)"/)?.[1] || ''
         if (!useLogic.getState().functions.some(f => f.name === name)) {
-          await addFunction(projectId, name, description)
+          await addFunction(projectId, name, description, true)
         }
       }
 
@@ -275,7 +275,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const version = match[2]?.match(/version:\s*"([^"]+)"/)?.[1] || 'latest'
         const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm'|'api'|'service'
         if (!useLogic.getState().dependencies.some(d => d.name === name)) {
-          await addDependency(projectId, name, version, type)
+          await addDependency(projectId, name, version, type, true)
         }
       }
 

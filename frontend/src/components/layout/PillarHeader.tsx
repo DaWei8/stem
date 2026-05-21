@@ -23,7 +23,7 @@ export function PillarHeader({
       className="relative group transition-colors duration-300"
     >
       <div className="absolute -inset-1 bg-linear-to-r from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900 opacity-20 blur-xl group-hover:opacity-30 transition duration-1000" />
-      <div className="relative flex items-end justify-between border-b border-zinc-200 dark:border-zinc-800 pb-8 transition-colors">
+      <div className="relative flex-wrap gap-4 flex items-end justify-between border-b border-zinc-200 dark:border-zinc-800 pb-8 transition-colors">
         <div className="space-y-1">
           <h2 className="text-2xl font-black tracking-tighter bg-linear-to-br from-black to-zinc-600 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
             {title}

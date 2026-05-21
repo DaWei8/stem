@@ -52,3 +52,17 @@ export async function updateTableAction(projectId: string, tableId: string, name
   revalidatePath(`/projects/${projectId}`)
   return data
 }
+
+export async function linkColumnToVariableAction(projectId: string, columnId: string, variableId: string | null) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('database_columns')
+    .update({ variable_id: variableId })
+    .eq('id', columnId)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}

@@ -7,7 +7,8 @@ import {
   addTableAction,
   deleteTableAction,
   updateTableAction,
-  addColumnAction
+  addColumnAction,
+  linkColumnToVariableAction
 } from '@/lib/actions/database'
 
 interface DBTable {
@@ -31,10 +32,11 @@ interface DatabaseState {
   columns: DBColumn[]
   isLoading: boolean
   fetchProjectData: (projectId: string) => Promise<void>
-  addTable: (projectId: string, name: string) => Promise<void>
+  addTable: (projectId: string, name: string, silent?: boolean) => Promise<any>
   deleteTable: (projectId: string, tableId: string) => Promise<void>
   updateTable: (projectId: string, tableId: string, name: string) => Promise<void>
-  addColumn: (projectId: string, tableId: string, column: any) => Promise<void>
+  addColumn: (projectId: string, tableId: string, column: any, silent?: boolean) => Promise<any>
+  linkColumnToVariable: (projectId: string, columnId: string, variableId: string | null) => Promise<void>
 }
 
 const supabase = createClient()
@@ -66,13 +68,17 @@ export const useDatabase = create<DatabaseState>((set) => ({
     }
   },
 
-  addTable: async (projectId, name) => {
+  addTable: async (projectId, name, silent) => {
     try {
       const data = await addTableAction(projectId, name)
       set((state) => ({ tables: [...state.tables, data] }))
-      toast.success('Table Created')
+      if (!silent) {
+        toast.success('Table Created')
+      }
+      return data
     } catch (error: any) {
       toast.error(`Failed to add table: ${error.message}`)
+      throw error
     }
   },
 
@@ -100,13 +106,32 @@ export const useDatabase = create<DatabaseState>((set) => ({
     }
   },
 
-  addColumn: async (projectId, tableId, column) => {
+  addColumn: async (projectId, tableId, column, silent) => {
     try {
       const data = await addColumnAction(projectId, tableId, column)
       set((state) => ({ columns: [...state.columns, data] }))
-      toast.success('Column added to specification')
+      if (!silent) {
+        toast.success('Column added to specification')
+      }
+      return data
     } catch (error: any) {
       toast.error(`Failed to add column: ${error.message}`)
+      throw error
+    }
+  },
+  linkColumnToVariable: async (projectId, columnId, variableId) => {
+    try {
+      const data = await linkColumnToVariableAction(projectId, columnId, variableId)
+      set((state) => ({
+        columns: state.columns.map((c) => (c.id === columnId ? data : c))
+      }))
+      if (variableId) {
+        toast.success('Column linked to variable')
+      } else {
+        toast.success('Column unlinked')
+      }
+    } catch (error: any) {
+      toast.error(`Linking failed: ${error.message}`)
     }
   }
 }))

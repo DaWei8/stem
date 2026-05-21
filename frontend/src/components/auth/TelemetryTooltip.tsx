@@ -1,8 +1,8 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { Pillar } from './constants'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { Pillar } from './constants'
 
 interface TelemetryTooltipProps {
   pillar: Pillar

@@ -74,7 +74,7 @@ export function ProjectOverview({
       {/* Header */}
       <header className="px-4 pt-2 pb-1 shrink-0 bg-white dark:bg-black/50 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex flex-col gap-1.5 mb-2">
-          <h2 className="text-md font-black text-black dark:text-white tracking-tighter">System Blueprint</h2>
+          <h2 className="text-sm font-black text-black dark:text-white">System Blueprint</h2>
         </div>
 
         <Tabs value={sidebarTab} onValueChange={v => setSidebarTab(v as 'overview' | 'chat')} className="w-full">

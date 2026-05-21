@@ -19,10 +19,10 @@ interface IdentityState {
   policies: RLSPolicy[]
   isLoading: boolean
   fetchIdentityData: (projectId: string) => Promise<void>
-  addUserType: (projectId: string, payload: any) => Promise<void>
+  addUserType: (projectId: string, payload: any, silent?: boolean) => Promise<void>
   deleteUserType: (projectId: string, id: string) => Promise<void>
   updateUserType: (projectId: string, id: string, payload: any) => Promise<void>
-  addPolicy: (projectId: string, policy: any) => Promise<void>
+  addPolicy: (projectId: string, policy: any, silent?: boolean) => Promise<void>
   deletePolicy: (projectId: string, id: string) => Promise<void>
 }
 
@@ -55,11 +55,13 @@ export const useIdentity = create<IdentityState>((set) => ({
     }
   },
 
-  addUserType: async (projectId, payload) => {
+  addUserType: async (projectId, payload, silent) => {
     try {
       const data = await addUserTypeAction(projectId, payload)
       set((state) => ({ userTypes: [...state.userTypes, data] }))
-      toast.success('Role Created')
+      if (!silent) {
+        toast.success('Role Created')
+      }
     } catch (error: any) {
       toast.error(`Failed to add role: ${error.message}`)
     }
@@ -90,11 +92,13 @@ export const useIdentity = create<IdentityState>((set) => ({
     }
   },
 
-  addPolicy: async (projectId, policy) => {
+  addPolicy: async (projectId, policy, silent) => {
     try {
       const data = await addPolicyAction(projectId, policy)
       set((state) => ({ policies: [...state.policies, data] }))
-      toast.success('RLS policy committed')
+      if (!silent) {
+        toast.success('RLS policy committed')
+      }
     } catch (error: any) {
       toast.error(`Failed to add policy: ${error.message}`)
     }

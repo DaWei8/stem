@@ -1,10 +1,10 @@
 "use client";
 
-import React, { forwardRef } from "react";
-import { Loader2, LucideIcon } from "lucide-react";
-import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { HTMLMotionProps, motion } from "framer-motion";
+import { Loader2, LucideIcon } from "lucide-react";
 import Link from "next/link";
+import React, { forwardRef } from "react";
 
 export type ButtonVariant =
   | "primary"
@@ -47,11 +47,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const router = undefined; // No longer needed for href navigation
-    // Base styles - strictly rounded-none for Stem Noir vision
-    const baseStyles = "flex flex-row items-center w-full gap-2 capitalize justify-center cursor-pointer rounded-none font-bold transition-all duration-200 outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:cursor-not-allowed font-sans";
+    const router = undefined;
+    const baseStyles = "flex flex-row items-center text-nowrap w-full gap-2 capitalize justify-center cursor-pointer rounded-none font-bold transition-all duration-200 outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:cursor-not-allowed font-sans";
 
-    // Variant styles - adapted to neutral Noir palette with proper dark mode support
     const variants: Record<ButtonVariant, string> = {
       primary: "bg-foreground text-background hover:opacity-90 shadow-none",
       secondary: "bg-muted text-muted-foreground hover:bg-muted/80 shadow-none",
@@ -109,7 +107,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     if (href && !isButtonDisabled) {
       return (
         <Link href={href} className={commonProps.className}>
-          <motion.span 
+          <motion.span
             className="flex items-center gap-2"
             whileTap={commonProps.whileTap}
           >
@@ -136,3 +134,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button };
+

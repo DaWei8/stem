@@ -1,21 +1,29 @@
 'use client'
 
-import { useState } from 'react'
-import { useParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Database, Code2, Layers, Search, Plus, ArrowRight, Package, Terminal, Cpu, Hash, HelpCircle
-} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  ArrowRight,
+  Code2,
+  Cpu,
+  Database,
+  Hash,
+  Layers,
+  Package,
+  Plus,
+  Search
+} from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 
 // Hooks
-import { useVariables } from '@/hooks/useVariables'
 import { useDatabase } from '@/hooks/useDatabase'
-import { usePages } from '@/hooks/usePages'
-import { useLogic } from '@/hooks/useLogic'
-import { useIdentity } from '@/hooks/useIdentity'
 import { useEngineArchitect } from '@/hooks/useEngineArchitect'
+import { useIdentity } from '@/hooks/useIdentity'
+import { useLogic } from '@/hooks/useLogic'
+import { usePages } from '@/hooks/usePages'
+import { useVariables } from '@/hooks/useVariables'
 
 // UI Components
 import { PillarHeader } from '@/components/layout/PillarHeader'
@@ -28,10 +36,11 @@ import { DataEntityTable } from './dataengine/DataEntityTable'
 import { DataStateTable } from './dataengine/DataStateTable'
 
 // Sub-components (Logic Layer)
-import { FunctionCard } from '@/components/logic/FunctionCard'
 import { ConstantCard } from '@/components/logic/ConstantCard'
 import { ConstantDrawer } from '@/components/logic/ConstantDrawer'
+import { FunctionCard } from '@/components/logic/FunctionCard'
 import { DataLineagePanel } from './dataengine/DataLineagePanel'
+import { TableDetailsDrawer } from './dataengine/TableDetailsDrawer'
 import { EngineBot } from './EngineBot'
 
 export function SystemEngine() {
@@ -41,6 +50,7 @@ export function SystemEngine() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVarId, setSelectedVarId] = useState<string | null>(null)
   const [selectedConstantId, setSelectedConstantId] = useState<string | null>(null)
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
 
   // Modals & Forms State
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false)
@@ -71,7 +81,7 @@ export function SystemEngine() {
 
   // Data Engine Hooks
   const { variables, deleteVariable, addVariable } = useVariables()
-  const { tables, columns, deleteTable, updateTable, addColumn, addTable } = useDatabase()
+  const { tables, columns, deleteTable, updateTable, addColumn, addTable, linkColumnToVariable } = useDatabase()
   const { pages, inputs, outputs, actions } = usePages()
 
   // Logic Layer Hooks
@@ -81,6 +91,70 @@ export function SystemEngine() {
 
   const selectedVar = variables.find(v => v.id === selectedVarId)
   const selectedConstant = constants.find(c => c.id === selectedConstantId)
+  const selectedTable = tables.find(t => t.id === selectedTableId)
+
+  const varSourceMap = useMemo(() => {
+    const map: Record<string, { table: string; column: string }> = {}
+    columns.forEach(col => {
+      if (col.variable_id) {
+        const tbl = tables.find(t => t.id === col.table_id)
+        map[col.variable_id] = { table: tbl?.name || 'unknown', column: col.name }
+      }
+    })
+    return map
+  }, [columns, tables])
+
+  const orphanIds = useMemo(() => {
+    const orphans = new Set<string>()
+    variables.forEach(v => {
+      const hasInputs = inputs.some(i => i.variable_id === v.id)
+      const hasOutputs = outputs.some(o => o.variable_id === v.id)
+      const hasColumns = columns.some(c => c.variable_id === v.id)
+      if (!hasInputs && !hasOutputs && !hasColumns) {
+        orphans.add(v.id)
+      }
+    })
+    return orphans
+  }, [variables, inputs, outputs, columns])
+
+  const handleLinkNewColumn = async (data: {
+    tableId: string | 'new'
+    tableName?: string
+    columnId?: string | 'new'
+    columnName?: string
+    columnType?: string
+  }) => {
+    if (!projectId || !selectedVarId) return
+    try {
+      let targetTableId = data.tableId
+      if (targetTableId === 'new') {
+        if (!data.tableName) {
+          toast.error('Table name is required')
+          return
+        }
+        const newTable: any = await addTable(projectId, data.tableName)
+        if (!newTable?.id) return
+        targetTableId = newTable.id
+      }
+
+      if (data.columnId === 'new' || data.tableId === 'new') {
+        if (!data.columnName) {
+          toast.error('Column name is required')
+          return
+        }
+        await addColumn(projectId, targetTableId, {
+          name: data.columnName,
+          type: data.columnType || 'varchar',
+          is_primary_key: false,
+          variable_id: selectedVarId
+        })
+      } else if (data.columnId && data.columnId !== 'new') {
+        await linkColumnToVariable(projectId, data.columnId, selectedVarId)
+      }
+    } catch (error) {
+      console.error('Failed to link new column:', error)
+    }
+  }
 
   const tabs = [
     { id: 'state', name: 'Variables', icon: Layers, count: variables.length + constants.length },
@@ -171,7 +245,7 @@ export function SystemEngine() {
 
   return (
     <div className="flex h-full w-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
-      <div className={cn("flex-1 w-full overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || isOpen) && "pr-4")}>
+      <div className={cn("flex-1 w-full overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || selectedTableId || isOpen) && "pr-4")}>
         <PillarHeader
           title="System Engine"
           description="The unified backend of your system. Orchestrate persistent schemas, transient state, and deterministic cloud logic."
@@ -256,7 +330,7 @@ export function SystemEngine() {
                           key={c.id}
                           constant={c}
                           onDelete={id => deleteConstant(projectId, id)}
-                          onClick={() => { setSelectedConstantId(selectedConstantId === c.id ? null : c.id); setSelectedVarId(null); }}
+                          onClick={() => { setSelectedConstantId(selectedConstantId === c.id ? null : c.id); setSelectedVarId(null); setSelectedTableId(null); }}
                           isSelected={selectedConstantId === c.id}
                         />
                       ))}
@@ -273,10 +347,10 @@ export function SystemEngine() {
                     <DataStateTable
                       variables={variables}
                       searchQuery={searchQuery}
-                      orphanIds={new Set()}
-                      varSourceMap={{}}
+                      orphanIds={orphanIds}
+                      varSourceMap={varSourceMap}
                       selectedVarId={selectedVarId}
-                      onSelect={id => { setSelectedVarId(selectedVarId === id ? null : id); setSelectedConstantId(null); }}
+                      onSelect={id => { setSelectedVarId(selectedVarId === id ? null : id); setSelectedConstantId(null); setSelectedTableId(null); }}
                       onEdit={() => { }}
                       onDelete={id => deleteVariable(projectId, id)}
                     />
@@ -294,6 +368,8 @@ export function SystemEngine() {
                   onDeleteTable={id => deleteTable(projectId, id)}
                   onUpdateTable={(id, name) => updateTable(projectId, id, name)}
                   onAddColumn={(tableId, data) => addColumn(projectId, tableId, data)}
+                  selectedTableId={selectedTableId}
+                  onSelectTable={(id) => { setSelectedTableId(id); setSelectedVarId(null); setSelectedConstantId(null); }}
                 />
               )}
 
@@ -338,6 +414,7 @@ export function SystemEngine() {
       <AnimatePresence>
         {selectedVar && (
           <DataLineagePanel
+            key={`var-${selectedVar.id}`}
             variable={selectedVar}
             inputs={inputs}
             outputs={outputs}
@@ -347,16 +424,39 @@ export function SystemEngine() {
             tables={tables}
             policies={policies}
             functions={functions}
+            onLinkColumn={async (columnId, variableId) => {
+              await linkColumnToVariable(projectId, columnId, variableId)
+            }}
+            onLinkNewColumn={handleLinkNewColumn}
             onClose={() => setSelectedVarId(null)}
           />
         )}
         {selectedConstant && (
           <ConstantDrawer
+            key={`const-${selectedConstant.id}`}
             constant={selectedConstant}
             onClose={() => setSelectedConstantId(null)}
           />
         )}
-        {isOpen && <EngineBot />}
+        {selectedTable && (
+          <TableDetailsDrawer
+            key={`table-${selectedTable.id}`}
+            table={selectedTable}
+            columns={columns.filter(c => c.table_id === selectedTable.id)}
+            variables={variables}
+            onSelectVariable={(id) => {
+              setSelectedVarId(id);
+              setSelectedTableId(null);
+              setSelectedConstantId(null);
+              setActiveTab('state');
+            }}
+            onClose={() => setSelectedTableId(null)}
+            onAddColumn={async (tableId, columnData) => {
+              await addColumn(projectId, tableId, columnData)
+            }}
+          />
+        )}
+        {isOpen && <EngineBot key="engine-bot" />}
       </AnimatePresence>
 
       {/* New Entry Modal */}

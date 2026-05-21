@@ -20,7 +20,7 @@ interface VariablesState {
   isLoading: boolean
   error: string | null
   fetchVariables: (projectId: string) => Promise<void>
-  addVariable: (projectId: string, variable: Omit<Variable, 'id' | 'registry_uuid' | 'project_id'>) => Promise<void>
+  addVariable: (projectId: string, variable: Omit<Variable, 'id' | 'registry_uuid' | 'project_id'>, silent?: boolean) => Promise<void>
   updateVariable: (projectId: string, id: string, updates: Partial<Variable>) => Promise<void>
   deleteVariable: (projectId: string, id: string) => Promise<void>
 }
@@ -54,11 +54,13 @@ export const useVariables = create<VariablesState>((set, get) => ({
     }
   },
 
-  addVariable: async (projectId, newVar) => {
+  addVariable: async (projectId, newVar, silent) => {
     try {
       const data = await addVariableAction(projectId, newVar)
       set((state) => ({ variables: [...state.variables, data] }))
-      toast.success('Variable added to registry')
+      if (!silent) {
+        toast.success('Variable added to registry')
+      }
     } catch (error: any) {
       if (error.message?.includes('unique constraint "variables_project_id_label_key"')) {
         toast.error('A variable with this identifier already exists in the project registry.')

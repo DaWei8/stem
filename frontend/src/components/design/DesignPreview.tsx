@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Monitor, Smartphone, LayoutDashboard, LayoutTemplate, Lock, Type, Palette, X, Sun, Moon } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { usePreviewTokens } from '@/hooks/usePreviewTokens'
-import { DesktopView, MobileView, DashboardView, CardsView, FormView, TypographyView, PaletteView } from './PreviewViews'
+import { cn } from '@/lib/utils'
+import { LayoutDashboard, LayoutTemplate, Lock, Monitor, Moon, Palette, Smartphone, Sun, Type, X } from 'lucide-react'
+import { useState } from 'react'
+import { PaletteView } from './PaletteView'
+import { CardsView, DashboardView, DesktopView, FormView, MobileView, TypographyView } from './PreviewViews'
 
 type PreviewMode = 'desktop' | 'mobile' | 'dashboard' | 'cards' | 'form' | 'typography' | 'palette'
 

@@ -213,7 +213,7 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
         
         const currentRoles = useIdentity.getState().userTypes
         if (!currentRoles.some(u => u.name === name)) {
-          await addUserType(projectId, { name, description })
+          await addUserType(projectId, { name, description }, true)
         }
       }
 
@@ -238,7 +238,7 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
             table_id: tableId,
             policy_type: type.toLowerCase() as any,
             policy_logic: logic
-          })
+          }, true)
         }
       }
 

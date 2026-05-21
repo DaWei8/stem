@@ -4,27 +4,6 @@ import { create } from 'zustand'
 import { toast } from 'sonner'
 import { Screen, ScreenAction, Variable, Transition } from '@/types'
 
-export interface TechRequirement {
-  id: string
-  category: string
-  title: string
-  desc: string
-  priority: 'Critical' | 'High' | 'Medium' | 'Low'
-}
-
-export interface CostItem {
-  id: string
-  service: string
-  metric: string
-  unitCost: number
-  volume: number
-}
-
-export interface DocMetadata {
-  requirements: TechRequirement[]
-  costs: CostItem[]
-}
-
 export interface DocVersion {
   id: string
   name: string
@@ -65,23 +44,6 @@ interface DocVersionsState {
   exportVersionAsMarkdown: (id: string, projectName?: string) => void
 }
 
-export function parseMetadata(content: string): DocMetadata {
-  const match = content.match(/<!-- STEM_METADATA_START([\s\S]*?)STEM_METADATA_END -->/)
-  if (match) {
-    try {
-      return JSON.parse(match[1].trim())
-    } catch {
-      // Ignored
-    }
-  }
-  return { requirements: [], costs: [] }
-}
-
-export function serializeMetadata(content: string, metadata: DocMetadata): string {
-  const stripped = content.replace(/<!-- STEM_METADATA_START[\s\S]*?STEM_METADATA_END -->/g, '').trim()
-  return `${stripped}\n\n<!-- STEM_METADATA_START\n${JSON.stringify(metadata, null, 2)}\nSTEM_METADATA_END -->`
-}
-
 const DEFAULT_VERSIONS: DocVersion[] = [
   {
     id: 'v-mvp',
@@ -90,7 +52,7 @@ const DEFAULT_VERSIONS: DocVersion[] = [
     createdAt: '2026-05-01T10:00:00Z',
     updatedAt: '2026-05-01T10:00:00Z',
     status: 'archived',
-    content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Auto-Generate Specs" to populate this document with your current system state.'
+    content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Sync Documentation" to populate this document with your current system state.'
   },
   {
     id: 'v-1.0',
@@ -103,7 +65,7 @@ const DEFAULT_VERSIONS: DocVersion[] = [
   }
 ]
 
-function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string, metadata?: DocMetadata): string {
+function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string): string {
   const now = new Date().toLocaleString()
   const name = projectName || 'Untitled System'
 
@@ -148,20 +110,6 @@ function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string, 
   const componentList = snapshot.components.length > 0
     ? snapshot.components.map(c => `  - ${c.name}`).join('\n')
     : '  - No components defined'
-
-  const hasReqs = metadata && metadata.requirements && metadata.requirements.length > 0
-  const reqMarkdown = hasReqs
-    ? `| Category | Technical Requirement | Priority |\n| :--- | :--- | :---: |\n` +
-      metadata!.requirements.map(r => `| **${r.category.toUpperCase()}** | **${r.title}**: ${r.desc} | \`${r.priority}\` |`).join('\n')
-    : '*No custom technical requirements defined.*'
-
-  const hasCosts = metadata && metadata.costs && metadata.costs.length > 0
-  const totalCost = hasCosts ? metadata!.costs.reduce((sum, c) => sum + (c.unitCost * c.volume), 0) : 0
-  const costMarkdown = hasCosts
-    ? `| Service | Metric | Unit Cost | Projected Volume | Estimated Monthly Cost |\n| :--- | :--- | :---: | :---: | :---: |\n` +
-      metadata!.costs.map(c => `| **${c.service}** | ${c.metric} | $${c.unitCost.toFixed(2)} | ${c.volume} | $${(c.unitCost * c.volume).toFixed(2)} |`).join('\n') +
-      `\n\n**Total Estimated Monthly Budget:** $${totalCost.toFixed(2)}`
-    : '*No custom cost implications defined.*'
 
   const isSparse = snapshot.tables.length === 0 && snapshot.userTypes.length === 0;
 
@@ -218,17 +166,7 @@ ${transitionList}
 
 ---
 
-## 2. TECHNICAL REQUIREMENTS
-${reqMarkdown}
-
----
-
-## 3. COST IMPLICATIONS & PROJECTIONS
-${costMarkdown}
-
----
-
-## 4. DATA SCHEMA
+## 2. DATA SCHEMA
 
 **Tables:** ${snapshot.tables.length} | **Total Columns:** ${snapshot.columns.length}
 
@@ -236,7 +174,7 @@ ${tableDetails}
 
 ---
 
-## 5. STATE MANAGEMENT
+## 3. STATE MANAGEMENT
 
 **Global Variables:** ${snapshot.variables.length}
 
@@ -244,31 +182,31 @@ ${variableList}
 
 ---
 
-## 6. IDENTITY & ACCESS CONTROL
+## 4. IDENTITY & ACCESS CONTROL
 
 **User Personas:** ${snapshot.userTypes.length} | **Security Policies:** ${snapshot.policies.length}
 
-### 6.1 Personas
+### 4.1 Personas
 ${personaList}
 
-### 6.2 Access Policies
+### 4.2 Access Policies
 ${policyList}
 
 ---
 
-## 7. DESIGN LANGUAGE
+## 5. DESIGN LANGUAGE
 
 **Tokens:** ${snapshot.tokens.length} | **Components:** ${snapshot.components.length}
 
-### 7.1 Design Tokens
+### 5.1 Design Tokens
 ${tokenList}
 
-### 7.2 Component Library
+### 5.2 Component Library
 ${componentList}
 
 ---
 
-## 8. BUSINESS LOGIC
+## 6. BUSINESS LOGIC
 
 **Actions:** ${snapshot.actions.length}
 
@@ -387,19 +325,14 @@ export const useDocVersions = create<DocVersionsState>((set, get) => ({
   },
 
   generateAutoSpecs: (snapshot, projectName) => {
-    const current = get().versions.find(v => v.id === get().activeVersionId)
-    const currentContent = current?.content || ''
-    const currentMeta = parseMetadata(currentContent)
-
-    const specs = buildSpecsFromSnapshot(snapshot, projectName, currentMeta)
-    const newContent = serializeMetadata(specs, currentMeta)
+    const specs = buildSpecsFromSnapshot(snapshot, projectName)
 
     set(state => ({
-      editedContent: newContent,
+      editedContent: specs,
       isEditing: false,
       versions: state.versions.map(v =>
         v.id === state.activeVersionId
-          ? { ...v, content: newContent, updatedAt: new Date().toISOString() }
+          ? { ...v, content: specs, updatedAt: new Date().toISOString() }
           : v
       )
     }))

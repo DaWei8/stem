@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, Activity } from 'lucide-react'
-import { PILLARS, CONNECTIONS, PARTICLES } from './constants'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Activity, Bot } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { BackgroundCode } from './BackgroundCode'
+import { CONNECTIONS, PARTICLES, PILLARS } from './constants'
 import { TelemetryTooltip } from './TelemetryTooltip'
 
 export const StemIllustration = () => {
@@ -25,11 +25,11 @@ export const StemIllustration = () => {
     <div className="relative w-full h-full flex touch-none items-center justify-center p-8 bg-[#050508] overflow-hidden">
       {/* Deep Space Glowing Auras */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.06)_0%,rgba(0,0,0,0)_70%)]" />
-      <div className="absolute bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-indigo-950/20 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-[300px] bg-linear-to-t from-indigo-950/20 to-transparent pointer-events-none" />
 
       {/* Cyber Double Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:20px_20px]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:80px_80px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[20px_20px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-size-[80px_80px]" />
 
       {/* Scrolling Syntax-Highlighted Code */}
       <BackgroundCode />
@@ -50,7 +50,7 @@ export const StemIllustration = () => {
         initial={{ top: '-10%' }}
         animate={{ top: '110%' }}
         transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }}
-        className="absolute left-0 right-0 h-32 bg-gradient-to-b from-transparent via-indigo-500/10 to-transparent border-b border-indigo-500/25 pointer-events-none z-0 shadow-[0_4px_15px_rgba(99,102,241,0.12)]"
+        className="absolute left-0 right-0 h-32 bg-linear-to-b from-transparent via-indigo-500/10 to-transparent border-b border-indigo-500/25 pointer-events-none z-0 shadow-[0_4px_15px_rgba(99,102,241,0.12)]"
       />
 
       <div className="relative w-full max-w-2xl aspect-square flex flex-col items-center justify-center z-10">
@@ -106,7 +106,7 @@ export const StemIllustration = () => {
                   initial={{ width: 0 }}
                   animate={{ width: step === 1 ? '15%' : step === 2 ? '50%' : step === 3 ? '85%' : '100%' }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
-                  className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                  className="h-full bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
                 />
               </div>
             </motion.div>

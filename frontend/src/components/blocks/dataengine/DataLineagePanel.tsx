@@ -1,11 +1,20 @@
 'use client'
 
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 import {
-  X, Layers, Database, Monitor, Zap, ShieldCheck, ArrowRight, AlertTriangle
+  AlertTriangle,
+  ArrowRight,
+  Database,
+  Layers,
+  Link2Off,
+  Monitor,
+  ShieldCheck,
+  X,
+  Zap
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { LinkTableForm } from './LinkTableForm'
 
 interface Props {
   variable: any
@@ -17,13 +26,23 @@ interface Props {
   tables: any[]
   policies: any[]
   functions: any[]
+  onLinkColumn: (columnId: string, variableId: string | null) => Promise<void>
+  onLinkNewColumn: (data: {
+    tableId: string | 'new'
+    tableName?: string
+    columnId?: string | 'new'
+    columnName?: string
+    columnType?: string
+  }) => Promise<void>
   onClose: () => void
 }
 
 export function DataLineagePanel({
   variable, inputs, outputs, actions, pages,
-  columns, tables, policies, functions, onClose
+  columns, tables, policies, functions, onLinkColumn, onLinkNewColumn, onClose
 }: Props) {
+  const [isLinking, setIsLinking] = useState(false)
+
   // 1. Screens that READ this variable (inputs mapped to it)
   const readerScreens = useMemo(() => {
     const pageIds = inputs.filter(i => i.variable_id === variable.id).map(i => i.page_id)
@@ -74,9 +93,9 @@ export function DataLineagePanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-blue-500" />
-            <span className="text-xs font-black text-black dark:text-white ">Lineage</span>
+            <span className="text-xs font-black text-black uppercase tracking-widest dark:text-white ">Variables</span>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
+          <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
             <X className="size-4" />
           </button>
         </div>
@@ -104,13 +123,55 @@ export function DataLineagePanel({
         )}
 
         {/* DB Source */}
-        {linkedColumns.length > 0 && (
-          <LineageSection icon={<Database className="size-3.5 text-emerald-500" />} title="Database Source" count={linkedColumns.length} color="emerald">
-            {linkedColumns.map(col => (
-              <LineageItem key={col.id} label={`${col.tableName}.${col.name}`} sublabel={col.type} />
-            ))}
-          </LineageSection>
-        )}
+        <LineageSection
+          icon={<Database className="size-3.5 text-emerald-500" />}
+          title="Database Source"
+          count={linkedColumns.length}
+          color="emerald"
+          action={
+            !isLinking && (
+              <button
+                onClick={() => setIsLinking(true)}
+                className="text-[9px] font-bold text-emerald-500 hover:text-emerald-600 uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                + Link Table
+              </button>
+            )
+          }
+        >
+          {isLinking ? (
+            <LinkTableForm
+              tables={tables}
+              columns={columns}
+              onCancel={() => setIsLinking(false)}
+              onLink={async (data) => {
+                await onLinkNewColumn(data)
+                setIsLinking(false)
+              }}
+            />
+          ) : linkedColumns.length > 0 ? (
+            <div className="space-y-1">
+              {linkedColumns.map(col => (
+                <LineageItem
+                  key={col.id}
+                  label={`${col.tableName}.${col.name}`}
+                  sublabel={col.type}
+                  onUnlink={() => onLinkColumn(col.id, null)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 border border-dashed border-zinc-200 dark:border-zinc-800 text-center space-y-2 bg-white dark:bg-black">
+              <p className="text-[10px] text-zinc-400 font-bold uppercase">No linked database column</p>
+              <button
+                onClick={() => setIsLinking(true)}
+                className="text-[9px] font-black uppercase tracking-wider px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                Link Column
+              </button>
+            </div>
+          )}
+        </LineageSection>
 
         {/* Screens that READ */}
         {readerScreens.length > 0 && (
@@ -154,8 +215,8 @@ export function DataLineagePanel({
 
 /* ────── Sub-components ────── */
 
-function LineageSection({ icon, title, count, color, children }: {
-  icon: React.ReactNode; title: string; count: number; color: string; children: React.ReactNode
+function LineageSection({ icon, title, count, color, action, children }: {
+  icon: React.ReactNode; title: string; count: number; color: string; action?: React.ReactNode; children: React.ReactNode
 }) {
   return (
     <div className="space-y-2">
@@ -164,20 +225,33 @@ function LineageSection({ icon, title, count, color, children }: {
           {icon}
           <span className="text-[10px] font-black text-zinc-500 ">{title}</span>
         </div>
-        <span className={cn('text-[10px] font-bold', `text-${color}-500`)}>{count}</span>
+        <div className="flex items-center gap-2">
+          {action}
+          <span className={cn('text-[10px] font-bold', `text-${color}-500`)}>{count}</span>
+        </div>
       </div>
       <div className="space-y-1">{children}</div>
     </div>
   )
 }
 
-function LineageItem({ label, sublabel }: { label: string; sublabel: string }) {
+function LineageItem({ label, sublabel, onUnlink }: { label: string; sublabel: string; onUnlink?: () => void }) {
   return (
     <div className="flex items-center justify-between p-2.5 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors group">
       <div className="flex flex-col min-w-0">
         <span className="text-[11px] font-bold text-black dark:text-white truncate">{label}</span>
         <span className="text-[9px] text-zinc-400 truncate">{sublabel}</span>
       </div>
+      {onUnlink && (
+        <button
+          onClick={onUnlink}
+          type="button"
+          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-rose-500 transition-all cursor-pointer"
+          title="Unlink database source"
+        >
+          <Link2Off className="size-3.5" />
+        </button>
+      )}
     </div>
   )
 }

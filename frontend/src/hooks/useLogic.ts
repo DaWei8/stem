@@ -41,12 +41,12 @@ interface LogicState {
   dependencies: LogicDependency[]
   isLoading: boolean
   fetchLogicData: (projectId: string) => Promise<void>
-  addConstant: (projectId: string, name: string, value: string, type: string) => Promise<void>
+  addConstant: (projectId: string, name: string, value: string, type: string, silent?: boolean) => Promise<void>
   updateConstant: (projectId: string, id: string, name: string, value: string, type: string) => Promise<void>
   deleteConstant: (projectId: string, id: string) => Promise<void>
-  addFunction: (projectId: string, name: string, description?: string) => Promise<void>
+  addFunction: (projectId: string, name: string, description?: string, silent?: boolean) => Promise<void>
   deleteFunction: (projectId: string, id: string) => Promise<void>
-  addDependency: (projectId: string, name: string, version: string, type: string) => Promise<void>
+  addDependency: (projectId: string, name: string, version: string, type: string, silent?: boolean) => Promise<void>
   deleteDependency: (projectId: string, id: string) => Promise<void>
 }
 
@@ -83,11 +83,13 @@ export const useLogic = create<LogicState>((set) => ({
     }
   },
 
-  addConstant: async (projectId, name, value, type) => {
+  addConstant: async (projectId, name, value, type, silent) => {
     try {
       const data = await addConstantAction(projectId, name, value, type)
       set((state) => ({ constants: [...state.constants, data] }))
-      toast.success('Constant defined')
+      if (!silent) {
+        toast.success('Constant defined')
+      }
     } catch (error: any) {
       toast.error(`Failed to add constant: ${error.message}`)
     }
@@ -115,11 +117,13 @@ export const useLogic = create<LogicState>((set) => ({
     }
   },
 
-  addFunction: async (projectId, name, description) => {
+  addFunction: async (projectId, name, description, silent) => {
     try {
       const data = await addFunctionAction(projectId, name, description)
       set((state) => ({ functions: [...state.functions, data] }))
-      toast.success('Function declared')
+      if (!silent) {
+        toast.success('Function declared')
+      }
     } catch (error: any) {
       toast.error(`Failed to add function: ${error.message}`)
     }
@@ -135,11 +139,13 @@ export const useLogic = create<LogicState>((set) => ({
     }
   },
 
-  addDependency: async (projectId, name, version, type) => {
+  addDependency: async (projectId, name, version, type, silent) => {
     try {
       const data = await addDependencyAction(projectId, name, version, type)
       set((state) => ({ dependencies: [...state.dependencies, data] }))
-      toast.success('Dependency attached')
+      if (!silent) {
+        toast.success('Dependency attached')
+      }
     } catch (error: any) {
       toast.error(`Failed to add dependency: ${error.message}`)
     }

@@ -173,14 +173,14 @@ export default function SignUpPage() {
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     <>
-                      Initialize
+                      Create account
                       <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
 
                 <p className="text-center text-[11px] font-medium text-zinc-500">
-                  Already have an identity?{' '}
+                  Already have an account?{' '}
                   <Link href="/auth/login" className="text-white hover:text-zinc-300 font-bold transition-colors underline underline-offset-4 decoration-zinc-800">
                     Sign In
                   </Link>

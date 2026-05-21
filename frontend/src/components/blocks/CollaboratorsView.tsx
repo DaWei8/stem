@@ -91,7 +91,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
     fetchOwnerDetails()
   }, [projectId])
 
-  // Load and seed invitations & revoked history from localStorage
+  // Load invitations & revoked history from localStorage
   useEffect(() => {
     if (projectId) {
       const invitesKey = `stem_invites_${projectId}`
@@ -101,24 +101,14 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
       if (savedInvites) {
         setInvites(JSON.parse(savedInvites))
       } else {
-        const defaultInvites: Invitation[] = [
-          { email: 'dev.lead@stem.design', status: 'pending', role: 'editor', timestamp: new Date(Date.now() - 3600000 * 2).toISOString() },
-          { email: 'product.manager@stem.design', status: 'accepted', role: 'editor', timestamp: new Date(Date.now() - 3600000 * 24).toISOString() },
-          { email: 'freelancer@design.io', status: 'rejected', role: 'viewer', timestamp: new Date(Date.now() - 3600000 * 48).toISOString() }
-        ]
-        localStorage.setItem(invitesKey, JSON.stringify(defaultInvites))
-        setInvites(defaultInvites)
+        setInvites([])
       }
 
       const savedRevoked = localStorage.getItem(revokedKey)
       if (savedRevoked) {
         setRevokedLogs(JSON.parse(savedRevoked))
       } else {
-        const defaultRevoked: RevokedLog[] = [
-          { id: 'rev-1', email: 'ex.contractor@partner.com', name: 'Devon Carter', role: 'viewer', timestamp: new Date(Date.now() - 3600000 * 120).toISOString() }
-        ]
-        localStorage.setItem(revokedKey, JSON.stringify(defaultRevoked))
-        setRevokedLogs(defaultRevoked)
+        setRevokedLogs([])
       }
     }
   }, [projectId])
@@ -147,7 +137,6 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
     try {
       await inviteCollaborator(projectId as string, normalizedEmail)
 
-      // Update local invite history as accepted
       const updated = [
         { email: normalizedEmail, status: 'accepted' as const, role: roleSelection, timestamp: new Date().toISOString() },
         ...invites.filter(i => i.email !== normalizedEmail)
@@ -155,7 +144,6 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
       saveInvitesToStorage(updated)
       setEmail('')
     } catch (err: any) {
-      // If user isn't registered in STEM yet, log as pending invitation
       if (err.message?.includes('User not found')) {
         const updated = [
           { email: normalizedEmail, status: 'pending' as const, role: roleSelection, timestamp: new Date().toISOString() },
@@ -177,7 +165,6 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
     try {
       await removeCollaborator(projectId as string, collaborator.id)
 
-      // Add to revoked log
       const revokedItem: RevokedLog = {
         id: collaborator.id,
         email: collaborator.user?.email || 'unknown@company.com',
@@ -337,7 +324,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
         <section className="space-y-4">
           <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
             <ShieldCheck className="size-4 text-zinc-400 dark:text-zinc-600" />
-            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest transition-colors">Active Team Members</h2>
+            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 transition-colors">Active Team Members</h2>
           </div>
 
           <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
@@ -405,7 +392,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
         <section className="space-y-4">
           <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
             <Clock className="size-4 text-zinc-400 dark:text-zinc-600" />
-            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest transition-colors">Sent Invitations Registry</h2>
+            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 transition-colors">Sent Invitations Registry</h2>
           </div>
 
           <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
@@ -498,7 +485,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
         <section className="space-y-4">
           <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
             <ShieldAlert className="size-4 text-zinc-400 dark:text-zinc-600" />
-            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest transition-colors">Revoked Access Registry</h2>
+            <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 transition-colors">Revoked Access Registry</h2>
           </div>
 
           <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">

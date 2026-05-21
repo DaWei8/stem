@@ -1,4 +1,4 @@
-import { Database, Shield, Layout, Workflow, Cpu, LucideIcon } from 'lucide-react'
+import { Cpu, Database, Layout, LucideIcon, Shield, Workflow } from 'lucide-react'
 
 export interface Pillar {
   id: string

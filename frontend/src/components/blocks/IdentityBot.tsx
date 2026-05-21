@@ -72,7 +72,7 @@ export function IdentityBot() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: 380, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
@@ -81,9 +81,9 @@ export function IdentityBot() {
     >
       {/* Header Tabs */}
       <div className="flex items-center gap-4 px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-         <h3 className="text-sm font-bold flex items-center gap-2 text-black dark:text-white">
-           <Users className="size-4 text-violet-500" /> AI Architect
-         </h3>
+        <h3 className="text-sm font-bold flex items-center gap-2 text-black text-nowrap dark:text-white">
+          <Users className="size-4 text-violet-500" /> AI Architect
+        </h3>
       </div>
 
       {/* Tab Content */}
