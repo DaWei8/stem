@@ -160,9 +160,22 @@ export default function SettingsPage() {
   useEffect(() => {
     fetchProfile()
     fetchProjects()
-    setOpenAiKey(localStorage.getItem('openai_key') || '')
-    setAnthropicKey(localStorage.getItem('anthropic_key') || '')
-    setGoogleKey(localStorage.getItem('google_key') || '')
+
+    // Fetch key configuration status from database
+    getUserKeysStatusAction()
+      .then((status) => {
+        setOpenAiKey(status.openaiMasked)
+        setAnthropicKey(status.anthropicMasked)
+        setGoogleKey(status.googleMasked)
+        if (status.openaiConfigured) setOpenaiStatus('success')
+        if (status.anthropicConfigured) setAnthropicStatus('success')
+        if (status.googleConfigured) setGoogleStatus('success')
+      })
+      .catch((err) => {
+        console.error('Failed to load user API key configurations:', err)
+        toast.error('Failed to load API key configurations')
+      })
+
     setActiveModel(localStorage.getItem('active_architect_model') || 'gemini-2.5-flash')
   }, [fetchProfile, fetchProjects])
 
@@ -175,16 +188,34 @@ export default function SettingsPage() {
   }, [profile])
 
   const handleSave = async () => {
-    await updateProfile({
-      full_name: fullName,
-      organization: organization
-    })
+    try {
+      await updateProfile({
+        full_name: fullName,
+        organization: organization
+      })
 
-    localStorage.setItem('openai_key', openAiKey)
-    localStorage.setItem('anthropic_key', anthropicKey)
-    localStorage.setItem('google_key', googleKey)
-    localStorage.setItem('active_architect_model', activeModel)
-    toast.success('Preferences saved successfully')
+      // Encrypt and save API keys to database
+      await saveUserKeysAction({
+        openaiKey: openAiKey,
+        anthropicKey: anthropicKey,
+        googleKey: googleKey
+      })
+
+      localStorage.setItem('active_architect_model', activeModel)
+      toast.success('Preferences saved successfully')
+
+      // Refresh masked keys and badges from DB
+      const status = await getUserKeysStatusAction()
+      setOpenAiKey(status.openaiMasked)
+      setAnthropicKey(status.anthropicMasked)
+      setGoogleKey(status.googleMasked)
+      setOpenaiStatus(status.openaiConfigured ? 'success' : 'idle')
+      setAnthropicStatus(status.anthropicConfigured ? 'success' : 'idle')
+      setGoogleStatus(status.googleConfigured ? 'success' : 'idle')
+    } catch (err: any) {
+      console.error('Failed to save settings:', err)
+      toast.error(`Failed to save preferences: ${err.message || 'Unknown error'}`)
+    }
   }
 
   const handleTestKey = async (provider: 'openai' | 'anthropic' | 'google', key: string) => {
@@ -210,7 +241,6 @@ export default function SettingsPage() {
       if (data.ok) {
         setStatus('success')
         toast.success(`${provider.toUpperCase()} Key verified successfully!`)
-        localStorage.setItem(`${provider}_key`, key)
       } else {
         setStatus('failed')
         setError(data.error || 'Connection verification failed')
@@ -228,17 +258,14 @@ export default function SettingsPage() {
       setOpenAiKey('')
       setOpenaiStatus('idle')
       setOpenaiError('')
-      localStorage.removeItem('openai_key')
     } else if (provider === 'anthropic') {
       setAnthropicKey('')
       setAnthropicStatus('idle')
       setAnthropicError('')
-      localStorage.removeItem('anthropic_key')
     } else if (provider === 'google') {
       setGoogleKey('')
       setGoogleStatus('idle')
       setGoogleError('')
-      localStorage.removeItem('google_key')
     }
     toast.success(`${provider.toUpperCase()} key cleared`)
   }
@@ -265,10 +292,12 @@ export default function SettingsPage() {
   const isModelUnlocked = (model: ModelOption) => {
     if (!model.requiresKey) return true
     if (model.provider === 'openai') {
-      return openAiKey.trim().startsWith('sk-')
+      const trimmed = openAiKey.trim()
+      return trimmed.startsWith('sk-') || trimmed.includes('...')
     }
     if (model.provider === 'anthropic') {
-      return anthropicKey.trim().startsWith('sk-ant-')
+      const trimmed = anthropicKey.trim()
+      return trimmed.startsWith('sk-ant-') || trimmed.includes('...')
     }
     return false
   }
@@ -441,330 +470,36 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* AI Provider Section */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 pb-2 border-b border-zinc-900">
-            <Bot className="size-5 text-zinc-400" />
-            <h2 className="text-lg font-bold">AI Provider Integrations</h2>
-          </div>
-          <p className="text-[11px] text-zinc-400 font-medium">
-            Connect your own AI agents to use your existing subscriptions. Keys are securely stored locally in your browser. Otherwise, you will fallback to using the default STEM AI pool limits measured in your Billing section.
-          </p>
+        <AIProviderIntegrations
+          openaiKey={openAiKey}
+          setOpenaiKey={setOpenAiKey}
+          anthropicKey={anthropicKey}
+          setAnthropicKey={setAnthropicKey}
+          googleKey={googleKey}
+          setGoogleKey={setGoogleKey}
+          openaiStatus={openaiStatus}
+          setOpenaiStatus={setOpenaiStatus}
+          anthropicStatus={anthropicStatus}
+          setAnthropicStatus={setAnthropicStatus}
+          googleStatus={googleStatus}
+          setGoogleStatus={setGoogleStatus}
+          openaiError={openaiError}
+          setOpenaiError={setOpenaiError}
+          anthropicError={anthropicError}
+          setAnthropicError={setAnthropicError}
+          googleError={googleError}
+          setGoogleError={setGoogleError}
+          handleTestKey={handleTestKey}
+          handleClearKey={handleClearKey}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* OpenAI Card */}
-            <div className="p-6 border border-zinc-900 bg-black/30 space-y-4 flex flex-col justify-between">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="text-xs font-bold">OpenAI</h4>
-                    <p className="text-[10px] text-zinc-500 font-medium mt-1">ChatGPT 4o, GPT-4o-mini</p>
-                  </div>
-                  {/* Status Badge */}
-                  {openAiKey ? (
-                    openaiStatus === 'success' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 border border-emerald-400/20">
-                        <CheckCircle2 className="size-2.5" /> VERIFIED
-                      </span>
-                    ) : openaiStatus === 'failed' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-red-400 bg-red-400/10 px-2 py-0.5 border border-red-400/20">
-                        <XCircle className="size-2.5" /> FAILED
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-zinc-400 bg-zinc-400/10 px-2 py-0.5 border border-zinc-400/20">
-                        CONNECTED
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-[9px] font-bold text-zinc-650 bg-zinc-900 px-2 py-0.5 border border-zinc-800">
-                      NOT CONFIGURED
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <Input
-                    value={openAiKey}
-                    onChange={(e) => {
-                      setOpenAiKey(e.target.value)
-                      if (openaiStatus !== 'idle') setOpenaiStatus('idle')
-                    }}
-                    placeholder="sk-..."
-                    type={showOpenai ? 'text' : 'password'}
-                    className="bg-black border-zinc-800 rounded-none h-10 text-xs pr-10 focus-visible:ring-1 focus-visible:ring-zinc-700 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowOpenai(!showOpenai)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                  >
-                    {showOpenai ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
-                </div>
-
-                {openaiError && (
-                  <p className="text-[9.5px] text-red-500/90 font-medium font-mono leading-relaxed bg-red-500/5 p-2 border border-red-500/10">
-                    Error: {openaiError}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => handleTestKey('openai', openAiKey)}
-                  disabled={openaiStatus === 'testing' || !openAiKey}
-                  variant="outline"
-                  className="rounded-none border-zinc-800 h-8 text-[9px] font-black uppercase tracking-wider flex-1 hover:bg-white hover:text-black gap-1.5"
-                >
-                  {openaiStatus === 'testing' ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    <RefreshCw className="size-2.5" />
-                  )}
-                  Test Connection
-                </Button>
-                {openAiKey && (
-                  <Button
-                    onClick={() => handleClearKey('openai')}
-                    variant="ghost"
-                    className="rounded-none h-8 px-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Anthropic Card */}
-            <div className="p-6 border border-zinc-900 bg-black/30 space-y-4 flex flex-col justify-between">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="text-xs font-bold">Anthropic</h4>
-                    <p className="text-[10px] text-zinc-500 font-medium mt-1">Claude 3.5 Sonnet / Haiku</p>
-                  </div>
-                  {/* Status Badge */}
-                  {anthropicKey ? (
-                    anthropicStatus === 'success' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 border border-emerald-400/20">
-                        <CheckCircle2 className="size-2.5" /> VERIFIED
-                      </span>
-                    ) : anthropicStatus === 'failed' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-red-400 bg-red-400/10 px-2 py-0.5 border border-red-400/20">
-                        <XCircle className="size-2.5" /> FAILED
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-zinc-400 bg-zinc-400/10 px-2 py-0.5 border border-zinc-400/20">
-                        CONNECTED
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-[9px] font-bold text-zinc-650 bg-zinc-900 px-2 py-0.5 border border-zinc-800">
-                      NOT CONFIGURED
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <Input
-                    value={anthropicKey}
-                    onChange={(e) => {
-                      setAnthropicKey(e.target.value)
-                      if (anthropicStatus !== 'idle') setAnthropicStatus('idle')
-                    }}
-                    placeholder="sk-ant-..."
-                    type={showAnthropic ? 'text' : 'password'}
-                    className="bg-black border-zinc-800 rounded-none h-10 text-xs pr-10 focus-visible:ring-1 focus-visible:ring-zinc-700 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowAnthropic(!showAnthropic)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                  >
-                    {showAnthropic ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
-                </div>
-
-                {anthropicError && (
-                  <p className="text-[9.5px] text-red-500/90 font-medium font-mono leading-relaxed bg-red-500/5 p-2 border border-red-500/10">
-                    Error: {anthropicError}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => handleTestKey('anthropic', anthropicKey)}
-                  disabled={anthropicStatus === 'testing' || !anthropicKey}
-                  variant="outline"
-                  className="rounded-none border-zinc-800 h-8 text-[9px] font-black uppercase tracking-wider flex-1 hover:bg-white hover:text-black gap-1.5"
-                >
-                  {anthropicStatus === 'testing' ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    <RefreshCw className="size-2.5" />
-                  )}
-                  Test Connection
-                </Button>
-                {anthropicKey && (
-                  <Button
-                    onClick={() => handleClearKey('anthropic')}
-                    variant="ghost"
-                    className="rounded-none h-8 px-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Google Gemini Card */}
-            <div className="p-6 border border-zinc-900 bg-black/30 space-y-4 flex flex-col justify-between">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="text-xs font-bold">Google</h4>
-                    <p className="text-[10px] text-zinc-500 font-medium mt-1">Gemini 2.5 Flash / Pro</p>
-                  </div>
-                  {/* Status Badge */}
-                  {googleKey ? (
-                    googleStatus === 'success' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 border border-emerald-400/20">
-                        <CheckCircle2 className="size-2.5" /> VERIFIED
-                      </span>
-                    ) : googleStatus === 'failed' ? (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-red-400 bg-red-400/10 px-2 py-0.5 border border-red-400/20">
-                        <XCircle className="size-2.5" /> FAILED
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-[9px] font-bold text-zinc-400 bg-zinc-400/10 px-2 py-0.5 border border-zinc-400/20">
-                        CONNECTED
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-[9px] font-bold text-amber-500/80 bg-amber-500/5 px-2 py-0.5 border border-amber-500/10">
-                      DEFAULT POOL FALLBACK
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <Input
-                    value={googleKey}
-                    onChange={(e) => {
-                      setGoogleKey(e.target.value)
-                      if (googleStatus !== 'idle') setGoogleStatus('idle')
-                    }}
-                    placeholder="AIzaSy..."
-                    type={showGoogle ? 'text' : 'password'}
-                    className="bg-black border-zinc-800 rounded-none h-10 text-xs pr-10 focus-visible:ring-1 focus-visible:ring-zinc-700 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowGoogle(!showGoogle)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                  >
-                    {showGoogle ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
-                </div>
-
-                {googleError && (
-                  <p className="text-[9.5px] text-red-500/90 font-medium font-mono leading-relaxed bg-red-500/5 p-2 border border-red-500/10">
-                    Error: {googleError}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => handleTestKey('google', googleKey)}
-                  disabled={googleStatus === 'testing' || !googleKey}
-                  variant="outline"
-                  className="rounded-none border-zinc-800 h-8 text-[9px] font-black uppercase tracking-wider flex-1 hover:bg-white hover:text-black gap-1.5"
-                >
-                  {googleStatus === 'testing' ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    <RefreshCw className="size-2.5" />
-                  )}
-                  Test Connection
-                </Button>
-                {googleKey && (
-                  <Button
-                    onClick={() => handleClearKey('google')}
-                    variant="ghost"
-                    className="rounded-none h-8 px-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ACTIVE MODEL SELECTOR GRID */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 pb-2 border-b border-zinc-900">
-            <Cpu className="size-5 text-zinc-400" />
-            <h2 className="text-lg font-bold">Active System Architect Model</h2>
-          </div>
-          <p className="text-[11px] text-zinc-400 font-medium">
-            Select the active model to orchestrate your application logic. Models require their respective API Key above to unlock.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {models.map((model) => {
-              const unlocked = isModelUnlocked(model)
-              const selected = activeModel === model.id
-
-              return (
-                <button
-                  key={model.id}
-                  onClick={() => selectModel(model.id, unlocked)}
-                  className={cn(
-                    "p-5 text-left border flex flex-col justify-between min-h-[160px] transition-all relative group",
-                    selected
-                      ? "border-white bg-white/5 ring-1 ring-white"
-                      : unlocked
-                        ? "border-zinc-800 hover:border-zinc-500 bg-zinc-950/20"
-                        : "border-zinc-900 bg-zinc-950/10 opacity-40 cursor-not-allowed"
-                  )}
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-black tracking-tight text-white">{model.name}</span>
-                      {selected ? (
-                        <span className="size-2 bg-emerald-500 rounded-full" />
-                      ) : !unlocked ? (
-                        <Lock className="size-3 text-zinc-600" />
-                      ) : (
-                        <Unlock className="size-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                    </div>
-                    <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed mt-1.5">{model.desc}</p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-zinc-900 flex flex-col gap-1">
-                    <div className="flex items-center justify-between text-[8px] font-mono font-black uppercase text-zinc-600">
-                      <span>Input toll</span>
-                      <span className="text-zinc-400">{model.inputRate}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[8px] font-mono font-black uppercase text-zinc-600">
-                      <span>Output toll</span>
-                      <span className="text-zinc-400">{model.outputRate}</span>
-                    </div>
-                    {!model.requiresKey && !googleKey && (
-                      <div className="flex items-center gap-1 mt-1 text-[8px] text-amber-500/80 font-bold font-mono">
-                        <AlertTriangle className="size-2" /> Fallback pool
-                      </div>
-                    )}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        </section>
+        <ActiveModelSelector
+          models={models}
+          activeModel={activeModel}
+          selectModel={selectModel}
+          isModelUnlocked={isModelUnlocked}
+          googleKey={googleKey}
+        />
 
         {/* TOKEN TRACKING DASHBOARD */}
         <section className="space-y-6">

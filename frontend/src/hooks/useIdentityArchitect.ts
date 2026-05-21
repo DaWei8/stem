@@ -109,9 +109,6 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
         meta: { version: '0.2.0', engine: 'STEM-ID-V1' }
       }
 
-      const openai = typeof window !== 'undefined' ? localStorage.getItem('openai_key') || '' : ''
-      const anthropic = typeof window !== 'undefined' ? localStorage.getItem('anthropic_key') || '' : ''
-      const google = typeof window !== 'undefined' ? localStorage.getItem('google_key') || '' : ''
       const selectedModel = typeof window !== 'undefined' ? localStorage.getItem('active_architect_model') || 'gemini-2.5-flash' : 'gemini-2.5-flash'
 
       let response;
@@ -125,7 +122,6 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
           body: JSON.stringify({
             prompt,
             currentState: JSON.stringify(projectData, null, 2),
-            userKeys: { openai, anthropic, google },
             selectedModel
           })
         })
