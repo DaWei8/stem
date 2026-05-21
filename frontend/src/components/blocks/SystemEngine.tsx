@@ -258,7 +258,7 @@ export function SystemEngine() {
           <div className="flex gap-2">
             <Button
               onClick={() => setIsOpen(!isOpen)}
-              className={cn("px-4 h-10 text-xs font-bold rounded-none gap-2", isOpen ? "bg-emerald-500 text-white hover:bg-emerald-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
+              className={cn("px-4 h-10 text-xs font-bold text-nowrap rounded-none gap-2", isOpen ? "bg-emerald-500 text-white hover:bg-emerald-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
             >
               <Cpu className="size-3.5" /> AI Architect
             </Button>
@@ -414,7 +414,6 @@ export function SystemEngine() {
       <AnimatePresence>
         {selectedVar && (
           <DataLineagePanel
-            key={`var-${selectedVar.id}`}
             variable={selectedVar}
             inputs={inputs}
             outputs={outputs}
@@ -433,14 +432,12 @@ export function SystemEngine() {
         )}
         {selectedConstant && (
           <ConstantDrawer
-            key={`const-${selectedConstant.id}`}
             constant={selectedConstant}
             onClose={() => setSelectedConstantId(null)}
           />
         )}
         {selectedTable && (
           <TableDetailsDrawer
-            key={`table-${selectedTable.id}`}
             table={selectedTable}
             columns={columns.filter(c => c.table_id === selectedTable.id)}
             variables={variables}
@@ -456,7 +453,7 @@ export function SystemEngine() {
             }}
           />
         )}
-        {isOpen && <EngineBot key="engine-bot" />}
+        {isOpen && <EngineBot />}
       </AnimatePresence>
 
       {/* New Entry Modal */}
