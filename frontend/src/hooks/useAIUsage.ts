@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
+import { getAIUsageLogsAction, clearAIUsageLogsAction } from '@/lib/actions/keys'
 
 export interface AIUsageRecord {
   id: string
@@ -15,8 +16,10 @@ export interface AIUsageRecord {
 
 interface AIUsageState {
   logs: AIUsageRecord[]
+  isLoading: boolean
+  fetchLogs: () => Promise<void>
   logUsage: (record: Omit<AIUsageRecord, 'id' | 'timestamp'>) => void
-  clearLogs: () => void
+  clearLogs: () => Promise<void>
   getTotals: () => {
     totalQueries: number
     totalTokens: number
@@ -26,21 +29,21 @@ interface AIUsageState {
 }
 
 export const useAIUsage = create<AIUsageState>((set, get) => {
-  // Initialize from localStorage if client side
-  let initialLogs: AIUsageRecord[] = []
-  if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('stem_ai_usage_logs')
-    if (saved) {
-      try {
-        initialLogs = JSON.parse(saved)
-      } catch {
-        // Ignored
-      }
-    }
-  }
-
   return {
-    logs: initialLogs,
+    logs: [],
+    isLoading: false,
+
+    fetchLogs: async () => {
+      set({ isLoading: true })
+      try {
+        const dbLogs = await getAIUsageLogsAction()
+        set({ logs: dbLogs as AIUsageRecord[] })
+      } catch (err) {
+        console.error('Failed to fetch AI usage logs from DB:', err)
+      } finally {
+        set({ isLoading: false })
+      }
+    },
 
     logUsage: (record) => {
       const newRecord: AIUsageRecord = {
@@ -48,20 +51,15 @@ export const useAIUsage = create<AIUsageState>((set, get) => {
         id: `usage-${Date.now()}-${Math.random().toString(36).substring(5)}`,
         timestamp: Date.now()
       }
-
-      set((state) => {
-        const updated = [newRecord, ...state.logs].slice(0, 100) // Keep last 100 logs
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('stem_ai_usage_logs', JSON.stringify(updated))
-        }
-        return { logs: updated }
-      })
+      set((state) => ({ logs: [newRecord, ...state.logs].slice(0, 100) }))
     },
 
-    clearLogs: () => {
+    clearLogs: async () => {
       set({ logs: [] })
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('stem_ai_usage_logs')
+      try {
+        await clearAIUsageLogsAction()
+      } catch (err) {
+        console.error('Failed to clear AI usage logs in DB:', err)
       }
     },
 

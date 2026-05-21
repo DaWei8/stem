@@ -78,7 +78,7 @@ export default function SettingsPage() {
   const [isApiModalOpen, setIsApiModalOpen] = useState(false)
   const [generatedKey, setGeneratedKey] = useState('')
 
-  const { logs, clearLogs, getTotals } = useAIUsage()
+  const { logs, clearLogs, getTotals, fetchLogs } = useAIUsage()
 
   const totals = useMemo(() => getTotals(), [logs, getTotals])
 
@@ -160,13 +160,16 @@ export default function SettingsPage() {
   useEffect(() => {
     fetchProfile()
     fetchProjects()
+    fetchLogs()
 
-    // Fetch key configuration status from database
+    // Fetch key configuration status and preferences from database
     getUserKeysStatusAction()
       .then((status) => {
         setOpenAiKey(status.openaiMasked)
         setAnthropicKey(status.anthropicMasked)
         setGoogleKey(status.googleMasked)
+        setActiveModel(status.activeModel)
+        setDeterministicMode(status.deterministicMode)
         if (status.openaiConfigured) setOpenaiStatus('success')
         if (status.anthropicConfigured) setAnthropicStatus('success')
         if (status.googleConfigured) setGoogleStatus('success')
@@ -175,9 +178,7 @@ export default function SettingsPage() {
         console.error('Failed to load user API key configurations:', err)
         toast.error('Failed to load API key configurations')
       })
-
-    setActiveModel(localStorage.getItem('active_architect_model') || 'gemini-2.5-flash')
-  }, [fetchProfile, fetchProjects])
+  }, [fetchProfile, fetchProjects, fetchLogs])
 
   useEffect(() => {
     if (profile) {
@@ -194,14 +195,15 @@ export default function SettingsPage() {
         organization: organization
       })
 
-      // Encrypt and save API keys to database
+      // Encrypt and save API keys and preferences to database
       await saveUserKeysAction({
         openaiKey: openAiKey,
         anthropicKey: anthropicKey,
-        googleKey: googleKey
+        googleKey: googleKey,
+        activeModel: activeModel,
+        deterministicMode: deterministicMode
       })
 
-      localStorage.setItem('active_architect_model', activeModel)
       toast.success('Preferences saved successfully')
 
       // Refresh masked keys and badges from DB
@@ -209,6 +211,8 @@ export default function SettingsPage() {
       setOpenAiKey(status.openaiMasked)
       setAnthropicKey(status.anthropicMasked)
       setGoogleKey(status.googleMasked)
+      setActiveModel(status.activeModel)
+      setDeterministicMode(status.deterministicMode)
       setOpenaiStatus(status.openaiConfigured ? 'success' : 'idle')
       setAnthropicStatus(status.anthropicConfigured ? 'success' : 'idle')
       setGoogleStatus(status.googleConfigured ? 'success' : 'idle')
@@ -285,8 +289,7 @@ export default function SettingsPage() {
       return
     }
     setActiveModel(modelId)
-    localStorage.setItem('active_architect_model', modelId)
-    toast.success(`Active Architect set to: ${modelId}`)
+    toast.success(`Active Architect set to: ${modelId} (click Save to persist)`)
   }
 
   const isModelUnlocked = (model: ModelOption) => {

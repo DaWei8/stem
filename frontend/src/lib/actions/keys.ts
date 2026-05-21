@@ -11,6 +11,8 @@ interface UserKeysStatus {
   openaiMasked: string
   anthropicMasked: string
   googleMasked: string
+  activeModel: string
+  deterministicMode: boolean
 }
 
 /**
@@ -22,7 +24,7 @@ function isMaskedKey(key: string): boolean {
 }
 
 /**
- * Retrieves the configuration status and masked representations of the user's API keys.
+ * Retrieves the configuration status and masked representations of the user's API keys and preferences.
  * The raw/plain keys are never sent to the client.
  */
 export async function getUserKeysStatusAction(): Promise<UserKeysStatus> {
@@ -37,12 +39,14 @@ export async function getUserKeysStatusAction(): Promise<UserKeysStatus> {
       openaiMasked: '',
       anthropicMasked: '',
       googleMasked: '',
+      activeModel: 'gemini-2.5-flash',
+      deterministicMode: true,
     }
   }
 
   const { data, error } = await supabase
     .from('user_api_keys')
-    .select('openai_key, anthropic_key, google_key')
+    .select('openai_key, anthropic_key, google_key, active_model, deterministic_mode')
     .eq('user_id', user.id)
     .single()
 
@@ -54,6 +58,8 @@ export async function getUserKeysStatusAction(): Promise<UserKeysStatus> {
       openaiMasked: '',
       anthropicMasked: '',
       googleMasked: '',
+      activeModel: 'gemini-2.5-flash',
+      deterministicMode: true,
     }
   }
 
@@ -68,17 +74,21 @@ export async function getUserKeysStatusAction(): Promise<UserKeysStatus> {
     openaiMasked: decOpenai ? maskApiKey(decOpenai, 'openai') : '',
     anthropicMasked: decAnthropic ? maskApiKey(decAnthropic, 'anthropic') : '',
     googleMasked: decGoogle ? maskApiKey(decGoogle, 'google') : '',
+    activeModel: data.active_model || 'gemini-2.5-flash',
+    deterministicMode: data.deterministic_mode !== undefined ? data.deterministic_mode : true,
   }
 }
 
 /**
- * Encrypts and saves the user's API keys in the database.
+ * Encrypts and saves the user's API keys and preferences in the database.
  * Does not overwrite keys that are submitted as masked (indicating no change).
  */
 export async function saveUserKeysAction(updates: {
   openaiKey?: string | null
   anthropicKey?: string | null
   googleKey?: string | null
+  activeModel?: string
+  deterministicMode?: boolean
 }) {
   const supabase = await createClient()
   
@@ -92,7 +102,7 @@ export async function saveUserKeysAction(updates: {
     .eq('user_id', user.id)
     .single()
 
-  const finalUpdates: Record<string, string | null> = {
+  const finalUpdates: Record<string, any> = {
     user_id: user.id,
     updated_at: new Date().toISOString(),
   }
@@ -142,6 +152,20 @@ export async function saveUserKeysAction(updates: {
     finalUpdates.google_key = existing?.google_key || null
   }
 
+  // 4. Process Active Model preference
+  if (updates.activeModel !== undefined) {
+    finalUpdates.active_model = updates.activeModel
+  } else {
+    finalUpdates.active_model = existing?.active_model || 'gemini-2.5-flash'
+  }
+
+  // 5. Process Deterministic Mode preference
+  if (updates.deterministicMode !== undefined) {
+    finalUpdates.deterministic_mode = updates.deterministicMode
+  } else {
+    finalUpdates.deterministic_mode = existing?.deterministic_mode !== undefined ? existing.deterministic_mode : true
+  }
+
   // Upsert the encrypted keys row
   const { error } = await supabase
     .from('user_api_keys')
@@ -153,4 +177,85 @@ export async function saveUserKeysAction(updates: {
   }
 
   revalidatePath('/projects/settings')
+}
+
+/**
+ * Fetches AI usage logs from the database
+ */
+export async function getAIUsageLogsAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('ai_usage_logs')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error || !data) return []
+
+  return data.map((log: any) => ({
+    id: log.id,
+    provider: log.provider,
+    model: log.model,
+    inputTokens: log.input_tokens,
+    outputTokens: log.output_tokens,
+    costUsd: log.cost_usd,
+    timestamp: new Date(log.created_at).getTime(),
+    promptSummary: log.prompt_summary
+  }))
+}
+
+/**
+ * Creates a new AI usage log in the database
+ */
+export async function logAIUsageAction(record: {
+  provider: string
+  model: string
+  inputTokens: number
+  outputTokens: number
+  costUsd: number
+  promptSummary?: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ai_usage_logs')
+    .insert({
+      user_id: user.id,
+      provider: record.provider,
+      model: record.model,
+      input_tokens: record.inputTokens,
+      output_tokens: record.outputTokens,
+      cost_usd: record.costUsd,
+      prompt_summary: record.promptSummary
+    })
+
+  if (error) {
+    console.error('Failed to log AI usage:', error)
+    throw new Error(`Failed to log AI usage: ${error.message}`)
+  }
+}
+
+/**
+ * Clears all AI usage logs for the current user
+ */
+export async function clearAIUsageLogsAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ai_usage_logs')
+    .delete()
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('Failed to clear usage logs:', error)
+    throw new Error(`Failed to clear usage logs: ${error.message}`)
+  }
 }
