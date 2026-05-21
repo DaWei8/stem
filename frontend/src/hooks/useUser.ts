@@ -26,28 +26,42 @@ interface UserState {
 
 const supabase = createClient()
 
+let fetchProfilePromise: Promise<void> | null = null
+
 export const useUser = create<UserState>((set) => ({
   profile: null,
   isLoading: false,
 
   fetchProfile: async () => {
-    set({ isLoading: true })
+    if (fetchProfilePromise) {
+      return fetchProfilePromise
+    }
+
+    fetchProfilePromise = (async () => {
+      set({ isLoading: true })
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (error) throw error
+        set({ profile: data })
+      } catch (error: any) {
+        console.error('Error fetching profile:', error)
+      } finally {
+        set({ isLoading: false })
+      }
+    })()
+
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      if (error) throw error
-      set({ profile: data })
-    } catch (error: any) {
-      console.error('Error fetching profile:', error)
+      await fetchProfilePromise
     } finally {
-      set({ isLoading: false })
+      fetchProfilePromise = null
     }
   },
 
