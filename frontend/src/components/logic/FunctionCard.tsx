@@ -21,11 +21,11 @@ interface FunctionCardProps {
 
 export function FunctionCard({ func, onDelete, onClick, isSelected }: FunctionCardProps) {
   return (
-    <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <div className='h-full flex w-full'>
       <Card
         onClick={onClick}
         className={cn(
-          "bg-black border border-zinc-800 rounded-none shadow-none group hover:border-zinc-500 transition-all relative overflow-hidden cursor-pointer",
+          "bg-black border border-zinc-800 rounded-none shadow-none group h-full w-full hover:border-zinc-500 transition-all relative overflow-hidden cursor-pointer",
           isSelected && "border-zinc-400"
         )}
       >
@@ -74,7 +74,7 @@ export function FunctionCard({ func, onDelete, onClick, isSelected }: FunctionCa
           </CardContent>
         )}
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
