@@ -9,7 +9,7 @@ import { Variable } from '@/types'
  * Centralizes all database mutations for variables.
  */
 
-export function normalizeVariable(variable: any) {
+function normalizeVariable(variable: any) {
   const normalized = { ...variable }
   
   // Map and validate scope
