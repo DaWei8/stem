@@ -176,7 +176,7 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
                           return (
                             <div
                               key={collab.id}
-                              className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[8px] font-black text-zinc-400"
+                              className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 items-center justify-center text-[8px] font-black text-zinc-400"
                               title={`${name} (${collab.role})`}
                             >
                               {initials}

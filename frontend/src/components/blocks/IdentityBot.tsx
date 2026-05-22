@@ -1,18 +1,25 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Play, Copy, Check, Terminal, Search, ChevronRight, Activity, Send, Loader2, Users, Shield
-} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
-import { useIdentity } from '@/hooks/useIdentity'
-import { useParams } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
 import { StandardModal } from '@/components/ui/StandardModal'
+import { useIdentity } from '@/hooks/useIdentity'
+import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
+import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Check,
+  Copy,
+  Loader2,
+  Play,
+  Send,
+  Terminal,
+  Users,
+  X
+} from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 export function IdentityBot() {
   const { id: projectId } = useParams()
@@ -21,7 +28,8 @@ export function IdentityBot() {
     isArchitecting,
     generateSystem,
     commitScript,
-    fetchMessages
+    fetchMessages,
+    setIsOpen
   } = useIdentityArchitect()
 
   const [input, setInput] = useState('')
@@ -111,10 +119,18 @@ export function IdentityBot() {
         </div>
       </StandardModal>
       {/* Header Tabs */}
-      <div className="flex items-center gap-4 px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+      <div className="flex items-center justify-between px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
         <h3 className="text-sm font-bold flex items-center gap-2 text-black text-nowrap dark:text-white">
           <Users className="size-4 text-violet-500" /> AI Architect
         </h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsOpen(false)}
+          className="size-8 text-zinc-400 hover:text-black dark:hover:text-white rounded-none"
+        >
+          <X className="size-4" />
+        </Button>
       </div>
 
       {/* Tab Content */}

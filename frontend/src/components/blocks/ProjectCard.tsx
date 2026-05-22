@@ -128,8 +128,8 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
               {profile && (
                 <span className={cn(
                   "px-1.5 py-0.5 border text-[8px] font-black uppercase tracking-wider rounded-xs",
-                  isOwner 
-                    ? "border-zinc-800 text-zinc-500 bg-zinc-950/30" 
+                  isOwner
+                    ? "border-zinc-800 text-zinc-500 bg-zinc-950/30"
                     : "border-blue-900/40 text-blue-400 bg-blue-950/20"
                 )}>
                   {isOwner ? 'Owner' : 'Collaborator'}
@@ -161,7 +161,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   return (
                     <div
                       key={collab.id}
-                      className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[8px] font-black text-zinc-400"
+                      className="size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[8px] font-black text-zinc-400"
                       title={`${name} (${collab.role})`}
                     >
                       {initials}
@@ -170,7 +170,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                 })}
                 {otherCollaborators.length > 3 && (
                   <div
-                    className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-zinc-500"
+                    className="size-5 rounded-full ring-2 ring-black bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-zinc-500"
                     title={`${otherCollaborators.length - 3} more collaborators`}
                   >
                     +{otherCollaborators.length - 3}

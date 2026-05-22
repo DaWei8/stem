@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Play, Copy, Check, Terminal, Send, Loader2, Database
+  Play, Copy, Check, Terminal, Send, Loader2, Database, X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,7 +20,8 @@ export function EngineBot() {
     isArchitecting,
     generateSystem,
     commitScript,
-    fetchMessages
+    fetchMessages,
+    setIsOpen
   } = useEngineArchitect()
 
   const [input, setInput] = useState('')
@@ -77,7 +78,7 @@ export function EngineBot() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: 380, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
@@ -90,25 +91,33 @@ export function EngineBot() {
         title="Review Engine Commit"
         confirmText="Confirm Commit"
         onConfirm={executeCommit}
-        className="max-w-md"
+        className="w-full"
       >
-        <div className="space-y-4 text-xs p-1">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
+        <div className="grid grid-cols-1 gap-4 w-full text-xs p-1">
+          <div className="p-3 h-fit row-span-1 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
             <strong>Disclaimer:</strong> This action will synchronize the database schema and logic registry with the STEM-script blueprint. Existing variables, constants, tables, columns, functions, and dependencies will be updated in-place rather than duplicated. Please verify the blueprint below before committing.
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 h-full row-span-2">
             <span className="font-mono text-[9px] text-zinc-400">Blueprint Script:</span>
-            <pre className="p-3 bg-zinc-950 text-emerald-400 font-mono text-[10px] rounded max-h-[150px] overflow-y-auto">
-              <code>{pendingCommit?.script}</code>
+            <pre className="p-3 bg-zinc-950 text-emerald-400 font-mono text-[10px] text-wrap leading-6 rounded max-h-84 overflow-y-auto">
+              <code >{pendingCommit?.script}</code>
             </pre>
           </div>
         </div>
       </StandardModal>
       {/* Header Tabs */}
-      <div className="flex items-center gap-4 px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-         <h3 className="text-sm font-bold flex items-center gap-2 text-black dark:text-white">
-           <Database className="size-4 text-emerald-500" /> System Engine Architect
-         </h3>
+      <div className="flex items-center justify-between px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+        <h3 className="text-sm font-bold flex items-center gap-2 text-black dark:text-white">
+          <Database className="size-4 text-emerald-500" /> System Engine Architect
+        </h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsOpen(false)}
+          className="size-8 text-zinc-400 hover:text-black dark:hover:text-white rounded-none"
+        >
+          <X className="size-4" />
+        </Button>
       </div>
 
       {/* Tab Content */}

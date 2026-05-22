@@ -203,7 +203,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
     const { addTable, addColumn, tables, columns } = useDatabase.getState()
     const { addConstant, addFunction, addDependency, constants, functions, dependencies } = useLogic.getState()
 
-    toast.loading('Executing engine transactions...')
+    toast.loading('Executing system updates...')
 
     try {
       // 1. DEFINE VARIABLE
@@ -212,7 +212,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const label = match[1]
         const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string'
         const scope = match[2]?.match(/scope:\s*"([^"]+)"/)?.[1] || 'persistent'
-        
+
         const existingVar = useVariables.getState().variables.find(v => v.label === label)
         if (existingVar) {
           if (existingVar.type !== type || existingVar.scope !== scope) {
@@ -227,8 +227,8 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       const constMatches = [...script.matchAll(/DEFINE CONSTANT\s+"([^"]+)"\s*\{([^}]*)\}/g)]
       for (const match of constMatches) {
         const name = match[1]
-        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string'|'number'|'boolean'|'json'
-        
+        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string' | 'number' | 'boolean' | 'json'
+
         // Correctly match strings with escaped nested quotes
         const valueMatch = match[2]?.match(/value:\s*"((?:\\.|[^"\\])*)"/)
         let value = valueMatch ? valueMatch[1] : ''
@@ -260,7 +260,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
         const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'text'
         const pkStr = match[2]?.match(/pk:\s*(true|false)/)?.[1]
-        
+
         if (name) {
           const currentTables = useDatabase.getState().tables
           const tableId = currentTables.find(t => t.name === tableName)?.id
@@ -288,8 +288,8 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       for (const match of depMatches) {
         const name = match[1]
         const version = match[2]?.match(/version:\s*"([^"]+)"/)?.[1] || 'latest'
-        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm'|'api'|'service'
-        
+        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm' | 'api' | 'service'
+
         const existingDep = useLogic.getState().dependencies.find(d => d.name === name)
         if (existingDep) {
           if (existingDep.version !== version || existingDep.type !== type) {
