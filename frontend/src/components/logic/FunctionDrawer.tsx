@@ -127,7 +127,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
               placeholder="e.g. calculateOrderTotal"
             />
           </div>
@@ -150,7 +150,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
             <select
               value={returnType}
               onChange={(e) => setReturnType(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-none focus:outline-none focus:border-zinc-400"
             >
               <option value="void">void (no output)</option>
               <option value="string">string (text)</option>

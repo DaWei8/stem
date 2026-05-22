@@ -108,7 +108,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
               placeholder="e.g. jsonwebtoken"
             />
           </div>
@@ -120,7 +120,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
               type="text"
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
               placeholder="e.g. ^9.0.0 or latest"
             />
           </div>
@@ -131,7 +131,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-none focus:outline-none focus:border-zinc-400"
             >
               <option value="npm">npm (Node.js)</option>
               <option value="pip">pip (Python)</option>
