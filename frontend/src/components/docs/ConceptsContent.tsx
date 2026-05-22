@@ -8,7 +8,7 @@ export function ConceptsContent() {
     <>
       <DocHeader
         title={<>Core Concepts</>}
-        description="Understand the mental model and theoretical foundation of the Systemic Technical Engine Manager."
+        description="Understand the mental model and theoretical foundation of the Software Testing & Engineering Manager."
       />
 
       <div className="space-y-20 pb-32 max-w-3xl">

@@ -27,7 +27,7 @@ export function UseCasesSection() {
   ]
 
   return (
-    <section id="use-cases" className="py-32 px-12 lg:px-24 bg-background">
+    <section id="use-cases" className="py-32 px-12 lg:px-24 w-full bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row justify-between gap-8 mb-24">
           <div className="space-y-4">

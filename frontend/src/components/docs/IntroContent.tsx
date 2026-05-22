@@ -23,7 +23,7 @@ export function IntroContent() {
           </div>
           <div className="space-y-6 text-muted-foreground leading-relaxed text-md">
             <p>
-              STEM (Systemic Technical Engine Manager) is not a design tool. It is a <span className="text-foreground font-semibold">formal verification environment</span> for software architecture. We believe that UI is ephemeral, but logic is foundational.
+              STEM (Software Testing & Engineering Manager) is not a design tool. It is a <span className="text-foreground font-semibold">formal verification environment</span> for software architecture. We believe that UI is ephemeral, but logic is foundational.
             </p>
             <p>
               By modeling your system into five distinct pillars, STEM allows you to simulate every possible user path and data mutation before a single line of production code is written.

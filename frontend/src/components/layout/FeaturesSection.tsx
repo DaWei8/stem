@@ -38,7 +38,7 @@ export function FeaturesSection() {
   ]
 
   return (
-    <section id="features" className="py-32 px-12 lg:px-24 bg-muted/30 dark:bg-black/50">
+    <section id="features" className="w-full py-32 px-12 lg:px-24 bg-muted/30 dark:bg-black/50">
       <div className="max-w-7xl mx-auto">
         <div className="space-y-4 mb-24">
           <h2 className="text-xs font-medium  text-foreground/40">

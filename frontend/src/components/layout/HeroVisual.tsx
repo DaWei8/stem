@@ -1,12 +1,12 @@
 'use client'
 
-import { Brain, Cpu, Database, LayoutTemplate, Shield, Terminal, Zap, Code2, Workflow, Fingerprint } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { Brain, Code2, Cpu, Database, Fingerprint, Shield, Terminal, Workflow, Zap } from 'lucide-react'
 
 export function HeroVisual() {
   return (
-    <div className="relative w-full max-w-7xl min-h-[800px] flex items-center justify-center perspective-[2000px]">
+    <div className="relative touch-none cursor-none w-5xl min-h-[800px] flex items-center justify-center perspective-[2000px]">
       {/* Main Orchestration Window */}
       <motion.div
         initial={{ opacity: 0, rotateY: -20, rotateX: 10, scale: 0.9 }}

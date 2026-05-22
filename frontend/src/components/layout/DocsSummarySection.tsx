@@ -28,7 +28,7 @@ export function DocsSummarySection() {
   ]
 
   return (
-    <section id="docs-summary" className="py-32 px-12 lg:px-24 bg-background">
+    <section id="docs-summary" className="py-32 px-12 lg:px-24 w-full bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           <div className="space-y-8">
