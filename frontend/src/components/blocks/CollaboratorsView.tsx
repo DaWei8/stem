@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { useCollaborators } from '@/hooks/useCollaborators'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Check, Clock, Loader2, Mail, RefreshCw, ShieldAlert, ShieldCheck, Trash2, Undo2, Users, X } from 'lucide-react'
+import { Clock, Loader2, Mail, ShieldAlert, ShieldCheck, Trash2, Undo2, Users } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -29,11 +29,18 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
   const { id: projectId } = useParams()
   const {
     collaborators,
+    invites,
+    revokedLogs,
     isLoading,
     fetchCollaborators,
+    fetchInvitations,
+    fetchRevokedLogs,
     inviteCollaborator,
     removeCollaborator,
-    updateRole
+    updateRole,
+    updatePermissions,
+    removeInvitationLog,
+    restoreRevokedAccess
   } = useCollaborators()
 
   const [email, setEmail] = useState('')
@@ -41,15 +48,13 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
   const [isInviting, setIsInviting] = useState(false)
   const [owner, setOwner] = useState<{ id: string; user: { full_name: string | null; email: string }; role: 'owner' } | null>(null)
 
-  // Local storage backed tracking lists for simulation logs
-  const [invites, setInvites] = useState<Invitation[]>([])
-  const [revokedLogs, setRevokedLogs] = useState<RevokedLog[]>([])
-
   useEffect(() => {
     if (projectId) {
       fetchCollaborators(projectId as string)
+      fetchInvitations(projectId as string)
+      fetchRevokedLogs(projectId as string)
     }
-  }, [projectId, fetchCollaborators])
+  }, [projectId, fetchCollaborators, fetchInvitations, fetchRevokedLogs])
 
   // Fetch the project owner directly from database projects and users tables
   useEffect(() => {
@@ -91,42 +96,6 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
     fetchOwnerDetails()
   }, [projectId])
 
-  // Load invitations & revoked history from localStorage
-  useEffect(() => {
-    if (projectId) {
-      const invitesKey = `stem_invites_${projectId}`
-      const revokedKey = `stem_revoked_${projectId}`
-
-      const savedInvites = localStorage.getItem(invitesKey)
-      if (savedInvites) {
-        setInvites(JSON.parse(savedInvites))
-      } else {
-        setInvites([])
-      }
-
-      const savedRevoked = localStorage.getItem(revokedKey)
-      if (savedRevoked) {
-        setRevokedLogs(JSON.parse(savedRevoked))
-      } else {
-        setRevokedLogs([])
-      }
-    }
-  }, [projectId])
-
-  const saveInvitesToStorage = (updated: Invitation[]) => {
-    setInvites(updated)
-    if (projectId) {
-      localStorage.setItem(`stem_invites_${projectId}`, JSON.stringify(updated))
-    }
-  }
-
-  const saveRevokedToStorage = (updated: RevokedLog[]) => {
-    setRevokedLogs(updated)
-    if (projectId) {
-      localStorage.setItem(`stem_revoked_${projectId}`, JSON.stringify(updated))
-    }
-  }
-
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !projectId) return
@@ -135,26 +104,10 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
     const normalizedEmail = email.trim().toLowerCase()
 
     try {
-      await inviteCollaborator(projectId as string, normalizedEmail)
-
-      const updated = [
-        { email: normalizedEmail, status: 'accepted' as const, role: roleSelection, timestamp: new Date().toISOString() },
-        ...invites.filter(i => i.email !== normalizedEmail)
-      ]
-      saveInvitesToStorage(updated)
+      await inviteCollaborator(projectId as string, normalizedEmail, roleSelection)
       setEmail('')
     } catch (err: any) {
-      if (err.message?.includes('User not found')) {
-        const updated = [
-          { email: normalizedEmail, status: 'pending' as const, role: roleSelection, timestamp: new Date().toISOString() },
-          ...invites.filter(i => i.email !== normalizedEmail)
-        ]
-        saveInvitesToStorage(updated)
-        setEmail('')
-        toast.info(`Invitation sent to ${normalizedEmail} (Pending registration)`)
-      } else {
-        toast.error(`Invitation failed: ${err.message}`)
-      }
+      toast.error(`Invitation failed: ${err.message}`)
     } finally {
       setIsInviting(false)
     }
@@ -163,58 +116,33 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
   const handleDelete = async (collaborator: any) => {
     if (!projectId) return
     try {
-      await removeCollaborator(projectId as string, collaborator.id)
-
-      const revokedItem: RevokedLog = {
-        id: collaborator.id,
-        email: collaborator.user?.email || 'unknown@company.com',
-        name: collaborator.user?.full_name || 'Anonymous Member',
-        role: collaborator.role,
-        timestamp: new Date().toISOString()
-      }
-      saveRevokedToStorage([revokedItem, ...revokedLogs])
+      await removeCollaborator(projectId as string, collaborator)
     } catch (err: any) {
       toast.error(`Revoke failed: ${err.message}`)
     }
   }
 
-  const simulateInviteAction = (email: string, action: 'accepted' | 'rejected' | 'pending') => {
-    const updated = invites.map(i => {
-      if (i.email === email) {
-        return { ...i, status: action, timestamp: new Date().toISOString() }
-      }
-      return i
-    })
-    saveInvitesToStorage(updated)
-    toast.success(`Invitation status for ${email} updated to ${action}`)
+  const handlePermissionChange = async (collaborator: any, field: string, checked: boolean) => {
+    if (!projectId) return
+    try {
+      await updatePermissions(projectId as string, collaborator.id, { [field]: checked })
+    } catch (err: any) {
+      toast.error(`Permission update failed: ${err.message}`)
+    }
   }
 
-  const removeInviteFromList = (email: string) => {
-    const updated = invites.filter(i => i.email !== email)
-    saveInvitesToStorage(updated)
-    toast.success(`Invitation cancelled`)
+  const removeInviteFromList = async (email: string) => {
+    if (!projectId) return
+    await removeInvitationLog(projectId as string, email)
   }
 
-  const restoreRevokedAccess = async (log: RevokedLog) => {
+  const handleRestoreRevokedAccess = async (log: RevokedLog) => {
+    if (!projectId) return
     setIsInviting(true)
     try {
-      await inviteCollaborator(projectId as string, log.email)
-      // Remove from revoked log and update invites
-      saveRevokedToStorage(revokedLogs.filter(r => r.email !== log.email))
-      const updatedInvites = [
-        { email: log.email, status: 'accepted' as const, role: log.role as any || 'editor', timestamp: new Date().toISOString() },
-        ...invites.filter(i => i.email !== log.email)
-      ]
-      saveInvitesToStorage(updatedInvites)
+      await restoreRevokedAccess(projectId as string, log)
     } catch (err: any) {
-      // If account isn't active, put it back to invites
-      const updatedInvites = [
-        { email: log.email, status: 'pending' as const, role: 'editor' as const, timestamp: new Date().toISOString() },
-        ...invites.filter(i => i.email !== log.email)
-      ]
-      saveInvitesToStorage(updatedInvites)
-      saveRevokedToStorage(revokedLogs.filter(r => r.email !== log.email))
-      toast.info(`Restored invitation to pending for ${log.email}`)
+      toast.error(`Failed to restore: ${err.message}`)
     } finally {
       setIsInviting(false)
     }
@@ -343,8 +271,8 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             )}
 
             {activeMembersList.map((user) => (
-              <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
-                <div className="flex items-center gap-4 min-w-0">
+              <div key={user.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 gap-4 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-all w-full">
+                <div className="flex items-center gap-4 min-w-0 flex-1 md:max-w-xs">
                   <div className="size-10 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-black text-xs text-zinc-600 dark:text-zinc-400 transition-colors select-none shrink-0">
                     {(user.user?.full_name || 'A U').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
                   </div>
@@ -356,6 +284,66 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono transition-colors truncate">{user.user?.email}</p>
                   </div>
                 </div>
+
+                {/* Detailed Permissions Checkboxes */}
+                {user.role !== 'owner' && (
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-zinc-500 dark:text-zinc-400 py-2 md:py-0 border-y md:border-y-0 border-zinc-150 dark:border-zinc-900/50 flex-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_edit_pages ?? true}
+                        onChange={(e) => handlePermissionChange(user, 'can_edit_pages', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Pages
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_edit_variables ?? true}
+                        onChange={(e) => handlePermissionChange(user, 'can_edit_variables', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Variables
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_edit_constraints ?? true}
+                        onChange={(e) => handlePermissionChange(user, 'can_edit_constraints', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Constraints
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_run_simulation ?? false}
+                        onChange={(e) => handlePermissionChange(user, 'can_run_simulation', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Simulation
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_export ?? false}
+                        onChange={(e) => handlePermissionChange(user, 'can_export', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Export
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={user.can_invite_others ?? false}
+                        onChange={(e) => handlePermissionChange(user, 'can_invite_others', e.target.checked)}
+                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                      />
+                      Invite
+                    </label>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-4 shrink-0 justify-end">
                   {user.role !== 'owner' ? (
@@ -380,7 +368,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                       </Button>
                     </>
                   ) : (
-                    null
+                    <div className="w-[124px]" />
                   )}
                 </div>
               </div>
@@ -436,44 +424,17 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                     </span>
                   )}
 
-                  {/* Simulator buttons for presentation */}
+                  {/* Cancel / Delete Invitation Button */}
                   <div className="flex items-center gap-1 opacity-0 sm:group-hover:opacity-100 max-sm:opacity-100 transition-opacity">
-                    {invite.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => simulateInviteAction(invite.email, 'accepted')}
-                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
-                          title="Simulate Accept"
-                        >
-                          <Check className="size-3.5" />
-                        </button>
-                        <button
-                          onClick={() => simulateInviteAction(invite.email, 'rejected')}
-                          className="p-1 border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
-                          title="Simulate Reject"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                      </>
-                    )}
-
-                    {invite.status === 'rejected' && (
-                      <button
-                        onClick={() => simulateInviteAction(invite.email, 'pending')}
-                        className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:bg-zinc-300 dark:hover:bg-zinc-800 transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
-                        title="Re-send Invitation"
-                      >
-                        <RefreshCw className="size-3.5" />
-                      </button>
-                    )}
-
-                    <button
+                    <Button
                       onClick={() => removeInviteFromList(invite.email)}
-                      className="p-1 border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all size-7 flex items-center justify-center bg-white dark:bg-black"
-                      title="Delete Invitation log"
+                      size="icon"
+                      variant="ghost"
+                      className="size-8 rounded-none border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all"
+                      title={invite.status === 'pending' ? "Cancel Invitation" : "Delete Invitation Log"}
                     >
                       <Trash2 className="size-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -518,7 +479,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   </span>
 
                   <Button
-                    onClick={() => restoreRevokedAccess(log)}
+                    onClick={() => handleRestoreRevokedAccess(log)}
                     size="sm"
                     className="h-8 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-[10px] font-black uppercase text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-none hover:bg-zinc-100 dark:hover:bg-zinc-900 gap-1.5 px-3 shrink-0"
                   >

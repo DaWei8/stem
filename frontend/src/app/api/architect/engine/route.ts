@@ -22,7 +22,7 @@ You must respond with TWO parts:
 2. A list of transaction commands (the "Script") wrapped in <script> tags.
 
 COMMANDS:
-- DEFINE VARIABLE "Label" { type: "string|number|boolean|object|array", scope: "DB|RAM|CACHE" }
+- DEFINE VARIABLE "Label" { type: "string|number|boolean|object|array", scope: "persistent|transient|contextual" }
 - DEFINE CONSTANT "Name" { type: "string|json", value: "Value as string" }
 - DEFINE TABLE "TableName"
 - ADD COLUMN TO "TableName" { name: "ColName", type: "text|uuid|integer|boolean|jsonb|timestamp", pk: true|false }

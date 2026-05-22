@@ -2,22 +2,44 @@
 
 import { ProjectCard } from '@/components/blocks/ProjectCard'
 import { NewProjectModal } from '@/components/blocks/NewProjectModal'
+import { PendingInvitations } from '@/components/blocks/PendingInvitations'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useProjects } from '@/hooks/useProjects'
+import { useUser } from '@/hooks/useUser'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutGrid, ListFilter, Search, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { getPendingUserInvitationsAction } from '@/lib/actions/collaborators'
 
 export default function ProjectsPage() {
   const { projects, isLoading, fetchProjects, createProject } = useProjects()
+  const { profile, fetchProfile } = useUser()
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [invitations, setInvitations] = useState<any[]>([])
+
+  const fetchInvitations = async () => {
+    try {
+      const data = await getPendingUserInvitationsAction()
+      setInvitations(data || [])
+    } catch (err) {
+      console.error('Failed to fetch user invitations:', err)
+    }
+  }
 
   useEffect(() => {
     fetchProjects()
-  }, [fetchProjects])
+    fetchProfile()
+    fetchInvitations()
+  }, [fetchProjects, fetchProfile])
+
+  const handleActionComplete = () => {
+    fetchProjects()
+    fetchInvitations()
+  }
 
   const filteredProjects = projects
     .filter(p =>
@@ -25,6 +47,72 @@ export default function ProjectsPage() {
       p.description?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+
+  const myProjects = filteredProjects.filter(p => p.owner_id === profile?.id)
+  const sharedProjects = filteredProjects.filter(p => p.owner_id !== profile?.id)
+
+  const renderProjectList = (list: typeof projects, emptyMessage?: string) => {
+    return (
+      <AnimatePresence mode="popLayout">
+        {isLoading ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-4")}
+          >
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="h-[280px] bg-black/10 border border-zinc-800/50 animate-pulse" />
+            ))}
+          </motion.div>
+        ) : list.length > 0 ? (
+          <motion.div
+            layout
+            className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch" : "flex flex-col gap-4")}
+          >
+            {list.map((project, idx) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <ProjectCard project={project} viewMode={viewMode} />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-40 border border-dashed border-zinc-800/50 bg-black/5 group hover:border-zinc-700/50 transition-all duration-700"
+          >
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-white/5 blur-2xl rounded-full group-hover:bg-white/10 transition-all" />
+              <div className="relative size-20 bg-black border border-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 ease-out shadow-2xl">
+                <Search className="size-8 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-black tracking-tight mb-2 text-white">No projects found</h3>
+            <p className="text-xs text-zinc-500 font-medium max-w-xs text-center leading-relaxed mb-10 px-6">
+              {searchQuery
+                ? `No system identifiers matching "${searchQuery}" were found in the registry.`
+                : (emptyMessage || "The system registry is currently empty. Create your first project to begin architectural modeling.")}
+            </p>
+            {searchQuery && (
+              <Button
+                onClick={() => setSearchQuery('')}
+                variant="outline"
+                className="rounded-none border-zinc-800 text-[10px] font-bold h-10 px-8 hover:bg-white hover:text-black transition-all"
+              >
+                Clear filter
+              </Button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white selection:bg-white/20">
@@ -104,64 +192,52 @@ export default function ProjectsPage() {
       </header>
 
       <main className="max-w-[1600px] mx-auto w-full p-8 flex-1">
-        <AnimatePresence mode="popLayout">
-          {isLoading ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-4")}
-            >
-              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-[280px] bg-black/10 border border-zinc-800/50 animate-pulse" />
-              ))}
-            </motion.div>
-          ) : filteredProjects.length > 0 ? (
-            <motion.div
-              layout
-              className={cn(viewMode === 'grid' ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch" : "flex flex-col gap-4")}
-            >
-              {filteredProjects.map((project, idx) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                >
-                  <ProjectCard project={project} viewMode={viewMode} />
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center py-40 border border-dashed border-zinc-800/50 bg-black/5 group hover:border-zinc-700/50 transition-all duration-700"
-            >
-              <div className="relative mb-8">
-                <div className="absolute inset-0 bg-white/5 blur-2xl rounded-full group-hover:bg-white/10 transition-all" />
-                <div className="relative size-20 bg-black border border-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 ease-out shadow-2xl">
-                  <Search className="size-8 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black tracking-tight mb-2 text-white">No projects found</h3>
-              <p className="text-xs text-zinc-500 font-medium max-w-xs text-center leading-relaxed mb-10 px-6">
-                {searchQuery
-                  ? `No system identifiers matching "${searchQuery}" were found in the registry.`
-                  : "The system registry is currently empty. Create your first project to begin architectural modeling."}
-              </p>
-              {searchQuery && (
-                <Button
-                  onClick={() => setSearchQuery('')}
-                  variant="outline"
-                  className="rounded-none border-zinc-800 text-[10px] font-bold h-10 px-8 hover:bg-white hover:text-black transition-all"
-                >
-                  Clear filter
-                </Button>
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="border-b border-zinc-800/50 pb-px mb-8 w-full max-w-2xl">
+            <TabsTrigger value="all">
+              All Blueprints
+              <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
+                {filteredProjects.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="mine">
+              My Systems
+              <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
+                {myProjects.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="shared">
+              Collaborations
+              <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
+                {sharedProjects.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="invitations" className="relative">
+              Pending Invites
+              {invitations.length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-black animate-pulse">
+                  {invitations.length}
+                </span>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="focus:outline-none">
+            {renderProjectList(filteredProjects)}
+          </TabsContent>
+
+          <TabsContent value="mine" className="focus:outline-none">
+            {renderProjectList(myProjects, "You haven't created any blueprints yet.")}
+          </TabsContent>
+
+          <TabsContent value="shared" className="focus:outline-none">
+            {renderProjectList(sharedProjects, "No collaborative systems shared with you.")}
+          </TabsContent>
+
+          <TabsContent value="invitations" className="focus:outline-none">
+            <PendingInvitations onActionComplete={handleActionComplete} hideIfEmpty={false} />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )

@@ -62,7 +62,21 @@ export async function getProjectById(id: string) {
   
   const { data, error } = await supabase
     .from('projects')
-    .select('*')
+    .select(`
+      *,
+      collaborators (
+        id,
+        project_id,
+        user_id,
+        role,
+        user:user_id (
+          id,
+          email,
+          full_name,
+          avatar_url
+        )
+      )
+    `)
     .eq('id', id)
     .single()
 

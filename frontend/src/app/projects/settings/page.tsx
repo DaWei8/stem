@@ -82,6 +82,30 @@ export default function SettingsPage() {
 
   const totals = useMemo(() => getTotals(), [logs, getTotals])
 
+  const systemTokens = useMemo(() => totals.byProvider['system-fallback']?.tokens || 0, [totals])
+  const systemTokensLimit = 50000
+  const systemTokensPercent = useMemo(() => Math.min((systemTokens / systemTokensLimit) * 100, 100), [systemTokens])
+
+  const uniqueCollaborators = useMemo(() => {
+    const set = new Set<string>()
+    if (!profile) return 0
+    projects.filter(p => p.owner_id === profile.id).forEach(p => {
+      p.collaborators?.forEach(c => {
+        if (c.user_id && c.user_id !== profile.id) {
+          set.add(c.user_id)
+        }
+      })
+    })
+    return set.size
+  }, [projects, profile])
+
+  const formatTokens = (t: number) => {
+    if (t >= 1000) {
+      return `${(t / 1000).toFixed(1).replace(/\.0$/, '')}k`
+    }
+    return t.toString()
+  }
+
   const models: ModelOption[] = [
     {
       id: 'gemini-2.5-flash',
@@ -455,18 +479,18 @@ export default function SettingsPage() {
             <div className="p-6 border border-zinc-900 bg-black/30 space-y-4">
               <p className="text-[10px] font-black text-zinc-600 ">Collaborators</p>
               <div className="space-y-1">
-                <h3 className="text-xl font-black">0 / {profile?.max_collaborators || 3}</h3>
+                <h3 className="text-xl font-black">{uniqueCollaborators} / {profile?.max_collaborators || 3}</h3>
                 <div className="w-full h-1 bg-black rounded-full overflow-hidden">
-                  <div className="bg-white h-full" style={{ width: '0%' }} />
+                  <div className="bg-white h-full" style={{ width: `${Math.min((uniqueCollaborators / (profile?.max_collaborators || 3)) * 100, 100)}%` }} />
                 </div>
               </div>
             </div>
             <div className="p-6 border border-zinc-900 bg-black/30 space-y-4">
               <p className="text-[10px] font-black text-zinc-600 ">AI Tokens (STEM Default)</p>
               <div className="space-y-1">
-                <h3 className="text-xl font-black">12.5k / 50k</h3>
+                <h3 className="text-xl font-black">{formatTokens(systemTokens)} / {formatTokens(systemTokensLimit)}</h3>
                 <div className="w-full h-1 bg-black rounded-full overflow-hidden">
-                  <div className="w-[25%] h-full bg-emerald-500" />
+                  <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${systemTokensPercent}%` }} />
                 </div>
               </div>
             </div>

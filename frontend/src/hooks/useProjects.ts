@@ -41,7 +41,21 @@ export const useProjects = create<ProjectsState>((set, get) => ({
       // but mutations MUST go through server actions.
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select(`
+          *,
+          collaborators (
+            id,
+            project_id,
+            user_id,
+            role,
+            user:user_id (
+              id,
+              email,
+              full_name,
+              avatar_url
+            )
+          )
+        `)
         .order('updated_at', { ascending: false })
 
       if (error) throw error

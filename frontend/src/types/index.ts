@@ -21,6 +21,24 @@ export interface Project {
   status?: string
   created_at: string
   updated_at: string
+  collaborators?: {
+    id: string
+    project_id: string
+    user_id: string
+    role: string
+    can_edit_pages?: boolean
+    can_edit_variables?: boolean
+    can_edit_constraints?: boolean
+    can_run_simulation?: boolean
+    can_export?: boolean
+    can_invite_others?: boolean
+    user?: {
+      id: string
+      email: string
+      full_name: string | null
+      avatar_url: string | null
+    } | null
+  }[]
 }
 
 export interface DatabaseTable {

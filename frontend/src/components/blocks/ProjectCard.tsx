@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useProjects } from '@/hooks/useProjects'
+import { useUser } from '@/hooks/useUser'
 import { useState } from 'react'
 import {
   Dialog,
@@ -32,9 +33,13 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
   const { deleteProject, updateProject } = useProjects()
+  const { profile } = useUser()
   const [isRenameOpen, setIsRenameOpen] = useState(false)
   const [newName, setNewName] = useState(project.name)
   const [newDesc, setNewDesc] = useState(project.description || '')
+
+  const isOwner = profile ? profile.id === project.owner_id : true
+  const otherCollaborators = (project.collaborators || []).filter(c => c.user_id !== project.owner_id)
 
   const date = new Date(project.updated_at)
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -98,11 +103,15 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   <Pencil className="size-3.5 text-blue-400" />
                   Rename Project
                 </DropdownMenuItem>
-                <div className="h-px bg-zinc-800 my-1" />
-                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
-                  <Trash2 className="size-3.5" />
-                  Delete Project
-                </DropdownMenuItem>
+                {isOwner && (
+                  <>
+                    <div className="h-px bg-zinc-800 my-1" />
+                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                      <Trash2 className="size-3.5" />
+                      Delete Project
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -114,8 +123,18 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
             <h2 className="text-xl font-black tracking-tight text-zinc-200 group-hover:text-white transition-colors mb-1 line-clamp-1">
               {project.name}
             </h2>
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
+            <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-600">
               <span className="group-hover:text-zinc-400 transition-colors">ID: {project.id.slice(0, 8)}</span>
+              {profile && (
+                <span className={cn(
+                  "px-1.5 py-0.5 border text-[8px] font-black uppercase tracking-wider rounded-xs",
+                  isOwner 
+                    ? "border-zinc-800 text-zinc-500 bg-zinc-950/30" 
+                    : "border-blue-900/40 text-blue-400 bg-blue-950/20"
+                )}>
+                  {isOwner ? 'Owner' : 'Collaborator'}
+                </span>
+              )}
             </div>
           </div>
 
@@ -128,6 +147,38 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
               <Calendar className="size-3 shrink-0" />
               {formattedDate}
             </div>
+
+            {otherCollaborators.length > 0 && (
+              <div className="flex -space-x-1.5 overflow-hidden">
+                {otherCollaborators.slice(0, 3).map((collab) => {
+                  const name = collab.user?.full_name || collab.user?.email || 'Anonymous'
+                  const initials = name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)
+                  return (
+                    <div
+                      key={collab.id}
+                      className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[8px] font-black text-zinc-400"
+                      title={`${name} (${collab.role})`}
+                    >
+                      {initials}
+                    </div>
+                  )
+                })}
+                {otherCollaborators.length > 3 && (
+                  <div
+                    className="inline-block size-5 rounded-full ring-2 ring-black bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-zinc-500"
+                    title={`${otherCollaborators.length - 3} more collaborators`}
+                  >
+                    +{otherCollaborators.length - 3}
+                  </div>
+                )}
+              </div>
+            )}
+
             {viewMode === 'grid' && (
               <div className="size-6 flex items-center justify-center text-zinc-700 group-hover:text-white transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                 <ArrowUpRight className="size-4" />
@@ -158,11 +209,15 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   <Pencil className="size-3.5 text-blue-400" />
                   Rename Project
                 </DropdownMenuItem>
-                <div className="h-px bg-zinc-800 my-1" />
-                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
-                  <Trash2 className="size-3.5" />
-                  Delete Project
-                </DropdownMenuItem>
+                {isOwner && (
+                  <>
+                    <div className="h-px bg-zinc-800 my-1" />
+                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                      <Trash2 className="size-3.5" />
+                      Delete Project
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
