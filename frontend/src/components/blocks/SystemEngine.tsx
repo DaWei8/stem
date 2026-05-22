@@ -414,6 +414,7 @@ export function SystemEngine() {
       <AnimatePresence>
         {selectedVar && (
           <DataLineagePanel
+            key={`var-lineage-${selectedVar.id}`}
             variable={selectedVar}
             inputs={inputs}
             outputs={outputs}
@@ -432,12 +433,14 @@ export function SystemEngine() {
         )}
         {selectedConstant && (
           <ConstantDrawer
+            key={`constant-drawer-${selectedConstant.id}`}
             constant={selectedConstant}
             onClose={() => setSelectedConstantId(null)}
           />
         )}
         {selectedTable && (
           <TableDetailsDrawer
+            key={`table-drawer-${selectedTable.id}`}
             table={selectedTable}
             columns={columns.filter(c => c.table_id === selectedTable.id)}
             variables={variables}
@@ -453,7 +456,7 @@ export function SystemEngine() {
             }}
           />
         )}
-        {isOpen && <EngineBot />}
+        {isOpen && <EngineBot key="engine-bot-panel-drawer" />}
       </AnimatePresence>
 
       {/* New Entry Modal */}
