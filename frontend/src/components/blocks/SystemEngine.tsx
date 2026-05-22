@@ -13,7 +13,8 @@ import {
   Plus,
   Search,
   MoreVertical,
-  Trash2
+  Trash2,
+  ShieldAlert
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState, useMemo } from 'react'
@@ -547,6 +548,13 @@ export function SystemEngine() {
         className="max-w-xl"
       >
         <div className="space-y-6 pb-4">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-2.5">
+            <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review Required</p>
+              <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Please verify the configuration below. Creating duplicate constants, functions, or dependencies with existing identifiers within the project will be blocked.</p>
+            </div>
+          </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Select Entry Type</label>
             <div className="grid grid-cols-5 gap-2">
