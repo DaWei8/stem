@@ -170,7 +170,12 @@ export function InputsSection({
                     onChange={(e) => onRebindVariable?.(input.id, e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {!linkedVar && <option value={input.variable_id}>{input.variable_id?.slice(0, 8)}</option>}
+                    <option value="">No Binding</option>
+                    {!linkedVar && input.variable_id && (
+                      <option value={input.variable_id}>
+                        {input.variable_id.slice(0, 8)}
+                      </option>
+                    )}
                     {variables.map(v => (
                       <option key={v.id} value={v.id} className="bg-zinc-900 text-zinc-300 font-mono text-[10px]">{v.label}</option>
                     ))}
