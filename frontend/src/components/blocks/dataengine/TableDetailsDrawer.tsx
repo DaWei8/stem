@@ -50,7 +50,7 @@ export function TableDetailsDrawer({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Database className="size-4 text-emerald-500" />
-            <span className="text-xs font-black text-black dark:text-white uppercase tracking-wider">Table Schema</span>
+            <span className="text-sm font-black text-black dark:text-white">Table Schema</span>
           </div>
           <button
             onClick={onClose}

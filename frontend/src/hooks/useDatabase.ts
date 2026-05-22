@@ -8,7 +8,9 @@ import {
   deleteTableAction,
   updateTableAction,
   addColumnAction,
-  linkColumnToVariableAction
+  linkColumnToVariableAction,
+  updateColumnAction,
+  deleteColumnAction
 } from '@/lib/actions/database'
 
 interface DBTable {
@@ -36,6 +38,8 @@ interface DatabaseState {
   deleteTable: (projectId: string, tableId: string) => Promise<void>
   updateTable: (projectId: string, tableId: string, name: string) => Promise<void>
   addColumn: (projectId: string, tableId: string, column: any, silent?: boolean) => Promise<any>
+  updateColumn: (projectId: string, columnId: string, updates: any) => Promise<void>
+  deleteColumn: (projectId: string, columnId: string) => Promise<void>
   linkColumnToVariable: (projectId: string, columnId: string, variableId: string | null) => Promise<void>
 }
 
@@ -117,6 +121,28 @@ export const useDatabase = create<DatabaseState>((set) => ({
     } catch (error: any) {
       toast.error(`Failed to add column: ${error.message}`)
       throw error
+    }
+  },
+  updateColumn: async (projectId, columnId, updates) => {
+    try {
+      const data = await updateColumnAction(projectId, columnId, updates)
+      set((state) => ({
+        columns: state.columns.map((c) => (c.id === columnId ? data : c))
+      }))
+      toast.success('Field updated')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
+    }
+  },
+  deleteColumn: async (projectId, columnId) => {
+    try {
+      await deleteColumnAction(projectId, columnId)
+      set((state) => ({
+        columns: state.columns.filter((c) => c.id !== columnId)
+      }))
+      toast.success('Field removed')
+    } catch (error: any) {
+      toast.error(`Delete failed: ${error.message}`)
     }
   },
   linkColumnToVariable: async (projectId, columnId, variableId) => {

@@ -66,3 +66,29 @@ export async function linkColumnToVariableAction(projectId: string, columnId: st
   revalidatePath(`/projects/${projectId}`)
   return data
 }
+
+export async function updateColumnAction(projectId: string, columnId: string, updates: any) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('database_columns')
+    .update(updates)
+    .eq('id', columnId)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
+
+export async function deleteColumnAction(projectId: string, columnId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('database_columns')
+    .delete()
+    .eq('id', columnId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+}
+

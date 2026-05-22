@@ -11,10 +11,16 @@ import {
   Monitor,
   ShieldCheck,
   X,
-  Zap
+  Zap,
+  Edit3,
+  Save,
+  RotateCcw
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { LinkTableForm } from './LinkTableForm'
+import { useParams } from 'next/navigation'
+import { useVariables } from '@/hooks/useVariables'
+import { toast } from 'sonner'
 
 interface Props {
   variable: any
@@ -41,7 +47,89 @@ export function DataLineagePanel({
   variable, inputs, outputs, actions, pages,
   columns, tables, policies, functions, onLinkColumn, onLinkNewColumn, onClose
 }: Props) {
+  const params = useParams()
+  const projectId = params?.id as string
+  const { updateVariable } = useVariables()
+
   const [isLinking, setIsLinking] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  
+  // Editing state variables
+  const [editLabel, setEditLabel] = useState(variable.label)
+  const [editType, setEditType] = useState(variable.type)
+  const [editScope, setEditScope] = useState(variable.scope)
+  const [editDesc, setEditDesc] = useState(variable.description || '')
+  const [editDefaultVal, setEditDefaultVal] = useState(
+    variable.default_value !== undefined && variable.default_value !== null
+      ? typeof variable.default_value === 'object'
+        ? JSON.stringify(variable.default_value)
+        : String(variable.default_value)
+      : ''
+  )
+
+  // Reset editing values when variable changes
+  useEffect(() => {
+    setEditLabel(variable.label)
+    setEditType(variable.type)
+    setEditScope(variable.scope)
+    setEditDesc(variable.description || '')
+    setEditDefaultVal(
+      variable.default_value !== undefined && variable.default_value !== null
+        ? typeof variable.default_value === 'object'
+          ? JSON.stringify(variable.default_value)
+          : String(variable.default_value)
+        : ''
+    )
+    setIsEditing(false)
+  }, [variable])
+
+  const handleSave = async () => {
+    if (!editLabel.trim()) {
+      toast.error('Variable label is required')
+      return
+    }
+
+    let parsedDefaultVal: any = editDefaultVal.trim()
+    if (parsedDefaultVal !== '') {
+      if (editType === 'boolean') {
+        if (parsedDefaultVal.toLowerCase() === 'true') parsedDefaultVal = true
+        else if (parsedDefaultVal.toLowerCase() === 'false') parsedDefaultVal = false
+        else {
+          toast.error('Default value must be "true" or "false" for boolean type')
+          return
+        }
+      } else if (editType === 'number') {
+        const num = Number(parsedDefaultVal)
+        if (isNaN(num)) {
+          toast.error('Default value must be a valid number')
+          return
+        }
+        parsedDefaultVal = num
+      } else if (editType === 'object' || editType === 'array') {
+        try {
+          parsedDefaultVal = JSON.parse(parsedDefaultVal)
+        } catch (e) {
+          toast.error(`Invalid JSON format for type ${editType}`)
+          return
+        }
+      }
+    } else {
+      parsedDefaultVal = null
+    }
+
+    try {
+      await updateVariable(projectId, variable.id, {
+        label: editLabel.trim(),
+        type: editType,
+        scope: editScope,
+        description: editDesc.trim() || null,
+        default_value: parsedDefaultVal
+      })
+      setIsEditing(false)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   // 1. Screens that READ this variable (inputs mapped to it)
   const readerScreens = useMemo(() => {
@@ -93,7 +181,7 @@ export function DataLineagePanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-blue-500" />
-            <span className="text-xs font-black text-black uppercase tracking-widest dark:text-white ">Variables</span>
+            <span className="text-sm font-black text-black dark:text-white ">Variables</span>
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
             <X className="size-4" />
@@ -223,7 +311,7 @@ function LineageSection({ icon, title, count, color, action, children }: {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-[10px] font-black text-zinc-500 ">{title}</span>
+          <span className="text-sm font-black text-white ">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           {action}

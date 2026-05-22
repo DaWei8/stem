@@ -54,13 +54,13 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         } else {
           return parsed
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // 1. Try standard JSON parse
     try {
       return JSON.parse(clean)
-    } catch (e) {}
+    } catch (e) { }
 
     // 2. Try parsing as JavaScript Object/Array Literal (e.g. unquoted keys, trailing commas)
     try {
@@ -70,13 +70,13 @@ export function ConstantDrawer({ constant, onClose }: Props) {
           return parsed
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     // 3. Fallback: try converting single quotes to double quotes for basic JSON format conversion
     try {
       const formatted = clean.replace(/'/g, '"')
       return JSON.parse(formatted)
-    } catch (e) {}
+    } catch (e) { }
 
     return rawVal
   }, [constant.value])
@@ -191,7 +191,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Hash className="size-4 text-emerald-500" />
-            <span className="text-xs font-black text-black dark:text-white uppercase tracking-wider">Constant Details</span>
+            <span className="text-sm font-black text-black dark:text-white">Constant Details</span>
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
             <X className="size-4" />
@@ -203,7 +203,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
           {isEditing ? (
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Constant Identifier</label>
+                <label className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 tracking-wider">Constant Identifier</label>
                 <input
                   type="text"
                   value={editName}
@@ -212,7 +212,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Type Specifier</label>
+                <label className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 tracking-wider">Type Specifier</label>
                 <select
                   value={editType}
                   onChange={(e) => setEditType(e.target.value)}
@@ -228,7 +228,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
           ) : (
             <div className="flex items-center justify-between">
               <p className="text-sm font-black text-black dark:text-white font-mono break-all">{constant.name}</p>
-              <span className="text-[9px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-2 py-0.5 uppercase">{constant.type}</span>
+              <span className="text-[9px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-2 py-0.5 ">{constant.type}</span>
             </div>
           )}
         </div>
@@ -239,7 +239,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
             <button
               onClick={() => setActiveTab('explorer')}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
+                "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black  border-b-2 transition-all",
                 activeTab === 'explorer'
                   ? "border-black dark:border-white text-black dark:text-white"
                   : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
@@ -250,11 +250,11 @@ export function ConstantDrawer({ constant, onClose }: Props) {
             <button
               onClick={() => setActiveTab('raw')}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
+                "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black  border-b-2 transition-all",
                 activeTab === 'raw'
                   ? "border-black dark:border-white text-black dark:text-white"
                   : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
-            )}
+              )}
             >
               <Terminal className="size-3" /> Raw JSON
             </button>
@@ -262,7 +262,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
               <button
                 onClick={() => setActiveTab('table')}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all",
+                  "flex items-center gap-1.5 px-4 py-2 text-[10px] font-black  border-b-2 transition-all",
                   activeTab === 'table'
                     ? "border-black dark:border-white text-black dark:text-white"
                     : "border-transparent text-zinc-400 hover:text-black dark:hover:text-white"
@@ -278,7 +278,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         <div className="flex-1 flex flex-col min-h-0">
           {isEditing ? (
             <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Payload Editor</label>
+              <label className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 tracking-wider">Payload Editor</label>
               <textarea
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
@@ -289,13 +289,13 @@ export function ConstantDrawer({ constant, onClose }: Props) {
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-wider transition-all"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black  transition-all"
                 >
                   <Save className="size-3.5" /> Save Changes
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-wider transition-all bg-white dark:bg-black"
+                  className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black  transition-all bg-white dark:bg-black"
                 >
                   <RotateCcw className="size-3.5" /> Cancel
                 </button>
@@ -306,7 +306,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
               {activeTab === 'explorer' && (
                 <div className="space-y-3 flex-1 flex flex-col min-h-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Value Explorer</h3>
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest">Value Explorer</h3>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setIsEditing(true)}
@@ -333,7 +333,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
               {activeTab === 'raw' && (
                 <div className="space-y-3 flex-1 flex flex-col min-h-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Formatted JSON</h3>
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest">Formatted JSON</h3>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setIsEditing(true)}
@@ -360,7 +360,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
               {activeTab === 'table' && isTabular && (
                 <div className="space-y-3 flex-1 flex flex-col min-h-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Tabular View</h3>
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest">Tabular View</h3>
                     <button
                       onClick={() => setIsEditing(true)}
                       className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"

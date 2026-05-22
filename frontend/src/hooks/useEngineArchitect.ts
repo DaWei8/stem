@@ -200,7 +200,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
 
   commitScript: async (script, projectId, messageId) => {
     const { addVariable, variables } = useVariables.getState()
-    const { addTable, addColumn, tables } = useDatabase.getState()
+    const { addTable, addColumn, tables, columns } = useDatabase.getState()
     const { addConstant, addFunction, addDependency, constants, functions, dependencies } = useLogic.getState()
 
     toast.loading('Executing engine transactions...')
@@ -212,7 +212,13 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const label = match[1]
         const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string'
         const scope = match[2]?.match(/scope:\s*"([^"]+)"/)?.[1] || 'persistent'
-        if (!useVariables.getState().variables.some(v => v.label === label)) {
+        
+        const existingVar = useVariables.getState().variables.find(v => v.label === label)
+        if (existingVar) {
+          if (existingVar.type !== type || existingVar.scope !== scope) {
+            await useVariables.getState().updateVariable(projectId, existingVar.id, { type: type as any, scope: scope as any })
+          }
+        } else {
           await addVariable(projectId, { label, type: type as any, scope: scope as any }, true)
         }
       }
@@ -222,8 +228,18 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       for (const match of constMatches) {
         const name = match[1]
         const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string'|'number'|'boolean'|'json'
-        const value = match[2]?.match(/value:\s*"([^"]*)"/)?.[1] || ''
-        if (!useLogic.getState().constants.some(c => c.name === name)) {
+        
+        // Correctly match strings with escaped nested quotes
+        const valueMatch = match[2]?.match(/value:\s*"((?:\\.|[^"\\])*)"/)
+        let value = valueMatch ? valueMatch[1] : ''
+        value = value.replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+
+        const existingConst = useLogic.getState().constants.find(c => c.name === name)
+        if (existingConst) {
+          if (existingConst.value !== value || existingConst.type !== type) {
+            await useLogic.getState().updateConstant(projectId, existingConst.id, name, value, type)
+          }
+        } else {
           await addConstant(projectId, name, value, type, true)
         }
       }
@@ -249,7 +265,10 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
           const currentTables = useDatabase.getState().tables
           const tableId = currentTables.find(t => t.name === tableName)?.id
           if (tableId) {
-            await addColumn(projectId, tableId, { name, type, is_primary_key: pkStr === 'true' }, true)
+            const columnExists = useDatabase.getState().columns.some(c => c.table_id === tableId && c.name === name)
+            if (!columnExists) {
+              await addColumn(projectId, tableId, { name, type, is_primary_key: pkStr === 'true' }, true)
+            }
           }
         }
       }
@@ -270,7 +289,14 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
         const name = match[1]
         const version = match[2]?.match(/version:\s*"([^"]+)"/)?.[1] || 'latest'
         const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm'|'api'|'service'
-        if (!useLogic.getState().dependencies.some(d => d.name === name)) {
+        
+        const existingDep = useLogic.getState().dependencies.find(d => d.name === name)
+        if (existingDep) {
+          if (existingDep.version !== version || existingDep.type !== type) {
+            await useLogic.getState().deleteDependency(projectId, existingDep.id)
+            await addDependency(projectId, name, version, type, true)
+          }
+        } else {
           await addDependency(projectId, name, version, type, true)
         }
       }

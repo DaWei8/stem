@@ -12,6 +12,7 @@ import { useIdentity } from '@/hooks/useIdentity'
 import { useParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { StandardModal } from '@/components/ui/StandardModal'
 
 export function IdentityBot() {
   const { id: projectId } = useParams()
@@ -31,6 +32,9 @@ export function IdentityBot() {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'chat'>('chat')
   const [filterQuery, setFilterQuery] = useState('')
+
+  const [showReview, setShowReview] = useState(false)
+  const [pendingCommit, setPendingCommit] = useState<{ id: string; script: string } | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -66,9 +70,16 @@ export function IdentityBot() {
     toast.success('STEM-script copied')
   }
 
-  const handleCommit = async (msgId: string, script: string) => {
-    if (!projectId) return
-    await commitScript(script, projectId as string, msgId)
+  const handleCommit = (msgId: string, script: string) => {
+    setPendingCommit({ id: msgId, script })
+    setShowReview(true)
+  }
+
+  const executeCommit = async () => {
+    if (!projectId || !pendingCommit) return
+    setShowReview(false)
+    await commitScript(pendingCommit.script, projectId as string, pendingCommit.id)
+    setPendingCommit(null)
   }
 
   return (
@@ -77,8 +88,28 @@ export function IdentityBot() {
       animate={{ width: 380, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="shrink-0 bg-white dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full overflow-hidden transition-colors duration-300"
+      className="shrink-0 bg-white dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full overflow-hidden transition-colors duration-300 relative"
     >
+      <StandardModal
+        isOpen={showReview}
+        onClose={() => { setShowReview(false); setPendingCommit(null); }}
+        title="Review Identity Commit"
+        confirmText="Confirm Commit"
+        onConfirm={executeCommit}
+        className="max-w-md"
+      >
+        <div className="space-y-4 text-xs p-1">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
+            <strong>Disclaimer:</strong> This action will synchronize user roles and RLS policies with the STEM-script blueprint. Existing roles will be updated in-place and policies targeting the same table will be recreated. Please verify the blueprint below before committing.
+          </div>
+          <div className="space-y-1">
+            <span className="font-mono text-[9px] text-zinc-400">Blueprint Script:</span>
+            <pre className="p-3 bg-zinc-950 text-emerald-400 font-mono text-[10px] rounded max-h-[150px] overflow-y-auto">
+              <code>{pendingCommit?.script}</code>
+            </pre>
+          </div>
+        </div>
+      </StandardModal>
       {/* Header Tabs */}
       <div className="flex items-center gap-4 px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
         <h3 className="text-sm font-bold flex items-center gap-2 text-black text-nowrap dark:text-white">

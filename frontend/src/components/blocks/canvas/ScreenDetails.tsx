@@ -15,6 +15,7 @@ import { useSystemArchitect } from '@/hooks/useSystemArchitect'
 import { Markdown } from '@/components/ui/Markdown'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { StandardModal } from '@/components/ui/StandardModal'
 
 interface Props {
   page: any
@@ -336,8 +337,42 @@ export function ScreenDetails({
 }
 
 function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: any) {
+  const [showReview, setShowReview] = useState(false)
+  const [isCommitting, setIsCommitting] = useState(false)
+
+  const handleConfirmCommit = async () => {
+    setShowReview(false)
+    setIsCommitting(true)
+    try {
+      await commitScript(msg.script!, projectId)
+    } finally {
+      setIsCommitting(false)
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-3", msg.role === 'user' ? "items-end" : "items-start")}>
+      <StandardModal
+        isOpen={showReview}
+        onClose={() => setShowReview(false)}
+        title="Review Architecture Commit"
+        confirmText={isCommitting ? "Committing..." : "Confirm Commit"}
+        onConfirm={handleConfirmCommit}
+        className="max-w-md text-black dark:text-white"
+      >
+        <div className="space-y-4 text-xs p-1">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
+            <strong>Disclaimer:</strong> This action will synchronize the database schema and logic registry with the STEM-script blueprint. Existing variables, constants, tables, columns, functions, and dependencies will be updated in-place rather than duplicated. Please verify the blueprint below before committing.
+          </div>
+          <div className="space-y-1">
+            <span className="font-mono text-[9px] text-zinc-400">Blueprint Script:</span>
+            <pre className="p-3 bg-zinc-950 text-emerald-400 font-mono text-[10px] rounded max-h-[150px] overflow-y-auto">
+              <code>{msg.script}</code>
+            </pre>
+          </div>
+        </div>
+      </StandardModal>
+
       <div className={cn(
         "max-w-[90%] p-4 text-[11px] font-bold leading-relaxed shadow-sm transition-all",
         msg.role === 'user'
@@ -369,16 +404,18 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: a
             <code>{msg.script}</code>
           </pre>
           <button
-            onClick={() => commitScript(msg.script!, projectId)}
-            className="w-full h-12 bg-white text-black text-[11px] font-black hover:bg-emerald-500 hover:text-white transition-all active:scale-[0.98]"
+            onClick={() => setShowReview(true)}
+            disabled={isCommitting}
+            className="w-full h-12 bg-white text-black text-[11px] font-black hover:bg-emerald-500 hover:text-white transition-all active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
           >
-            Commit Architecture
+            {isCommitting ? 'Committing...' : 'Commit Architecture'}
           </button>
         </motion.div>
       )}
     </div>
   )
 }
+
 
 function FlowSection({ icon, title, screens, onSelect }: { icon: any; title: string; screens: any[]; onSelect?: any }) {
   return (

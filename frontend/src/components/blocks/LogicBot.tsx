@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { StandardModal } from '@/components/ui/StandardModal'
 
 export function LogicBot() {
   const { id: projectId } = useParams()
@@ -40,6 +41,9 @@ export function LogicBot() {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'chat'>('overview')
   const [filterQuery, setFilterQuery] = useState('')
+
+  const [showReview, setShowReview] = useState(false)
+  const [pendingCommit, setPendingCommit] = useState<{ script: string } | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -99,9 +103,16 @@ export function LogicBot() {
     toast.success('STEM-script copied')
   }
 
-  const handleCommit = async (script: string) => {
-    if (!projectId) return
-    await commitScript(script, projectId as string)
+  const handleCommit = (script: string) => {
+    setPendingCommit({ script })
+    setShowReview(true)
+  }
+
+  const executeCommit = async () => {
+    if (!projectId || !pendingCommit) return
+    setShowReview(false)
+    await commitScript(pendingCommit.script, projectId as string)
+    setPendingCommit(null)
   }
 
   const stats = [
@@ -120,7 +131,27 @@ export function LogicBot() {
   )
 
   return (
-    <div className="w-[380px] shrink-0 bg-white dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full overflow-hidden transition-colors duration-300">
+    <div className="w-[380px] shrink-0 bg-white dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full overflow-hidden transition-colors duration-300 relative">
+      <StandardModal
+        isOpen={showReview}
+        onClose={() => { setShowReview(false); setPendingCommit(null); }}
+        title="Review Logic Commit"
+        confirmText="Confirm Commit"
+        onConfirm={executeCommit}
+        className="max-w-md"
+      >
+        <div className="space-y-4 text-xs p-1">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
+            <strong>Disclaimer:</strong> This action will synchronize screens, triggers, mutations, and flows with the STEM-script blueprint. If duplicate items exist, they will be updated or bypassed. Please verify the blueprint below before committing.
+          </div>
+          <div className="space-y-1">
+            <span className="font-mono text-[9px] text-zinc-400">Blueprint Script:</span>
+            <pre className="p-3 bg-zinc-950 text-emerald-400 font-mono text-[10px] rounded max-h-[150px] overflow-y-auto">
+              <code>{pendingCommit?.script}</code>
+            </pre>
+          </div>
+        </div>
+      </StandardModal>
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden flex flex-col">

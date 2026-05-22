@@ -208,7 +208,12 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
         const description = match[2]?.match(/description:\s*"([^"]*)"/)?.[1] || ''
         
         const currentRoles = useIdentity.getState().userTypes
-        if (!currentRoles.some(u => u.name === name)) {
+        const existingRole = currentRoles.find(u => u.name === name)
+        if (existingRole) {
+          if (existingRole.description !== description) {
+            await useIdentity.getState().updateUserType(projectId, existingRole.id, { description })
+          }
+        } else {
           await addUserType(projectId, { name, description }, true)
         }
       }
@@ -228,6 +233,10 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
         const tableId = useDatabase.getState().tables.find(t => t.name === tableName)?.id
         
         if (roleId && tableId) {
+          const existingPol = useIdentity.getState().policies.find(p => p.table_id === tableId && p.name === name)
+          if (existingPol) {
+            await deletePolicy(projectId, existingPol.id)
+          }
           await addPolicy(projectId, {
             name,
             user_type_id: roleId,

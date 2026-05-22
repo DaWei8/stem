@@ -42,14 +42,6 @@ export function CanvasToolbar({
             <ShieldAlert className="w-3 h-3" />
           </Button>
         </Tooltip>
-        <Tooltip content="Version Snapshot: Save a read-only checkpoint of the current system state">
-          <Button
-            onClick={onCreateSnapshot}
-            className="h-8 rounded-none px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
-          >
-            <HistoryIcon className="w-3 h-3" />
-          </Button>
-        </Tooltip>
 
         <Tooltip content="Auto-Arrange Nodes: Deterministically organize the architecture to resolve overlaps and maintain spacing.">
           <Button
