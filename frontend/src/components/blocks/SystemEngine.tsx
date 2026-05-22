@@ -14,7 +14,8 @@ import {
   Search,
   MoreVertical,
   Trash2,
-  ShieldAlert
+  ShieldAlert,
+  Monitor
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState, useMemo } from 'react'
@@ -43,6 +44,7 @@ import {
 // Sub-components (Data Engine)
 import { DataEntityTable } from './dataengine/DataEntityTable'
 import { DataStateTable } from './dataengine/DataStateTable'
+import { FrontendLogicTab } from './dataengine/FrontendLogicTab'
 
 // Sub-components (Logic Layer)
 import { ConstantCard } from '@/components/logic/ConstantCard'
@@ -175,6 +177,7 @@ export function SystemEngine() {
     { id: 'state', name: 'Variables', icon: Layers, count: variables.length + constants.length },
     { id: 'schema', name: 'Data Schema', icon: Database, count: tables.length },
     { id: 'logic', name: 'Cloud Logic', icon: Code2, count: functions.length },
+    { id: 'frontend', name: 'UI Flows', icon: Monitor, count: inputs.length + outputs.length + actions.length },
     { id: 'deps', name: 'Dependencies', icon: Package, count: dependencies.length },
   ]
 
@@ -411,6 +414,18 @@ export function SystemEngine() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {activeTab === 'frontend' && (
+                <FrontendLogicTab
+                  pages={pages}
+                  inputs={inputs}
+                  outputs={outputs}
+                  actions={actions}
+                  variables={variables}
+                  functions={functions}
+                  searchQuery={searchQuery}
+                />
               )}
 
               {activeTab === 'deps' && (

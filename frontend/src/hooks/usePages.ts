@@ -28,6 +28,7 @@ interface PagesState {
   removeOutput: (id: string) => Promise<void>
   updateInput: (id: string, updates: Partial<ScreenInput>) => Promise<void>
   updateOutput: (id: string, updates: Partial<ScreenOutput>) => Promise<void>
+  updateAction: (id: string, updates: Partial<ScreenAction>) => Promise<void>
   selectedNodeId: string | null
   setSelectedNodeId: (id: string | null) => void
 }
@@ -348,6 +349,19 @@ export const usePages = create<PagesState>((set) => ({
     if (error) {
       toast.error('Failed to update output')
       set({ outputs: previous })
+    }
+  },
+
+  updateAction: async (id, updates) => {
+    const previous = usePages.getState().actions
+    set((state) => ({
+      actions: state.actions.map((a) => (a.id === id ? { ...a, ...updates } : a)),
+    }))
+
+    const { error } = await supabase.from('page_actions').update(updates).eq('id', id)
+    if (error) {
+      toast.error('Failed to update action')
+      set({ actions: previous })
     }
   }
 }))

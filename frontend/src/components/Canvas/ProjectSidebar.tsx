@@ -23,7 +23,8 @@ export function ProjectSidebar({
   selectedNode, selectedNodes = [], projectId, onSelectScreen, onTriggerDelete 
 }: ProjectSidebarProps) {
   const {
-    pages, inputs, actions, outputs, transitions, updatePage, addInput, addAction, addOutput
+    pages, inputs, actions, outputs, transitions, updatePage, addInput, addAction, addOutput,
+    updateInput, updateOutput, updateAction, removeInput, removeOutput, removeAction
   } = usePages()
   const { variables } = useVariables()
   const { components, fetchComponents, tokens, fetchTokens } = useDesignSystem()
@@ -63,6 +64,12 @@ export function ProjectSidebar({
             addInput={addInput}
             addAction={addAction}
             addOutput={addOutput}
+            updateInput={updateInput}
+            updateOutput={updateOutput}
+            updateAction={updateAction}
+            removeInput={removeInput}
+            removeOutput={removeOutput}
+            removeAction={removeAction}
             onSelectScreen={onSelectScreen}
             onDelete={() => onTriggerDelete?.(selectedPage.id)}
           />

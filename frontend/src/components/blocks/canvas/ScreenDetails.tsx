@@ -16,6 +16,10 @@ import { Markdown } from '@/components/ui/Markdown'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { StandardModal } from '@/components/ui/StandardModal'
+import { useLogic } from '@/hooks/useLogic'
+import { EditInputModal } from './EditInputModal'
+import { EditOutputModal } from './EditOutputModal'
+import { EditActionModal } from './EditActionModal'
 
 interface Props {
   page: any
@@ -26,12 +30,20 @@ interface Props {
   addInput: any
   addAction: any
   addOutput: any
+  updateInput: any
+  updateOutput: any
+  updateAction: any
+  removeInput: any
+  removeOutput: any
+  removeAction: any
   onSelectScreen?: (id: string) => void
   onDelete: () => void
 }
 
 export function ScreenDetails({
-  page, allPages, transitions, availableVariables, updatePage, addInput, addAction, addOutput, onSelectScreen, onDelete
+  page, allPages, transitions, availableVariables, updatePage, addInput, addAction, addOutput,
+  updateInput, updateOutput, updateAction, removeInput, removeOutput, removeAction,
+  onSelectScreen, onDelete
 }: Props) {
   const { columns, tables } = useDatabase()
   const { policies, userTypes } = useIdentity()
@@ -45,8 +57,19 @@ export function ScreenDetails({
   const [activeTab, setActiveTab] = useState('overview')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const [editingInput, setEditingInput] = useState<any>(null)
+  const [editingOutput, setEditingOutput] = useState<any>(null)
+  const [editingAction, setEditingAction] = useState<any>(null)
+
+  const { constants, functions: availableFunctions, fetchLogicData } = useLogic()
   const { messages, isArchitecting, generateSystem, commitScript, addMessage } = useSystemArchitect()
   const projectId = page.project_id
+
+  useEffect(() => {
+    if (projectId) {
+      fetchLogicData(projectId)
+    }
+  }, [projectId, fetchLogicData])
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -145,7 +168,7 @@ export function ScreenDetails({
                         <Shield className="size-4 text-red-500" />
                       </div>
                       <div className="flex flex-col">
-                        <h3 className="text-xs font-medium text-black dark:text-white  tracking-tight">Access Constraints</h3>
+                        <h3 className="text-[10px] font-medium text-black dark:text-white  tracking-tight">Access Constraints</h3>
                       </div>
                     </div>
                     {allowedRoles.length === 0 ? (
@@ -217,10 +240,10 @@ export function ScreenDetails({
                       const tablePolicies = table ? policies.filter(p => p.table_id === table.id) : []
 
                       return (
-                        <div key={i.id} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-4 group shadow-sm">
+                        <div key={i.id} onClick={() => setEditingInput(i)} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-4 group shadow-sm hover:border-blue-500/50 cursor-pointer transition-colors">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-black text-black dark:text-white  font-mono tracking-tight">{i.name}</span>
-                            <button className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="size-3.5" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete input "${i.name}"?`)) removeInput(i.id) }} className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="size-3.5" /></button>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <span className="text-[9px] font-black px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
@@ -258,9 +281,16 @@ export function ScreenDetails({
                     onAdd={() => addOutput(page.id, { name: `output_${(page.outputs || []).length + 1}`, output_type: 'state_update' })}
                     items={page.outputs || []}
                     renderItem={(o) => (
-                      <div key={o.id} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-emerald-500/50">
-                        <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400  font-mono">{o.name}</span>
-                        <button className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                      <div key={o.id} onClick={() => setEditingOutput(o)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-emerald-500/50 cursor-pointer">
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400  font-mono">{o.name}</span>
+                          {o.variable_id && (
+                            <span className="text-[9px] font-black px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50 self-start">
+                              Linked: {availableVariables.find(v => v.id === o.variable_id)?.label || 'Variable'}
+                            </span>
+                          )}
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete output "${o.name}"?`)) removeOutput(o.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
                       </div>
                     )}
                   />
@@ -270,12 +300,26 @@ export function ScreenDetails({
                     icon={<Zap className="size-3.5 text-amber-500" />}
                     onAdd={() => addAction(page.id, { name: `trigger_${(page.actions || []).length + 1}`, action_type: 'function_call' })}
                     items={page.actions || []}
-                    renderItem={(a) => (
-                      <div key={a.id} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-amber-500/50">
-                        <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400 font-mono">{a.name}</span>
-                        <button className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
-                      </div>
-                    )}
+                    renderItem={(a) => {
+                      const linkedFunc = availableFunctions.find(f => f.id === a.function_id)
+                      return (
+                        <div key={a.id} onClick={() => setEditingAction(a)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-amber-500/50 cursor-pointer">
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400 font-mono">{a.name}</span>
+                            {linkedFunc ? (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/50 self-start">
+                                Call: {linkedFunc.name}()
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 bg-zinc-50 dark:bg-zinc-900 text-zinc-400 border border-zinc-200 dark:border-zinc-800 self-start">
+                                Pure Frontend
+                              </span>
+                            )}
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete trigger "${a.name}"?`)) removeAction(a.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                        </div>
+                      )
+                    }}
                   />
                 </div>
 
@@ -332,6 +376,39 @@ export function ScreenDetails({
           </AnimatePresence>
         </div>
       </Tabs>
+
+      {editingInput && (
+        <EditInputModal
+          isOpen={!!editingInput}
+          onClose={() => setEditingInput(null)}
+          inputItem={editingInput}
+          availableVariables={availableVariables}
+          onUpdate={updateInput}
+          onRemove={removeInput}
+        />
+      )}
+
+      {editingOutput && (
+        <EditOutputModal
+          isOpen={!!editingOutput}
+          onClose={() => setEditingOutput(null)}
+          outputItem={editingOutput}
+          availableVariables={availableVariables}
+          onUpdate={updateOutput}
+          onRemove={removeOutput}
+        />
+      )}
+
+      {editingAction && (
+        <EditActionModal
+          isOpen={!!editingAction}
+          onClose={() => setEditingAction(null)}
+          actionItem={editingAction}
+          availableFunctions={availableFunctions}
+          onUpdate={updateAction}
+          onRemove={removeAction}
+        />
+      )}
     </div>
   )
 }
