@@ -147,8 +147,8 @@ export interface ScreenInput {
   page_id: string
   name: string
   input_type: string
-  variable_id: string
-  label?: string
+  variable_id?: string | null
+  label?: string | null
 }
 
 export interface ScreenAction {
@@ -156,7 +156,7 @@ export interface ScreenAction {
   page_id: string
   name: string
   action_type: string
-  function_id?: string
+  function_id?: string | null
 }
 
 export interface ScreenOutput {
@@ -164,7 +164,7 @@ export interface ScreenOutput {
   page_id: string
   name: string
   output_type: string
-  variable_id?: string
+  variable_id?: string | null
 }
 
 

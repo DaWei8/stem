@@ -1,25 +1,39 @@
 'use client'
 
-import { useState, useMemo, useRef, useEffect } from 'react'
-import {
-  Fingerprint, Zap, Database, Trash2, Save, ChevronRight, ArrowRight, Folder, ShieldCheck, Terminal, Copy, Check, Send, Loader2, Lock, Unlock, Shield
-} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { Markdown } from '@/components/ui/Markdown'
+import { StandardModal } from '@/components/ui/StandardModal'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useIdentity } from '@/hooks/useIdentity'
-import { SidebarSection } from './helpers'
-import { useSystemArchitect } from '@/hooks/useSystemArchitect'
-import { Markdown } from '@/components/ui/Markdown'
-import { cn } from '@/lib/utils'
-import { motion, AnimatePresence } from 'framer-motion'
-import { StandardModal } from '@/components/ui/StandardModal'
 import { useLogic } from '@/hooks/useLogic'
+import { useSystemArchitect } from '@/hooks/useSystemArchitect'
+import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  ArrowRight,
+  Check,
+  ChevronRight,
+  Copy,
+  Database,
+  Fingerprint,
+  Folder,
+  Loader2, Lock,
+  Save,
+  Send,
+  Shield,
+  ShieldCheck, Terminal,
+  Trash2,
+  Unlock,
+  Zap
+} from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { EditActionModal } from './EditActionModal'
 import { EditInputModal } from './EditInputModal'
 import { EditOutputModal } from './EditOutputModal'
-import { EditActionModal } from './EditActionModal'
+import { SidebarSection } from './helpers'
 
 interface Props {
   page: any
