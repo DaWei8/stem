@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Hash, Copy, Check, Table, Eye, Terminal, Edit3, Save, RotateCcw } from 'lucide-react'
+import { X, Hash, Copy, Check, Table, Eye, Terminal, Edit3, Save, RotateCcw, ShieldAlert } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useParams } from 'next/navigation'
@@ -278,6 +278,13 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         <div className="flex-1 flex flex-col min-h-0">
           {isEditing ? (
             <div className="space-y-3 flex-1 flex flex-col min-h-0">
+              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-2.5">
+                <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review Required</p>
+                  <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Review changes before saving. Duplicate constant names in this project are strictly prohibited.</p>
+                </div>
+              </div>
               <label className="text-[9px] font-black  text-zinc-400 dark:text-zinc-500 tracking-wider">Payload Editor</label>
               <textarea
                 value={editValue}

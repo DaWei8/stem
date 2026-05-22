@@ -207,11 +207,14 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
 
     try {
       // 1. DEFINE VARIABLE
-      const varMatches = [...script.matchAll(/DEFINE VARIABLE\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      const varMatches = [...script.matchAll(/DEFINE VARIABLE\s+"([^"]+)"\s*\{([\s\S]*?)\}(?=\s*(?:DEFINE\s+(?:CONSTANT|VARIABLE|TABLE|FUNCTION)|ADD\s+DEPENDENCY|ADD\s+COLUMN\s+TO|$))/g)]
       for (const match of varMatches) {
         const label = match[1]
-        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string'
-        const scope = match[2]?.match(/scope:\s*"([^"]+)"/)?.[1] || 'persistent'
+        const typeMatch = match[2]?.match(/type:\s*(?:"([^"]+)"|'([^']+)')/)
+        const type = typeMatch ? (typeMatch[1] || typeMatch[2]) : 'string'
+        
+        const scopeMatch = match[2]?.match(/scope:\s*(?:"([^"]+)"|'([^']+)')/)
+        const scope = scopeMatch ? (scopeMatch[1] || scopeMatch[2]) : 'persistent'
 
         const existingVar = useVariables.getState().variables.find(v => v.label === label)
         if (existingVar) {
@@ -224,15 +227,22 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       }
 
       // 2. DEFINE CONSTANT
-      const constMatches = [...script.matchAll(/DEFINE CONSTANT\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      const constMatches = [...script.matchAll(/DEFINE CONSTANT\s+"([^"]+)"\s*\{([\s\S]*?)\}(?=\s*(?:DEFINE\s+(?:CONSTANT|VARIABLE|TABLE|FUNCTION)|ADD\s+DEPENDENCY|ADD\s+COLUMN\s+TO|$))/g)]
       for (const match of constMatches) {
         const name = match[1]
-        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string') as 'string' | 'number' | 'boolean' | 'json'
+        const typeMatch = match[2]?.match(/type:\s*(?:"([^"]+)"|'([^']+)')/)
+        const type = (typeMatch ? (typeMatch[1] || typeMatch[2]) : 'string') as 'string' | 'number' | 'boolean' | 'json'
 
-        // Correctly match strings with escaped nested quotes
-        const valueMatch = match[2]?.match(/value:\s*"((?:\\.|[^"\\])*)"/)
-        let value = valueMatch ? valueMatch[1] : ''
-        value = value.replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+        // Correctly match strings with single or double quotes, and handle nested JSON
+        const valueMatch = match[2]?.match(/value:\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)')/)
+        let value = ''
+        if (valueMatch) {
+          if (valueMatch[1] !== undefined) {
+            value = valueMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+          } else if (valueMatch[2] !== undefined) {
+            value = valueMatch[2].replace(/\\'/g, "'").replace(/\\\\/g, '\\')
+          }
+        }
 
         const existingConst = useLogic.getState().constants.find(c => c.name === name)
         if (existingConst) {
@@ -254,12 +264,17 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       }
 
       // 4. ADD COLUMN TO TABLE
-      const colMatches = [...script.matchAll(/ADD COLUMN TO\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      const colMatches = [...script.matchAll(/ADD COLUMN TO\s+"([^"]+)"\s*\{([\s\S]*?)\}(?=\s*(?:DEFINE\s+(?:CONSTANT|VARIABLE|TABLE|FUNCTION)|ADD\s+DEPENDENCY|ADD\s+COLUMN\s+TO|$))/g)]
       for (const match of colMatches) {
         const tableName = match[1]
-        const name = match[2]?.match(/name:\s*"([^"]+)"/)?.[1]
-        const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'text'
-        const pkStr = match[2]?.match(/pk:\s*(true|false)/)?.[1]
+        const nameMatch = match[2]?.match(/name:\s*(?:"([^"]+)"|'([^']+)')/)
+        const name = nameMatch ? (nameMatch[1] || nameMatch[2]) : undefined
+        
+        const typeMatch = match[2]?.match(/type:\s*(?:"([^"]+)"|'([^']+)')/)
+        const type = typeMatch ? (typeMatch[1] || typeMatch[2]) : 'text'
+        
+        const pkMatch = match[2]?.match(/pk:\s*(true|false)/)
+        const pkStr = pkMatch ? pkMatch[1] : 'false'
 
         if (name) {
           const currentTables = useDatabase.getState().tables
@@ -274,21 +289,25 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
       }
 
       // 5. DEFINE FUNCTION
-      const funcMatches = [...script.matchAll(/DEFINE FUNCTION\s+"([^"]+)"(?:\s*\{([^}]*)\})?/g)]
+      const funcMatches = [...script.matchAll(/DEFINE FUNCTION\s+"([^"]+)"(?:\s*\{([\s\S]*?)\})?(?=\s*(?:DEFINE\s+(?:CONSTANT|VARIABLE|TABLE|FUNCTION)|ADD\s+DEPENDENCY|ADD\s+COLUMN\s+TO|$))/g)]
       for (const match of funcMatches) {
         const name = match[1]
-        const description = match[2]?.match(/description:\s*"([^"]*)"/)?.[1] || ''
+        const descMatch = match[2]?.match(/description:\s*(?:"([^"]*)"|'([^']*)')/)
+        const description = descMatch ? (descMatch[1] || descMatch[2]) : ''
         if (!useLogic.getState().functions.some(f => f.name === name)) {
           await addFunction(projectId, name, description, true)
         }
       }
 
       // 6. ADD DEPENDENCY
-      const depMatches = [...script.matchAll(/ADD DEPENDENCY\s+"([^"]+)"\s*\{([^}]*)\}/g)]
+      const depMatches = [...script.matchAll(/ADD DEPENDENCY\s+"([^"]+)"\s*\{([\s\S]*?)\}(?=\s*(?:DEFINE\s+(?:CONSTANT|VARIABLE|TABLE|FUNCTION)|ADD\s+DEPENDENCY|ADD\s+COLUMN\s+TO|$))/g)]
       for (const match of depMatches) {
         const name = match[1]
-        const version = match[2]?.match(/version:\s*"([^"]+)"/)?.[1] || 'latest'
-        const type = (match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'npm') as 'npm' | 'api' | 'service'
+        const versionMatch = match[2]?.match(/version:\s*(?:"([^"]+)"|'([^']+)')/)
+        const version = versionMatch ? (versionMatch[1] || versionMatch[2]) : 'latest'
+        
+        const typeMatch = match[2]?.match(/type:\s*(?:"([^"]+)"|'([^']+)')/)
+        const type = (typeMatch ? (typeMatch[1] || typeMatch[2]) : 'npm') as 'npm' | 'api' | 'service'
 
         const existingDep = useLogic.getState().dependencies.find(d => d.name === name)
         if (existingDep) {

@@ -16,6 +16,19 @@ function checkSafety(...inputs: (string | null | undefined)[]) {
 export async function addConstantAction(projectId: string, name: string, value: string, type: string) {
   checkSafety(name, value)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project
+  const { data: existing } = await supabase
+    .from('constants')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Constant with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('constants')
     .insert([{ project_id: projectId, name, value, type }])
@@ -30,6 +43,19 @@ export async function addConstantAction(projectId: string, name: string, value: 
 export async function addFunctionAction(projectId: string, name: string, description?: string) {
   checkSafety(name, description)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project
+  const { data: existing } = await supabase
+    .from('functions')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Function with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('functions')
     .insert([{ 
@@ -51,6 +77,19 @@ export async function addFunctionAction(projectId: string, name: string, descrip
 export async function addDependencyAction(projectId: string, name: string, version: string, type: string) {
   checkSafety(name, version, type)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project
+  const { data: existing } = await supabase
+    .from('dependencies')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Dependency with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('dependencies')
     .insert([{ project_id: projectId, name, version, type }])
@@ -98,6 +137,20 @@ export async function deleteDependencyAction(projectId: string, id: string) {
 export async function updateConstantAction(projectId: string, id: string, name: string, value: string, type: string) {
   checkSafety(name, value)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project for other constants
+  const { data: existing } = await supabase
+    .from('constants')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .neq('id', id)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Another constant with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('constants')
     .update({ name, value, type })
@@ -122,6 +175,20 @@ export async function updateFunctionAction(
 ) {
   checkSafety(name, description, returnType, implementationCode)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project for other functions
+  const { data: existing } = await supabase
+    .from('functions')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .neq('id', id)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Another function with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('functions')
     .update({
@@ -151,6 +218,20 @@ export async function updateDependencyAction(
 ) {
   checkSafety(name, version, type)
   const supabase = await createClient()
+
+  // Enforce uniqueness within project for other dependencies
+  const { data: existing } = await supabase
+    .from('dependencies')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('name', name)
+    .neq('id', id)
+    .maybeSingle()
+
+  if (existing) {
+    throw new Error(`Another dependency with name "${name}" already exists in this project.`)
+  }
+
   const { data, error } = await supabase
     .from('dependencies')
     .update({

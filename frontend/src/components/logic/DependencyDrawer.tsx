@@ -94,8 +94,8 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
         <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-3">
           <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Injection Protection Enabled</p>
-            <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Dependency name and versions are validated to prevent command injections or malicious registry strings.</p>
+            <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review & Safety Active</p>
+            <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Please review details before saving. Duplicate dependencies are prohibited in the same project. Name and version fields are sanitized.</p>
           </div>
         </div>
 

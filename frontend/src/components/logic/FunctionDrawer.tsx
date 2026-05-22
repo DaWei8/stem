@@ -113,8 +113,8 @@ export function FunctionDrawer({ func, onClose }: Props) {
         <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-3">
           <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Injection Shield Active</p>
-            <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Input containing HTML script tags, direct eval constructs, process/child_process, or suspicious system execution statements will be blocked automatically.</p>
+            <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review & Safety Shield Active</p>
+            <p className="text-[9px] text-zinc-500 leading-normal mt-0.5">Please review your changes before saving. Duplicate function names in the same project are prohibited. Code injections (XSS, exec, eval) are blocked.</p>
           </div>
         </div>
 
