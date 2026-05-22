@@ -1,8 +1,7 @@
 const script = `
-DEFINE CONSTANT "CURRENCY_CODES" { type: "string", value: "[\\"USD\\", \\"EUR\\", \\"GBP\\", \\"JPY\\"]" }
-DEFINE CONSTANT "PRODUCT_STATUS_TYPES" { type: "string", value: "[\\"draft\\", \\"published\\", \\"archived\\", \\"out_of_stock\\", \\"pending_review\\"]" }
-DEFINE CONSTANT "APPLICATION_STATUS_TYPES" { type: "string", value: "[\\"pending\\", \\"approved\\", \\"rejected\\", \\"in_review\\", \\"cancelled\\"]" }
-DEFINE CONSTANT "MESSAGE_TYPES" { type: "string", value: "[\\"text\\", \\"image\\", \\"video\\", \\"file\\", \\"system\\"]" }
+DEFINE CONSTANT "CURRENCY_CODES" { type: "string", value: '["USD", "EUR", "GBP", "JPY"]' }
+DEFINE CONSTANT "DEFAULT_LANGUAGE" { type: "string", value: 'en' }
+DEFINE CONSTANT "PRODUCT_STATUS_TYPES" { type: "string", value: "[\\"draft\\", \\"published\\"]" }
 `;
 
 console.log("Input script:", script);
@@ -13,13 +12,24 @@ console.log("Matches count:", constMatches.length);
 for (const match of constMatches) {
   const name = match[1];
   const type = match[2]?.match(/type:\s*"([^"]+)"/)?.[1] || 'string';
-  const valueMatch = match[2]?.match(/value:\s*"((?:\\.|[^"\\])*)"/);
-  const rawValue = valueMatch ? valueMatch[1] : '';
-  let value = rawValue.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  
+  // Robust regex matching either double-quoted or single-quoted values
+  const valueMatch = match[2]?.match(/value:\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)')/);
+  
+  let value = '';
+  if (valueMatch) {
+    if (valueMatch[1] !== undefined) {
+      // Double-quoted string
+      value = valueMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    } else if (valueMatch[2] !== undefined) {
+      // Single-quoted string
+      value = valueMatch[2].replace(/\\'/g, "'").replace(/\\\\/g, '\\');
+    }
+  }
   
   console.log(`Parsed Name: "${name}"`);
   console.log(`Parsed Type: "${type}"`);
-  console.log(`Raw captured value: "${rawValue}"`);
-  console.log(`Replaced value: "${value}"`);
+  console.log(`Matched parts:`, valueMatch ? [valueMatch[1], valueMatch[2]] : null);
+  console.log(`Final value: "${value}"`);
   console.log("---");
 }
