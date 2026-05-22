@@ -1,16 +1,15 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Code2, MoreVertical, Edit3, Trash2 } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
+import { Code2, Edit3, MoreVertical, Trash2 } from 'lucide-react'
 
 interface FunctionCardProps {
   func: any
