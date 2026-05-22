@@ -11,7 +11,9 @@ import {
   Layers,
   Package,
   Plus,
-  Search
+  Search,
+  MoreVertical,
+  Trash2
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState, useMemo } from 'react'
@@ -30,6 +32,12 @@ import { PillarHeader } from '@/components/layout/PillarHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { StandardModal } from '@/components/ui/StandardModal'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 // Sub-components (Data Engine)
 import { DataEntityTable } from './dataengine/DataEntityTable'
@@ -39,6 +47,8 @@ import { DataStateTable } from './dataengine/DataStateTable'
 import { ConstantCard } from '@/components/logic/ConstantCard'
 import { ConstantDrawer } from '@/components/logic/ConstantDrawer'
 import { FunctionCard } from '@/components/logic/FunctionCard'
+import { FunctionDrawer } from '@/components/logic/FunctionDrawer'
+import { DependencyDrawer } from '@/components/logic/DependencyDrawer'
 import { DataLineagePanel } from './dataengine/DataLineagePanel'
 import { TableDetailsDrawer } from './dataengine/TableDetailsDrawer'
 import { EngineBot } from './EngineBot'
@@ -51,6 +61,8 @@ export function SystemEngine() {
   const [selectedVarId, setSelectedVarId] = useState<string | null>(null)
   const [selectedConstantId, setSelectedConstantId] = useState<string | null>(null)
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
+  const [selectedFunctionId, setSelectedFunctionId] = useState<string | null>(null)
+  const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null)
 
   // Modals & Forms State
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false)
@@ -92,6 +104,8 @@ export function SystemEngine() {
   const selectedVar = variables.find(v => v.id === selectedVarId)
   const selectedConstant = constants.find(c => c.id === selectedConstantId)
   const selectedTable = tables.find(t => t.id === selectedTableId)
+  const selectedFunction = functions.find(f => f.id === selectedFunctionId)
+  const selectedDependency = dependencies.find(d => d.id === selectedDependencyId)
 
   const varSourceMap = useMemo(() => {
     const map: Record<string, { table: string; column: string }> = {}
@@ -245,7 +259,7 @@ export function SystemEngine() {
 
   return (
     <div className="flex h-full w-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
-      <div className={cn("flex-1 w-full overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || selectedTableId || isOpen) && "pr-4")}>
+      <div className={cn("flex-1 w-full overflow-y-auto p-8 space-y-8 custom-scrollbar", (selectedVarId || selectedConstantId || selectedTableId || selectedFunctionId || selectedDependencyId || isOpen) && "pr-4")}>
         <PillarHeader
           title="System Engine"
           description="The unified backend of your system. Orchestrate persistent schemas, transient state, and deterministic cloud logic."
@@ -376,7 +390,19 @@ export function SystemEngine() {
               {activeTab === 'logic' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {functions.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase())).map(f => (
-                    <FunctionCard key={f.id} func={f} onDelete={id => deleteFunction(projectId, id)} />
+                    <FunctionCard
+                      key={f.id}
+                      func={f}
+                      onDelete={id => deleteFunction(projectId, id)}
+                      onClick={() => {
+                        setSelectedFunctionId(selectedFunctionId === f.id ? null : f.id)
+                        setSelectedVarId(null)
+                        setSelectedConstantId(null)
+                        setSelectedTableId(null)
+                        setSelectedDependencyId(null)
+                      }}
+                      isSelected={selectedFunctionId === f.id}
+                    />
                   ))}
                   {functions.length === 0 && (
                     <div className="col-span-full py-8 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-[10px] text-zinc-400 font-bold uppercase">
@@ -388,17 +414,55 @@ export function SystemEngine() {
 
               {activeTab === 'deps' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {dependencies.map(d => (
-                    <div key={d.id} className="p-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 group hover:border-black dark:hover:border-white transition-all">
-                      <div className="size-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
-                        <Package className="size-5 text-zinc-400" />
+                  {dependencies.map(d => {
+                    const isSelected = selectedDependencyId === d.id
+                    return (
+                      <div
+                        key={d.id}
+                        onClick={() => {
+                          setSelectedDependencyId(isSelected ? null : d.id)
+                          setSelectedVarId(null)
+                          setSelectedConstantId(null)
+                          setSelectedTableId(null)
+                          setSelectedFunctionId(null)
+                        }}
+                        className={cn(
+                          "p-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4 group hover:border-black dark:hover:border-white transition-all cursor-pointer",
+                          isSelected && "border-zinc-400 dark:border-zinc-300"
+                        )}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="size-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
+                            <Package className="size-5 text-zinc-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-black dark:text-white">{d.name}</p>
+                            <p className="text-[10px] font-mono text-zinc-400">{d.type} v{d.version}</p>
+                          </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger render={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 rounded-none hover:bg-zinc-800 p-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="size-4 text-zinc-600" />
+                            </Button>
+                          } />
+                          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none">
+                            <DropdownMenuItem
+                              onClick={(e) => { e.stopPropagation(); deleteDependency(projectId, d.id); }}
+                              className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 cursor-pointer"
+                            >
+                              <Trash2 className="size-3 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <div>
-                        <p className="text-xs font-black text-black dark:text-white">{d.name}</p>
-                        <p className="text-[10px] font-mono text-zinc-400">{d.type} v{d.version}</p>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                   {dependencies.length === 0 && (
                     <div className="col-span-full py-8 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-[10px] text-zinc-400 font-bold uppercase">
                       No external dependencies. Click "New Entry" to add.
@@ -454,6 +518,20 @@ export function SystemEngine() {
             onAddColumn={async (tableId, columnData) => {
               await addColumn(projectId, tableId, columnData)
             }}
+          />
+        )}
+        {selectedFunction && (
+          <FunctionDrawer
+            key={`function-drawer-${selectedFunction.id}`}
+            func={selectedFunction}
+            onClose={() => setSelectedFunctionId(null)}
+          />
+        )}
+        {selectedDependency && (
+          <DependencyDrawer
+            key={`dependency-drawer-${selectedDependency.id}`}
+            dependency={selectedDependency}
+            onClose={() => setSelectedDependencyId(null)}
           />
         )}
         {isOpen && <EngineBot key="engine-bot-panel-drawer" />}

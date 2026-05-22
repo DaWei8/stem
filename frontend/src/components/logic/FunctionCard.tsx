@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Code2, MoreVertical, Edit3, Trash2 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +15,20 @@ import {
 interface FunctionCardProps {
   func: any
   onDelete: (id: string) => void
+  onClick?: () => void
+  isSelected?: boolean
 }
 
-export function FunctionCard({ func, onDelete }: FunctionCardProps) {
+export function FunctionCard({ func, onDelete, onClick, isSelected }: FunctionCardProps) {
   return (
     <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="bg-black border border-zinc-800 rounded-none shadow-none group hover:border-zinc-500 transition-all relative overflow-hidden">
+      <Card
+        onClick={onClick}
+        className={cn(
+          "bg-black border border-zinc-800 rounded-none shadow-none group hover:border-zinc-500 transition-all relative overflow-hidden cursor-pointer",
+          isSelected && "border-zinc-400"
+        )}
+      >
         <CardHeader className="p-5 flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-3">
             <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center">
@@ -34,15 +43,26 @@ export function FunctionCard({ func, onDelete }: FunctionCardProps) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger render={
-              <Button variant="ghost" size="icon" className="size-8 rounded-none hover:bg-black">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 rounded-none hover:bg-black"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="size-4 text-zinc-600" />
               </Button>
             } />
             <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none min-w-[140px]">
-              <DropdownMenuItem className="hover:bg-black rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-not-allowed opacity-50">
-                <Edit3 className="size-3" /> Edit Logic (Soon)
+              <DropdownMenuItem
+                onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+                className="hover:bg-zinc-900 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
+              >
+                <Edit3 className="size-3 text-purple-400" /> Edit Logic
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(func.id)} className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer">
+              <DropdownMenuItem
+                onClick={(e) => { e.stopPropagation(); onDelete(func.id); }}
+                className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
+              >
                 <Trash2 className="size-3" /> Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -57,3 +77,4 @@ export function FunctionCard({ func, onDelete }: FunctionCardProps) {
     </motion.div>
   )
 }
+

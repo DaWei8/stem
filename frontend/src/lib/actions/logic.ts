@@ -2,8 +2,19 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { validateLogicInput } from '@/lib/security'
+
+function checkSafety(...inputs: (string | null | undefined)[]) {
+  for (const input of inputs) {
+    const safety = validateLogicInput(input)
+    if (!safety.isValid) {
+      throw new Error(`Security Violation: ${safety.reason}`)
+    }
+  }
+}
 
 export async function addConstantAction(projectId: string, name: string, value: string, type: string) {
+  checkSafety(name, value)
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('constants')
@@ -17,6 +28,7 @@ export async function addConstantAction(projectId: string, name: string, value: 
 }
 
 export async function addFunctionAction(projectId: string, name: string, description?: string) {
+  checkSafety(name, description)
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('functions')
@@ -25,7 +37,8 @@ export async function addFunctionAction(projectId: string, name: string, descrip
       name, 
       description,
       return_type: 'void',
-      parameters: []
+      parameters: [],
+      implementation_language: 'pseudo-code'
     }])
     .select()
     .single()
@@ -36,6 +49,7 @@ export async function addFunctionAction(projectId: string, name: string, descrip
 }
 
 export async function addDependencyAction(projectId: string, name: string, version: string, type: string) {
+  checkSafety(name, version, type)
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('dependencies')
@@ -82,6 +96,7 @@ export async function deleteDependencyAction(projectId: string, id: string) {
 }
 
 export async function updateConstantAction(projectId: string, id: string, name: string, value: string, type: string) {
+  checkSafety(name, value)
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('constants')
@@ -94,3 +109,61 @@ export async function updateConstantAction(projectId: string, id: string, name: 
   revalidatePath(`/projects/${projectId}`)
   return data
 }
+
+export async function updateFunctionAction(
+  projectId: string,
+  id: string,
+  name: string,
+  description: string | null,
+  parameters: any[],
+  returnType: string | null,
+  implementationCode: string | null,
+  implementationLanguage: string | null = 'pseudo-code'
+) {
+  checkSafety(name, description, returnType, implementationCode)
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('functions')
+    .update({
+      name,
+      description,
+      parameters,
+      return_type: returnType,
+      implementation_code: implementationCode,
+      implementation_language: implementationLanguage,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
+
+export async function updateDependencyAction(
+  projectId: string,
+  id: string,
+  name: string,
+  version: string,
+  type: string
+) {
+  checkSafety(name, version, type)
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('dependencies')
+    .update({
+      name,
+      version,
+      type
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}
+

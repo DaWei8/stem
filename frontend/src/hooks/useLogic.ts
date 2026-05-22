@@ -10,7 +10,9 @@ import {
   deleteConstantAction,
   deleteFunctionAction,
   deleteDependencyAction,
-  updateConstantAction
+  updateConstantAction,
+  updateFunctionAction,
+  updateDependencyAction
 } from '@/lib/actions/logic'
 
 interface LogicConstant {
@@ -26,6 +28,8 @@ interface LogicFunction {
   description?: string
   return_type: string
   parameters: any[]
+  implementation_code?: string
+  implementation_language?: string
 }
 
 interface LogicDependency {
@@ -45,8 +49,25 @@ interface LogicState {
   updateConstant: (projectId: string, id: string, name: string, value: string, type: string) => Promise<void>
   deleteConstant: (projectId: string, id: string) => Promise<void>
   addFunction: (projectId: string, name: string, description?: string, silent?: boolean) => Promise<void>
+  updateFunction: (
+    projectId: string,
+    id: string,
+    name: string,
+    description: string | null,
+    parameters: any[],
+    returnType: string | null,
+    implementationCode: string | null,
+    implementationLanguage?: string | null
+  ) => Promise<void>
   deleteFunction: (projectId: string, id: string) => Promise<void>
   addDependency: (projectId: string, name: string, version: string, type: string, silent?: boolean) => Promise<void>
+  updateDependency: (
+    projectId: string,
+    id: string,
+    name: string,
+    version: string,
+    type: string
+  ) => Promise<void>
   deleteDependency: (projectId: string, id: string) => Promise<void>
 }
 
@@ -129,6 +150,18 @@ export const useLogic = create<LogicState>((set) => ({
     }
   },
 
+  updateFunction: async (projectId, id, name, description, parameters, returnType, implementationCode, implementationLanguage) => {
+    try {
+      const data = await updateFunctionAction(projectId, id, name, description, parameters, returnType, implementationCode, implementationLanguage)
+      set((state) => ({
+        functions: state.functions.map(f => f.id === id ? data : f)
+      }))
+      toast.success('Function updated successfully')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
+    }
+  },
+
   deleteFunction: async (projectId, id) => {
     try {
       await deleteFunctionAction(projectId, id)
@@ -148,6 +181,18 @@ export const useLogic = create<LogicState>((set) => ({
       }
     } catch (error: any) {
       toast.error(`Failed to add dependency: ${error.message}`)
+    }
+  },
+
+  updateDependency: async (projectId, id, name, version, type) => {
+    try {
+      const data = await updateDependencyAction(projectId, id, name, version, type)
+      set((state) => ({
+        dependencies: state.dependencies.map(d => d.id === id ? data : d)
+      }))
+      toast.success('Dependency updated successfully')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
     }
   },
 
