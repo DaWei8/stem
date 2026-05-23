@@ -228,7 +228,7 @@ export function ActionsSection({
   return (
     <SectionShell
       icon={<Play className="size-3" />}
-      title="Operations"
+      title="Triggers"
       count={actions.length}
       color="text-purple-400"
       isActiveFilter={isActiveFilter}

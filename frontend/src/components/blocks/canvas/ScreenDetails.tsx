@@ -18,8 +18,10 @@ import {
   ChevronRight,
   Copy,
   Database,
+  ExternalLink,
   Fingerprint,
   Folder,
+  Globe,
   Loader2, Lock,
   Save,
   Send,
@@ -68,6 +70,7 @@ export function ScreenDetails({
 
   const [title, setTitle] = useState(page.title)
   const [folder, setFolder] = useState(page.folder || '')
+  const [liveUrl, setLiveUrl] = useState(page.live_url || '')
   const [allowedRoles, setAllowedRoles] = useState<string[]>(page.allowed_roles || [])
   const [isSaving, setIsSaving] = useState(false)
   const [chatInput, setChatInput] = useState('')
@@ -127,7 +130,7 @@ export function ScreenDetails({
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      await updatePage(page.id, { title, folder, allowed_roles: allowedRoles })
+      await updatePage(page.id, { title, folder, live_url: liveUrl || null, allowed_roles: allowedRoles })
       toast.success('Architecture updated')
     } catch (err) {
       toast.error('Update failed')
@@ -183,6 +186,24 @@ export function ScreenDetails({
                       <div className="relative group">
                         <Folder className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
                         <Input value={folder} onChange={e => setFolder(e.target.value)} placeholder="Auth Flow, Dashboard..." className="pl-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs font-bold shadow-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-zinc-400  ml-1">Live URL</label>
+                      <div className="relative group">
+                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-emerald-500 transition-colors" />
+                        <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} placeholder="www.example.com/page" className="pl-10 pr-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs font-bold font-mono shadow-sm" />
+                        {liveUrl && (
+                          <button
+                            onClick={() => {
+                              const fullUrl = liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`
+                              window.open(fullUrl, '_blank', 'noopener,noreferrer')
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-emerald-500 transition-colors"
+                          >
+                            <ExternalLink className="size-3.5" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -374,7 +395,7 @@ export function ScreenDetails({
 
                   <SidebarSection
                     title="Active Triggers"
-                    icon={<Zap className="size-3.5 text-amber-500" />}
+                    icon={<Zap className="size-3.5 text-purple-500" />}
                     onAdd={() => addAction(page.id, { name: `trigger_${(page.actions || []).length + 1}`, action_type: 'function_call' })}
                     items={page.actions || []}
                     renderItem={(a) => {

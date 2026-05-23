@@ -111,7 +111,7 @@ export function EngineBot() {
       {/* Header Tabs */}
       <div className="flex items-center justify-between px-6 pt-4 shrink-0 border-b border-zinc-200 dark:border-zinc-800 pb-2">
         <h3 className="text-sm font-bold flex items-center gap-2 text-black dark:text-white">
-          <Database className="size-4 text-emerald-500" /> System Engine Architect
+          <Database className="size-4 text-blue-500" /> System Engine Architect
         </h3>
         <Button
           variant="ghost"

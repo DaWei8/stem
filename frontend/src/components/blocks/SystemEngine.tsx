@@ -177,7 +177,7 @@ export function SystemEngine() {
     { id: 'state', name: 'Variables', icon: Layers, count: variables.length + constants.length },
     { id: 'schema', name: 'Data Schema', icon: Database, count: tables.length },
     { id: 'logic', name: 'Cloud Logic', icon: Code2, count: functions.length },
-    { id: 'frontend', name: 'UI Flows', icon: Monitor, count: inputs.length + outputs.length + actions.length },
+    { id: 'frontend', name: 'UI Flows', icon: Monitor, count: pages.length },
     { id: 'deps', name: 'Dependencies', icon: Package, count: dependencies.length },
   ]
 

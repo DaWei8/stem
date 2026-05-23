@@ -138,6 +138,7 @@ export interface Screen {
   group_id?: string | null
   is_collapsed?: boolean
   allowed_roles?: string[]
+  live_url?: string | null
 }
 
 export interface PageConstraint {

@@ -1,4 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card'
+'use client'
+
 import { usePages } from '@/hooks/usePages'
 import { useUI } from '@/hooks/useUI'
 import { useVariables } from '@/hooks/useVariables'
@@ -6,12 +7,14 @@ import { cn } from '@/lib/utils'
 import { ScreenAction, ScreenInput, ScreenOutput } from '@/types'
 import { Handle, Node, NodeProps, Position } from '@xyflow/react'
 import { motion } from 'framer-motion'
-import { Database, Fingerprint, Play, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { Plus } from 'lucide-react'
+import { useState, useCallback } from 'react'
 
-import { NodeFooter } from './page-node/NodeFooter'
+import { PhoneFrame } from './page-node/PhoneFrame'
 import { NodeHeader } from './page-node/NodeHeader'
-import { ActionsSection, InputsSection, OutputsSection } from './page-node/NodeSections'
+import { NodeFooter } from './page-node/NodeFooter'
+import { ModuleStrips } from './page-node/ModuleStrips'
+import { LiveUrlBar } from './page-node/LiveUrlBar'
 
 
 export type PageNodeData = {
@@ -52,18 +55,13 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
   const addInput = usePages(s => s.addInput)
   const addAction = usePages(s => s.addAction)
   const addOutput = usePages(s => s.addOutput)
-  const removeInput = usePages(s => s.removeInput)
-  const removeAction = usePages(s => s.removeAction)
-  const removeOutput = usePages(s => s.removeOutput)
-  const updateInput = usePages(s => s.updateInput)
-  const updateOutput = usePages(s => s.updateOutput)
+  const updatePage = usePages(s => s.updatePage)
   const isPermissionDenied = filterType === 'permission'
-  const isEmpty = inputs.length === 0 && actions.length === 0 && outputs.length === 0
 
   const [isCompact, setIsCompact] = useState(false)
 
   /* ─── Inline Add Handlers ─── */
-  const handleAddInput = (e?: React.MouseEvent) => {
+  const handleAddInput = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation()
     if (variables.length === 0) return
     addInput(data.page_id, {
@@ -71,29 +69,32 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
       input_type: 'form_field',
       variable_id: variables[0].id,
     })
-  }
+  }, [variables, addInput, data.page_id, inputs.length])
 
-  const handleAddAction = (e?: React.MouseEvent) => {
+  const handleAddAction = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation()
     addAction(data.page_id, {
       name: `trigger_${actions.length + 1}`,
       action_type: 'function_call',
     })
-  }
+  }, [addAction, data.page_id, actions.length])
 
-  const handleAddOutput = (e?: React.MouseEvent) => {
+  const handleAddOutput = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation()
     addOutput(data.page_id, {
       name: `mutation_${outputs.length + 1}`,
       output_type: 'state_update',
     })
-  }
+  }, [addOutput, data.page_id, outputs.length])
+
+  const handleLiveUrlChange = useCallback((url: string) => {
+    updatePage(data.page_id, { live_url: url || null })
+  }, [updatePage, data.page_id])
 
   return (
     <div className={cn(
-      "w-[320px] group relative transition-all duration-500",
+      "w-[280px] group relative transition-all duration-500",
       selected && "z-50",
-      hasActiveFilter && !isFiltered && "opacity-20 grayscale-[0.5] scale-[0.98] blur-[0.5px]"
     )}>
       <Handle type="target" position={Position.Top} className="bg-zinc-800! border-zinc-700! w-3 h-3 hover:scale-150 transition-transform" />
 
@@ -102,123 +103,71 @@ export function PageNode({ data, selected }: NodeProps<Node<PageNodeData>>) {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => data.onAddNextPage?.(data.page_id)}
-        className="absolute -right-6 top-1/2 -translate-y-1/2 bg-white text-black size-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-50 border border-black shadow-[0_0_20px_rgba(255,255,255,0.2)] rounded-full"
+        className="absolute -right-6 top-1/2 -translate-y-1/2 bg-white text-black size-7 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-50 border border-black shadow-[0_0_20px_rgba(255,255,255,0.2)] rounded-full"
       >
-        <Plus className="size-4" />
+        <Plus className="size-3.5" />
       </motion.button>
 
-      {/* Outer Glow Shell */}
-      <div className={cn(
-        "relative p-px transition-all duration-500 rounded-xl overflow-hidden",
-        selected ? "bg-white" : (
-          data.activeStep ? "bg-green-500 shadow-[0_0_40px_rgba(34,197,94,0.6)] scale-[1.05] z-50" : (
-            (data.isStart || data.isEnd) ? "bg-green-500 shadow-[0_0_30px_rgba(34,197,94,0.4)]" :
-              (data.isHighlighted ? "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]" :
-                (data.isTraced ? "bg-white shadow-[0_0_40px_rgba(255,255,255,0.6)] scale-[1.05] z-50 animate-pulse" :
-                  (isFiltered ? "bg-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-[1.02]" : "bg-zinc-800 group-hover:bg-zinc-600")))
-          )
-        ),
-        data.simulationStatus === 'success' && !data.isStart && !data.isEnd && "bg-green-500",
-        data.simulationStatus === 'error' && "bg-red-500",
-        data.simulationStatus === 'warning' && "bg-amber-500",
-        data.validationWarnings && data.validationWarnings.length > 0 && "bg-amber-400 animate-pulse",
-        isPermissionDenied && "bg-red-500/50 opacity-60"
-      )}>
+      {/* ── Phone Frame Mockup ── */}
+      <PhoneFrame
+        isSelected={selected}
+        isActiveStep={data.activeStep}
+        isStart={data.isStart}
+        isEnd={data.isEnd}
+        isHighlighted={data.isHighlighted}
+        isTraced={data.isTraced}
+        isFiltered={isFiltered}
+        hasActiveFilter={hasActiveFilter}
+        simulationStatus={data.simulationStatus}
+        isPermissionDenied={isPermissionDenied}
+        validationWarnings={data.validationWarnings}
+      >
+        {/* Screen Header */}
+        <NodeHeader
+          label={data.label}
+          description={data.description}
+          pageType={data.page?.page_type}
+          isNew={data.isNew}
+          filterType={filterType}
+          isChaosMode={isChaosMode}
+          hasActions={actions.length > 0}
+          hasOutputs={outputs.length > 0}
+          validationWarnings={data.validationWarnings}
+          onToggleCompact={() => setIsCompact(!isCompact)}
+          isCompact={isCompact}
+        />
 
-        <Card className="bg-black border-none rounded-[11px] shadow-2xl overflow-hidden cursor-pointer">
-          {/* Level 1: Page Identity */}
-          <NodeHeader
-            label={data.label}
-            description={data.description}
-            pageType={data.page?.page_type}
-            isNew={data.isNew}
-            filterType={filterType}
-            isChaosMode={isChaosMode}
-            hasActions={actions.length > 0}
-            hasOutputs={outputs.length > 0}
-            validationWarnings={data.validationWarnings}
-            onToggleCompact={() => setIsCompact(!isCompact)}
-            isCompact={isCompact}
-          />
-
-          {/* Level 2-4: Functional Modules */}
-          {!isCompact && (
-            <CardContent className="p-0 divide-y divide-zinc-900/30">
-              {/* Interfaces (Inputs/Ports) */}
-              <InputsSection
-                inputs={inputs}
-                variables={variables}
-                isActiveFilter={filterType === 'inputs' || filterType === 'variables'}
-                onAdd={handleAddInput}
-                onRemove={(id) => removeInput(id)}
-                onRebindVariable={(inputId, varId) => updateInput(inputId, { variable_id: varId })}
-              />
-
-              {/* Operations (Triggers/Logic) */}
-              <ActionsSection
-                actions={actions}
-                isActiveFilter={filterType === 'triggers'}
-                onAdd={handleAddAction}
-                onRemove={(id) => removeAction(id)}
-              />
-
-              {/* State Mutations (Outputs) */}
-              <OutputsSection
-                outputs={outputs}
-                variables={variables}
-                isActiveFilter={filterType === 'outputs'}
-                onAdd={handleAddOutput}
-                onRemove={(id) => removeOutput(id)}
-                onRebindVariable={(outputId, varId) => updateOutput(outputId, { variable_id: varId })}
-              />
-
-              {/* Actionable empty state */}
-              {isEmpty && (
-                <div className="px-4 py-5 flex flex-col items-center gap-3">
-                  <div className="flex gap-0.5">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="w-1 h-4 bg-zinc-900 rounded-full" />
-                    ))}
-                  </div>
-                  <span className="text-[9px] text-zinc-700 font-mono italic">
-                    No logic defined
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={handleAddInput}
-                      className="flex items-center gap-1 text-[8px] font-bold text-blue-400/70 hover:text-blue-400 px-2 py-1 border border-blue-400/20 hover:border-blue-400/40 bg-blue-400/5 transition-all"
-                    >
-                      <Fingerprint className="size-2.5" /> Interface
-                    </button>
-                    <button
-                      onClick={handleAddAction}
-                      className="flex items-center gap-1 text-[8px] font-bold text-purple-400/70 hover:text-purple-400 px-2 py-1 border border-purple-400/20 hover:border-purple-400/40 bg-purple-400/5 transition-all"
-                    >
-                      <Play className="size-2.5" /> Operation
-                    </button>
-                    <button
-                      onClick={handleAddOutput}
-                      className="flex items-center gap-1 text-[8px] font-bold text-emerald-400/70 hover:text-emerald-400 px-2 py-1 border border-emerald-400/20 hover:border-emerald-400/40 bg-emerald-400/5 transition-all"
-                    >
-                      <Database className="size-2.5" /> Mutation
-                    </button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          )}
-
-          {/* Footer: Integrity + Stats */}
-          <NodeFooter
+        {/* Module Strips */}
+        {!isCompact && (
+          <ModuleStrips
             inputCount={inputs.length}
             actionCount={actions.length}
             outputCount={outputs.length}
-            isFiltered={isFiltered}
-            isPermissionDenied={isPermissionDenied}
-            isCompact={isCompact}
+            onAddInput={handleAddInput}
+            onAddAction={handleAddAction}
+            onAddOutput={handleAddOutput}
+            inputNames={inputs.map(i => i.name)}
+            actionNames={actions.map(a => a.name)}
+            outputNames={outputs.map(o => o.name)}
           />
-        </Card>
-      </div>
+        )}
+
+        {/* Live URL Bar */}
+        <LiveUrlBar
+          url={data.page?.live_url}
+          onChange={handleLiveUrlChange}
+        />
+
+        {/* Footer Stats */}
+        <NodeFooter
+          inputCount={inputs.length}
+          actionCount={actions.length}
+          outputCount={outputs.length}
+          isFiltered={isFiltered}
+          isPermissionDenied={isPermissionDenied}
+          isCompact={isCompact}
+        />
+      </PhoneFrame>
 
       {/* Source Handle (Success Path) */}
       <Handle type="source" position={Position.Bottom} className="bg-white! border-white! w-3 h-3 hover:scale-150 transition-transform" />
