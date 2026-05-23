@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { useIdentity } from './useIdentity'
 import { useDatabase } from './useDatabase'
+import { useVariables } from './useVariables'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 
@@ -15,6 +16,7 @@ interface Message {
   script?: string
   timestamp: number
   is_committed?: boolean
+  is_rejected?: boolean
 }
 
 interface IdentityArchitectState {
@@ -26,6 +28,8 @@ interface IdentityArchitectState {
   fetchMessages: (projectId: string) => Promise<void>
   generateSystem: (prompt: string, projectId: string) => Promise<void>
   commitScript: (script: string, projectId: string, messageId?: string) => Promise<void>
+  rejectScript: (messageId: string) => Promise<void>
+  restoreScript: (messageId: string) => Promise<void>
   clearHistory: () => void
 }
 
@@ -75,6 +79,7 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
           content: m.content,
           script: m.script,
           is_committed: m.is_committed,
+          is_rejected: m.is_rejected,
           timestamp: new Date(m.created_at).getTime()
         }))
       })
@@ -98,14 +103,16 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
 
       const { userTypes, policies } = useIdentity.getState()
       const { tables } = useDatabase.getState()
+      const { variables } = useVariables.getState()
 
       const projectData = {
         projectId,
         architecture: {
-          roles: userTypes.map(r => ({ id: r.id, name: r.name, description: r.description })),
+          roles: userTypes.map(r => ({ id: r.id, name: r.name, description: r.description, persona: r.persona })),
           tables: tables.map(t => ({ id: t.id, name: t.name })),
           policies: policies.map(p => ({ id: p.id, name: p.name, role_id: p.user_type_id, table_id: p.table_id, type: p.policy_type, logic: p.policy_logic }))
         },
+        variables: variables.map(v => ({ id: v.id, label: v.label, type: v.type, scope: v.scope })),
         meta: { version: '0.2.0', engine: 'STEM-ID-V1' }
       }
 
@@ -164,7 +171,8 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
           content: data.content,
           script: data.script,
           architect_type: 'identity',
-          is_committed: false
+          is_committed: false,
+          is_rejected: false
         }).select().single()
 
         if (savedMsg) {
@@ -174,6 +182,7 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
             content: data.content,
             script: data.script,
             is_committed: false,
+            is_rejected: false,
             timestamp: new Date(savedMsg.created_at).getTime()
           })
           return
@@ -247,6 +256,68 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
         }
       }
 
+      // 3. DEFINE PERSONA
+      const personaMatches = [...script.matchAll(/DEFINE PERSONA\s+"([^"]+)"\s+FOR ROLE\s+"([^"]+)"(?:\s*\{([\s\S]*?)\})?/g)]
+      for (const match of personaMatches) {
+        const personaName = match[1]
+        const roleName = match[2]
+        const body = match[3] || ''
+
+        let values: Record<string, any> = {}
+        const valuesMatch = body.match(/values:\s*\{([^}]*)\}/)
+        if (valuesMatch) {
+          const valuesStr = valuesMatch[1]
+          const pairMatches = [...valuesStr.matchAll(/([a-zA-Z0-9_]+)\s*:\s*([^,\n}]+)/g)]
+          pairMatches.forEach(pair => {
+            const key = pair[1].trim()
+            let valStr = pair[2].trim()
+            if (valStr.startsWith('"') && valStr.endsWith('"')) {
+              values[key] = valStr.slice(1, -1)
+            } else if (valStr.startsWith("'") && valStr.endsWith("'")) {
+              values[key] = valStr.slice(1, -1)
+            } else if (valStr === 'true') {
+              values[key] = true
+            } else if (valStr === 'false') {
+              values[key] = false
+            } else if (!isNaN(Number(valStr))) {
+              values[key] = Number(valStr)
+            } else {
+              try {
+                values[key] = JSON.parse(valStr)
+              } catch {
+                values[key] = valStr
+              }
+            }
+          })
+        }
+
+        const currentRoles = useIdentity.getState().userTypes
+        const targetRole = currentRoles.find(r => r.name === roleName)
+        if (targetRole) {
+          const currentPersona = targetRole.persona || { instances: [] }
+          const instances = currentPersona.instances || []
+          const existingInst = instances.find((i: any) => i.name === personaName)
+          let updatedInstances = []
+          if (existingInst) {
+            updatedInstances = instances.map((i: any) =>
+              i.name === personaName ? { ...i, values: { ...i.values, ...values } } : i
+            )
+          } else {
+            const newInst = {
+              id: `inst_${Math.random().toString(36).substring(7)}`,
+              name: personaName,
+              values
+            }
+            updatedInstances = [...instances, newInst]
+          }
+          const updatedPersona = {
+            ...currentPersona,
+            instances: updatedInstances
+          }
+          await useIdentity.getState().updateUserType(projectId, targetRole.id, { persona: updatedPersona })
+        }
+      }
+
       if (messageId) {
         await supabase.from('chat_messages').update({ is_committed: true }).eq('id', messageId)
         set(state => ({
@@ -259,6 +330,30 @@ export const useIdentityArchitect = create<IdentityArchitectState>((set, get) =>
     } catch (error) {
       toast.dismiss()
       toast.error('Transaction failed: Invalid STEM-script syntax')
+    }
+  },
+
+  rejectScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: true }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: true } : m)
+      }))
+      toast.success('Identity Architecture proposal rejected')
+    } catch (e) {
+      toast.error('Failed to reject proposal')
+    }
+  },
+
+  restoreScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: false }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: false } : m)
+      }))
+      toast.success('Identity Architecture proposal restored')
+    } catch (e) {
+      toast.error('Failed to restore proposal')
     }
   }
 }))

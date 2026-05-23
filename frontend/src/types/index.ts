@@ -103,6 +103,7 @@ export interface UserType {
   base_permissions?: any
   is_default?: boolean
   is_admin?: boolean
+  persona?: any
   created_at?: string
   updated_at?: string
 }
@@ -139,8 +140,19 @@ export interface Screen {
   allowed_roles?: string[]
 }
 
-
-
+export interface PageConstraint {
+  id: string
+  page_id: string
+  variable_id?: string | null
+  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'contains' | 'exists'
+  expected_value?: any
+  logic_operator?: 'and' | 'or' | null
+  error_message?: string | null
+  fallback_page_id?: string | null
+  custom_validation_function_id?: string | null
+  created_at?: string
+  updated_at?: string
+}
 
 export interface ScreenInput {
   id: string
@@ -149,6 +161,7 @@ export interface ScreenInput {
   input_type: string
   variable_id?: string | null
   label?: string | null
+  is_required?: boolean
 }
 
 export interface ScreenAction {
@@ -165,6 +178,7 @@ export interface ScreenOutput {
   name: string
   output_type: string
   variable_id?: string | null
+  output_config?: any
 }
 
 
@@ -311,6 +325,7 @@ export interface ProjectState {
     inputs: ScreenInput[]
     actions: ScreenAction[]
     outputs: ScreenOutput[]
+    constraints?: PageConstraint[]
   }
   schema: {
     tables: any[]

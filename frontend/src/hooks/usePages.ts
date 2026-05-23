@@ -11,6 +11,7 @@ interface PagesState {
   actions: ScreenAction[]
   outputs: ScreenOutput[]
   transitions: Transition[]
+  constraints: any[]
   isLoading: boolean
   error: string | null
   fetchProjectPages: (projectId: string) => Promise<void>
@@ -23,12 +24,15 @@ interface PagesState {
   addInput: (pageId: string, input: Partial<ScreenInput>) => Promise<void>
   addAction: (pageId: string, action: Partial<ScreenAction>) => Promise<void>
   addOutput: (pageId: string, output: Partial<ScreenOutput>) => Promise<void>
+  addConstraint: (pageId: string, constraint: any) => Promise<void>
   removeInput: (id: string) => Promise<void>
   removeAction: (id: string) => Promise<void>
   removeOutput: (id: string) => Promise<void>
+  removeConstraint: (id: string) => Promise<void>
   updateInput: (id: string, updates: Partial<ScreenInput>) => Promise<void>
   updateOutput: (id: string, updates: Partial<ScreenOutput>) => Promise<void>
   updateAction: (id: string, updates: Partial<ScreenAction>) => Promise<void>
+  updateConstraint: (id: string, updates: any) => Promise<void>
   selectedNodeId: string | null
   setSelectedNodeId: (id: string | null) => void
 }
@@ -41,6 +45,7 @@ export const usePages = create<PagesState>((set) => ({
   actions: [],
   outputs: [],
   transitions: [],
+  constraints: [],
   isLoading: false,
   error: null,
   selectedNodeId: null,
@@ -54,15 +59,16 @@ export const usePages = create<PagesState>((set) => ({
     set({ isLoading: true })
     
     try {
-      const [pagesRes, inputsRes, actionsRes, outputsRes, transRes] = await Promise.all([
+      const [pagesRes, inputsRes, actionsRes, outputsRes, transRes, constraintsRes] = await Promise.all([
         supabase.from('pages').select('*').eq('project_id', projectId),
         supabase.from('page_inputs').select('*'),
         supabase.from('page_actions').select('*'),
         supabase.from('page_outputs').select('*'),
-        supabase.from('page_flows').select('*').eq('project_id', projectId)
+        supabase.from('page_flows').select('*').eq('project_id', projectId),
+        supabase.from('constraints').select('*')
       ])
 
-      const error = pagesRes.error || inputsRes.error || actionsRes.error || outputsRes.error || transRes.error
+      const error = pagesRes.error || inputsRes.error || actionsRes.error || outputsRes.error || transRes.error || constraintsRes.error
       
       if (error) {
         console.error('Fetch error:', error)
@@ -75,7 +81,8 @@ export const usePages = create<PagesState>((set) => ({
           inputs: (inputsRes.data || []).filter(i => projectPageIds.has(i.page_id)),
           actions: (actionsRes.data || []).filter(a => projectPageIds.has(a.page_id)),
           outputs: (outputsRes.data || []).filter(o => projectPageIds.has(o.page_id)),
-          transitions: transRes.data || []
+          transitions: transRes.data || [],
+          constraints: (constraintsRes.data || []).filter(c => projectPageIds.has(c.page_id))
         })
       }
     } catch (err: any) {
@@ -362,6 +369,50 @@ export const usePages = create<PagesState>((set) => ({
     if (error) {
       toast.error('Failed to update action')
       set({ actions: previous })
+    }
+  },
+
+  addConstraint: async (pageId: string, constraint: any) => {
+    const { data, error } = await supabase
+      .from('constraints')
+      .insert([{ ...constraint, page_id: pageId }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase error adding constraint:', error)
+      toast.error(`Failed to add constraint: ${error.message}`)
+    } else {
+      set((state) => ({ constraints: [...state.constraints, data] }))
+      toast.success('Constraint added')
+    }
+  },
+
+  removeConstraint: async (id: string) => {
+    const previous = usePages.getState().constraints
+    set((state) => ({ constraints: state.constraints.filter((c) => c.id !== id) }))
+
+    const { error } = await supabase.from('constraints').delete().eq('id', id)
+    if (error) {
+      toast.error('Failed to remove constraint')
+      set({ constraints: previous })
+    } else {
+      toast.success('Constraint removed')
+    }
+  },
+
+  updateConstraint: async (id: string, updates: any) => {
+    const previous = usePages.getState().constraints
+    set((state) => ({
+      constraints: state.constraints.map((c) => (c.id === id ? { ...c, ...updates } : c)),
+    }))
+
+    const { error } = await supabase.from('constraints').update(updates).eq('id', id)
+    if (error) {
+      toast.error('Failed to update constraint')
+      set({ constraints: previous })
+    } else {
+      toast.success('Constraint updated')
     }
   }
 }))

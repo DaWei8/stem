@@ -6,6 +6,10 @@ import { DesignSystem } from '@/components/blocks/DesignSystem'
 import { SystemEngine } from '@/components/blocks/SystemEngine'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
 import { DocumentationView } from '@/components/blocks/DocumentationView'
+import { OverviewView } from '@/components/blocks/OverviewView'
+import { HistoryView } from '@/components/blocks/HistoryView'
+import { useActivityLogs } from '@/hooks/useActivityLogs'
+import { useCollaborators } from '@/hooks/useCollaborators'
 import { useUI } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
 import { useVariables } from '@/hooks/useVariables'
@@ -40,6 +44,8 @@ export default function ProjectEditorPage() {
   const { userTypes, policies, fetchIdentityData } = useIdentity()
   const { fetchLogicData } = useLogic()
   const { fetchMessages } = useSystemArchitect()
+  const { fetchLogs } = useActivityLogs()
+  const { fetchCollaborators, fetchInvitations } = useCollaborators()
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -178,6 +184,9 @@ export default function ProjectEditorPage() {
       fetchIdentityData(projectId)
       fetchLogicData(projectId)
       fetchMessages(projectId)
+      fetchLogs(projectId)
+      fetchCollaborators(projectId)
+      fetchInvitations(projectId)
     }
   }, [
     id,
@@ -187,7 +196,10 @@ export default function ProjectEditorPage() {
     fetchDatabaseData,
     fetchIdentityData,
     fetchLogicData,
-    fetchMessages
+    fetchMessages,
+    fetchLogs,
+    fetchCollaborators,
+    fetchInvitations
   ])
 
 
@@ -210,6 +222,10 @@ export default function ProjectEditorPage() {
         return <CollaboratorsView />
       case 'flows':
         return <Canvas />
+      case 'overview':
+        return <OverviewView />
+      case 'history':
+        return <HistoryView />
       default:
         return (
           <div className="flex items-center justify-center h-full text-zinc-600 bg-zinc-50 dark:bg-black transition-colors duration-300">

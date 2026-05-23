@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { ProjectState } from '@/types'
 
-export type PillarView = 'identity' | 'dataengine' | 'logic' | 'design' | 'flows' | 'export' | 'collaborators' | 'documentation' | 'observability' | 'lifecycle'
+export type PillarView = 'identity' | 'dataengine' | 'logic' | 'design' | 'flows' | 'export' | 'collaborators' | 'documentation' | 'observability' | 'lifecycle' | 'overview' | 'history'
 export type ProjectMode = 'design' | 'dev' | 'architect'
 export type CanvasFilterType = 'none' | 'inputs' | 'outputs' | 'triggers' | 'variables' | 'screens'
 
@@ -28,7 +28,7 @@ interface UIState {
 
 
 export const useUI = create<UIState>((set) => ({
-  activeView: 'flows',
+  activeView: 'overview',
   setActiveView: (view) => set({ activeView: view }),
   activeMode: 'architect',
   setActiveMode: (mode) => set({ activeMode: mode }),

@@ -20,6 +20,7 @@ import {
 import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { MarkdownText } from '@/components/ui/MarkdownText'
 
 export function IdentityBot() {
   const { id: projectId } = useParams()
@@ -28,6 +29,8 @@ export function IdentityBot() {
     isArchitecting,
     generateSystem,
     commitScript,
+    rejectScript,
+    restoreScript,
     fetchMessages,
     setIsOpen
   } = useIdentityArchitect()
@@ -106,7 +109,7 @@ export function IdentityBot() {
         onConfirm={executeCommit}
         className="max-w-md"
       >
-        <div className="space-y-4 text-xs p-1">
+        <div className="space-y-4 grid grid-cols-1 text-xs p-1">
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded">
             <strong>Disclaimer:</strong> This action will synchronize user roles and RLS policies with the STEM-script blueprint. Existing roles will be updated in-place and policies targeting the same table will be recreated. Please verify the blueprint below before committing.
           </div>
@@ -157,7 +160,7 @@ export function IdentityBot() {
                       ? "bg-black dark:bg-white text-white dark:text-black"
                       : "bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 backdrop-blur-md"
                   )}>
-                    {msg.content}
+                    <MarkdownText content={msg.content} />
                   </div>
 
                   {msg.script && (
@@ -176,36 +179,62 @@ export function IdentityBot() {
                   )}
 
                   {msg.script && (
-                    <div className="w-full mt-1 bg-zinc-950 border border-zinc-800 overflow-hidden group/script">
-                      <div className="h-9 bg-zinc-50 dark:bg-zinc-900/80 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
-                        <div className="flex items-center gap-2">
-                          <Terminal className="size-3 text-zinc-400 dark:text-zinc-500" />
-                          <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest">STEM-script</span>
-                        </div>
+                    msg.is_rejected ? (
+                      <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+                        <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
+                          <X className="size-3 text-red-500" />
+                          Architecture proposal rejected
+                        </span>
                         <button
-                          onClick={() => handleCopy(msg.id, msg.script!)}
-                          className="p-1 hover:text-black dark:hover:text-white text-zinc-400 dark:text-zinc-500 transition-colors"
+                          onClick={() => restoreScript(msg.id)}
+                          className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
                         >
-                          {copiedId === msg.id ? <Check className="size-3" /> : <Copy className="size-3" />}
+                          Restore
                         </button>
                       </div>
-                      <pre className="p-4 text-[10px] font-mono text-emerald-600 dark:text-green-400 overflow-x-auto selection:bg-emerald-500/20 max-h-[250px] transition-colors">
-                        <code>{msg.script}</code>
-                      </pre>
-                      <button
-                        onClick={() => handleCommit(msg.id, msg.script!)}
-                        disabled={msg.is_committed}
-                        className={cn(
-                          "w-full h-10 text-[10px] font-black flex items-center justify-center gap-2 transition-all border-t border-zinc-200 dark:border-zinc-800",
-                          msg.is_committed
-                            ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
-                            : "bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98]"
-                        )}
-                      >
-                        {msg.is_committed ? <Check className="size-3.5" /> : <Play className="size-3.5" />}
-                        {msg.is_committed ? 'Architecture Committed' : 'Commit Architecture'}
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="w-full mt-1 bg-zinc-950 border border-zinc-800 overflow-hidden group/script">
+                        <div className="h-9 bg-zinc-50 dark:bg-zinc-900/80 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <Terminal className="size-3 text-zinc-400 dark:text-zinc-500" />
+                            <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest">STEM-script</span>
+                          </div>
+                          <button
+                            onClick={() => handleCopy(msg.id, msg.script!)}
+                            className="p-1 hover:text-black dark:hover:text-white text-zinc-400 dark:text-zinc-500 transition-colors"
+                          >
+                            {copiedId === msg.id ? <Check className="size-3" /> : <Copy className="size-3" />}
+                          </button>
+                        </div>
+                        <pre className="p-4 text-[10px] font-mono text-emerald-600 dark:text-green-400 overflow-x-auto selection:bg-emerald-500/20 max-h-[250px] transition-colors">
+                          <code>{msg.script}</code>
+                        </pre>
+                        <div className="flex border-t border-zinc-200 dark:border-zinc-800">
+                          <button
+                            onClick={() => handleCommit(msg.id, msg.script!)}
+                            disabled={msg.is_committed}
+                            className={cn(
+                              "flex-1 h-10 text-[10px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-200 dark:border-zinc-800",
+                              msg.is_committed
+                                ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
+                                : "bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98]"
+                            )}
+                          >
+                            {msg.is_committed ? <Check className="size-3.5" /> : <Play className="size-3.5" />}
+                            {msg.is_committed ? 'Architecture Committed' : 'Commit'}
+                          </button>
+                          {!msg.is_committed && (
+                            <button
+                              onClick={() => rejectScript(msg.id)}
+                              className="px-4 h-10 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[10px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                            >
+                              <X className="size-3.5" />
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )
                   )}
                 </div>
               ))}

@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useIdentity } from '@/hooks/useIdentity'
 import { useLogic } from '@/hooks/useLogic'
+import { usePages } from '@/hooks/usePages'
 import { useSystemArchitect } from '@/hooks/useSystemArchitect'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -26,13 +27,16 @@ import {
   ShieldCheck, Terminal,
   Trash2,
   Unlock,
-  Zap
+  Zap,
+  X,
+  Play
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { EditActionModal } from './EditActionModal'
 import { EditInputModal } from './EditInputModal'
 import { EditOutputModal } from './EditOutputModal'
+import { EditConstraintModal } from './EditConstraintModal'
 import { SidebarSection } from './helpers'
 
 interface Props {
@@ -74,9 +78,15 @@ export function ScreenDetails({
   const [editingInput, setEditingInput] = useState<any>(null)
   const [editingOutput, setEditingOutput] = useState<any>(null)
   const [editingAction, setEditingAction] = useState<any>(null)
+  const [editingConstraint, setEditingConstraint] = useState<any>(null)
+
+  const constraints = usePages(s => s.constraints)
+  const addConstraint = usePages(s => s.addConstraint)
+  const updateConstraint = usePages(s => s.updateConstraint)
+  const removeConstraint = usePages(s => s.removeConstraint)
 
   const { constants, functions: availableFunctions, fetchLogicData } = useLogic()
-  const { messages, isArchitecting, generateSystem, commitScript, addMessage } = useSystemArchitect()
+  const { messages, isArchitecting, generateSystem, commitScript, rejectScript, restoreScript, addMessage } = useSystemArchitect()
   const projectId = page.project_id
 
   useEffect(() => {
@@ -109,6 +119,10 @@ export function ScreenDetails({
     const screens = transitions.filter(t => t.from_page_id === page.id).map(t => allPages.find(p => p.id === t.to_page_id)).filter(Boolean)
     return Array.from(new Map(screens.map(s => [s.id, s])).values())
   }, [transitions, page.id, allPages])
+
+  const pageConstraints = useMemo(() => {
+    return constraints.filter(c => c.page_id === page.id)
+  }, [constraints, page.id])
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -240,6 +254,53 @@ export function ScreenDetails({
                   </div>
                 </section>
 
+                {/* Logic Constraints */}
+                <section className="space-y-6 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                  <SidebarSection
+                    title="Logic Constraints"
+                    icon={<Shield className="size-3.5 text-red-500" />}
+                    onAdd={() => setEditingConstraint({})}
+                    items={pageConstraints}
+                    renderItem={(c) => {
+                      const variable = availableVariables.find(v => v.id === c.variable_id)
+                      const fallbackPage = allPages.find(p => p.id === c.fallback_page_id)
+                      return (
+                        <div
+                          key={c.id}
+                          onClick={() => setEditingConstraint(c)}
+                          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-2 group shadow-sm hover:border-red-500/50 cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-black dark:text-white font-mono tracking-tight">
+                              {variable?.label || 'Unknown'} {c.operator} {c.expected_value !== undefined ? (typeof c.expected_value === 'object' ? JSON.stringify(c.expected_value) : String(c.expected_value)) : ''}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (confirm('Delete this logical constraint?')) {
+                                  removeConstraint(c.id)
+                                }
+                              }}
+                              className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                          {c.error_message && (
+                            <p className="text-[9px] text-zinc-400 italic">"{c.error_message}"</p>
+                          )}
+                          {fallbackPage && (
+                            <div className="text-[8px] font-bold text-red-500 flex items-center gap-1">
+                              <span>Redirect:</span>
+                              <span className="font-mono">{fallbackPage.title || fallbackPage.name}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }}
+                  />
+                </section>
+
                 {/* Data Context */}
                 <div className="space-y-10 pt-10 border-t border-zinc-200 dark:border-zinc-800">
                   <SidebarSection
@@ -256,7 +317,9 @@ export function ScreenDetails({
                       return (
                         <div key={i.id} onClick={() => setEditingInput(i)} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-4 group shadow-sm hover:border-blue-500/50 cursor-pointer transition-colors">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-black text-black dark:text-white  font-mono tracking-tight">{i.name}</span>
+                            <span className="text-[11px] font-black text-black dark:text-white  font-mono tracking-tight">
+                              {i.name} {i.is_required && <span className="text-red-500 text-[8px] font-black uppercase ml-1">Required</span>}
+                            </span>
                             <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete input "${i.name}"?`)) removeInput(i.id) }} className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="size-3.5" /></button>
                           </div>
                           <div className="flex flex-wrap gap-2">
@@ -355,7 +418,16 @@ export function ScreenDetails({
               >
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-zinc-50 dark:bg-black/30">
                   {messages.map(msg => (
-                    <MessageBubble key={msg.id} msg={msg} copiedId={copiedId} handleCopy={handleCopy} commitScript={commitScript} projectId={projectId} />
+                    <MessageBubble
+                      key={msg.id}
+                      msg={msg}
+                      copiedId={copiedId}
+                      handleCopy={handleCopy}
+                      commitScript={commitScript}
+                      rejectScript={rejectScript}
+                      restoreScript={restoreScript}
+                      projectId={projectId}
+                    />
                   ))}
                   {isArchitecting && (
                     <div className="flex items-center gap-4 p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl">
@@ -423,11 +495,27 @@ export function ScreenDetails({
           onRemove={removeAction}
         />
       )}
+
+      {editingConstraint && (
+        <EditConstraintModal
+          isOpen={!!editingConstraint}
+          onClose={() => setEditingConstraint(null)}
+          constraintItem={editingConstraint.id ? editingConstraint : null}
+          availableVariables={availableVariables}
+          allPages={allPages}
+          currentPageId={page.id}
+          onSave={async (payload) => {
+            await addConstraint(page.id, payload)
+          }}
+          onUpdate={updateConstraint}
+          onRemove={removeConstraint}
+        />
+      )}
     </div>
   )
 }
 
-function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: any) {
+function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId }: any) {
   const [showReview, setShowReview] = useState(false)
   const [isCommitting, setIsCommitting] = useState(false)
 
@@ -435,7 +523,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: a
     setShowReview(false)
     setIsCommitting(true)
     try {
-      await commitScript(msg.script!, projectId)
+      await commitScript(msg.script!, projectId, msg.id)
     } finally {
       setIsCommitting(false)
     }
@@ -474,34 +562,70 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: a
       </div>
 
       {msg.script && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl"
-        >
-          <div className="h-10 bg-zinc-900/50 flex items-center justify-between px-4 border-b border-zinc-800/50">
-            <div className="flex items-center gap-2">
-              <Terminal className="size-3.5 text-emerald-500" />
-              <span className="text-[10px] font-black  text-zinc-500 tracking-widest">Blueprint Script</span>
-            </div>
+        msg.is_rejected ? (
+          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+            <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
+              <X className="size-3 text-red-500" />
+              Architecture proposal rejected
+            </span>
             <button
-              onClick={() => handleCopy(msg.id, msg.script!)}
-              className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all rounded-md"
+              onClick={() => restoreScript(msg.id)}
+              className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
             >
-              {copiedId === msg.id ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+              Restore
             </button>
           </div>
-          <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
-            <code>{msg.script}</code>
-          </pre>
-          <button
-            onClick={() => setShowReview(true)}
-            disabled={isCommitting}
-            className="w-full h-12 bg-white text-black text-[11px] font-black hover:bg-emerald-500 hover:text-white transition-all active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl"
           >
-            {isCommitting ? 'Committing...' : 'Commit Architecture'}
-          </button>
-        </motion.div>
+            <div className="h-10 bg-zinc-900/50 flex items-center justify-between px-4 border-b border-zinc-800/50">
+              <div className="flex items-center gap-2">
+                <Terminal className="size-3.5 text-emerald-500" />
+                <span className="text-[10px] font-black  text-zinc-500 tracking-widest">Blueprint Script</span>
+              </div>
+              <button
+                onClick={() => handleCopy(msg.id, msg.script!)}
+                className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all rounded-md"
+              >
+                {copiedId === msg.id ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+              </button>
+            </div>
+            <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
+              <code>{msg.script}</code>
+            </pre>
+            <div className="flex border-t border-zinc-850">
+              <button
+                onClick={() => {
+                  if (msg.is_committed) return;
+                  setShowReview(true);
+                }}
+                disabled={isCommitting || msg.is_committed}
+                className={cn(
+                  "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
+                  msg.is_committed
+                    ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
+                    : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
+                )}
+              >
+                {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
+                {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
+              </button>
+              {!msg.is_committed && (
+                <button
+                  type="button"
+                  onClick={() => rejectScript(msg.id)}
+                  className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <X className="size-3.5" />
+                  Reject
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )
       )}
     </div>
   )

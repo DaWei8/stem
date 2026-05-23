@@ -158,13 +158,6 @@ export default function ProjectsPage() {
                 </div>
               </div>
               <div className="h-8 w-px bg-zinc-800/50" />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-600 mb-1">Last Synced</span>
-                <div className="flex items-center gap-2 leading-none text-white">
-                  <span className="text-xl font-black">Online</span>
-                  <div className="size-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                </div>
-              </div>
             </div>
 
             <div className="h-10 w-px bg-zinc-800 ml-auto" />

@@ -160,7 +160,7 @@ export function InputsSection({
             >
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                 <span className="text-[10px] font-bold text-zinc-300 group-hover/item:text-white transition-colors truncate">
-                  {input.name || input.label}
+                  {input.name || input.label} {input.is_required && <span className="text-red-500 font-extrabold ml-1">*</span>}
                 </span>
                 <div className="flex items-center gap-1">
                   <div className="text-zinc-600">{typeIcon}</div>

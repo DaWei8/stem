@@ -12,7 +12,9 @@ import {
   Download,
   FileText,
   Activity,
-  GitBranch
+  GitBranch,
+  LayoutGrid,
+  History
 } from 'lucide-react'
 import { useUI, PillarView } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
@@ -21,6 +23,7 @@ import { motion } from 'framer-motion'
 import { ModeSwitcher } from '../layout/ModeSwitcher'
 
 const allPillars = [
+  { id: 'overview', name: 'Dashboard', icon: LayoutGrid, description: 'Project overview', modes: ['architect', 'design', 'dev'] },
   { id: 'flows', name: 'UI Flows', icon: LayoutTemplate, description: 'User journeys', modes: ['architect', 'design'] },
   { id: 'design', name: 'Design System', icon: Palette, description: 'Visual tokens', modes: ['architect', 'design'] },
   { id: 'dataengine', name: 'System Engine', icon: Brain, description: 'Logic & Schema', modes: ['architect', 'dev', 'design'] },
@@ -30,6 +33,7 @@ const allPillars = [
 const secondaryActions = [
   { id: 'documentation', name: 'Docs & Assets', icon: FileText, description: 'Specs & Blueprints' },
   { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
+  { id: 'history', name: 'Activity Log', icon: History, description: 'Audit trail & logs' }
 ]
 
 export function Sidebar() {

@@ -13,6 +13,8 @@ export interface SlideInModalProps {
   description?: string
   children: React.ReactNode
   footer?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full'
+  className?: string
 }
 
 export function SlideInModal({
@@ -21,8 +23,20 @@ export function SlideInModal({
   title,
   description,
   children,
-  footer
+  footer,
+  size = 'md',
+  className
 }: SlideInModalProps) {
+  const sizeClasses = {
+    sm: "sm:max-w-sm",
+    md: "sm:max-w-md",
+    lg: "sm:max-w-lg",
+    xl: "sm:max-w-xl",
+    "2xl": "sm:max-w-2xl",
+    "3xl": "sm:max-w-4xl",
+    full: "sm:max-w-full w-screen"
+  }
+
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogPrimitive.Portal>
@@ -31,7 +45,9 @@ export function SlideInModal({
         />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed inset-y-0 right-0 z-50 h-full w-full sm:max-w-md border-l border-zinc-800 bg-black p-0 shadow-2xl transition-transform duration-500 ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right flex flex-col focus:outline-none"
+            "fixed inset-y-0 right-0 z-50 h-full w-full border-l border-zinc-800 bg-black p-0 shadow-2xl transition-transform duration-500 ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right flex flex-col focus:outline-none",
+            sizeClasses[size],
+            className
           )}
         >
           {/* Header */}

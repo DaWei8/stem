@@ -11,6 +11,7 @@ import {
   Node,
 } from '@xyflow/react'
 import { usePages } from '@/hooks/usePages'
+import { useVariables } from '@/hooks/useVariables'
 import { useLogicBot } from '@/hooks/useLogicBot'
 import { useUI } from '@/hooks/useUI'
 import { useIdentity } from '@/hooks/useIdentity'
@@ -41,9 +42,11 @@ export type PageNodeData = {
 
 export function useCanvasLayout(projectId: string | undefined) {
   const {
-    pages, inputs, actions, outputs, transitions,
+    pages, inputs, actions, outputs, transitions, constraints,
     fetchProjectPages, addPage, addTransition, removeTransition, updateTransition, updatePage
   } = usePages()
+
+  const { variables, fetchVariables } = useVariables()
 
   const { canvasFilter, tracedItemId, isChaosMode, snapshot, activeVariableId } = useUI()
 
@@ -54,7 +57,8 @@ export function useCanvasLayout(projectId: string | undefined) {
   const [simulationParams, setSimulationParams] = useState({
     startPageId: '',
     endPageId: '',
-    userTypeId: ''
+    userTypeId: '',
+    personaInstanceId: ''
   })
   const [activePath, setActivePath] = useState<string[]>([])
   const [simulationStep, setSimulationStep] = useState(-1)
@@ -66,8 +70,9 @@ export function useCanvasLayout(projectId: string | undefined) {
   useEffect(() => {
     if (projectId) {
       fetchProjectPages(projectId)
+      fetchVariables(projectId)
     }
-  }, [projectId, fetchProjectPages])
+  }, [projectId, fetchProjectPages, fetchVariables])
 
   const addNextScreen = useCallback(async (parentId: string) => {
     if (!projectId) return
@@ -349,56 +354,223 @@ export function useCanvasLayout(projectId: string | undefined) {
     }
 
     const userTypeId = simulationParams.userTypeId
+    const personaInstanceId = simulationParams.personaInstanceId
     const { userTypes } = useIdentity.getState()
     const currentUserType = userTypes.find(u => u.id === userTypeId)
     const agentName = currentUserType ? currentUserType.name : 'Anonymous / Guest'
 
     setSimulationStatus('running')
-    setSimulationLogs([
-      `Initializing deterministic path analysis...`,
-      `Active Agent Identity: "${agentName}"`
-    ])
     setSimulationStep(-1)
     setActivePath([])
+
+    let initialState: Record<string, any> = {}
+    let personaName = 'Default Instance'
+
+    if (currentUserType?.persona?.instances && personaInstanceId && personaInstanceId !== 'default') {
+      const inst = currentUserType.persona.instances.find((i: any) => i.id === personaInstanceId)
+      if (inst) {
+        initialState = { ...inst.values }
+        personaName = inst.name
+      }
+    }
+
+    setSimulationLogs([
+      `Initializing stateful path analysis...`,
+      `Active Agent: "${agentName}" (Persona: "${personaName}")`,
+      `Initial Context State: ${JSON.stringify(initialState)}`
+    ])
+
+    const evaluateConstraint = (val: any, op: string, expected: any) => {
+      switch (op) {
+        case 'eq': return val === expected
+        case 'neq': return val !== expected
+        case 'gt': return val > expected
+        case 'gte': return val >= expected
+        case 'lt': return val < expected
+        case 'lte': return val <= expected
+        case 'in': return Array.isArray(expected) && expected.includes(val)
+        case 'nin': return !Array.isArray(expected) || !expected.includes(val)
+        case 'contains':
+          if (typeof val === 'string') return val.includes(expected)
+          if (Array.isArray(val)) return val.includes(expected)
+          return false
+        case 'exists': return val !== undefined && val !== null
+        default: return true
+      }
+    }
 
     // Helper: Verify if page is allowed for active role
     const isPageAllowed = (pageId: string) => {
       const page = pages.find(p => p.id === pageId)
       if (!page) return false
-      // If public (no roles defined), anyone can access
       if (!page.allowed_roles || page.allowed_roles.length === 0) return true
-      // If restricted, must match userTypeId
       if (!userTypeId) return false
       return page.allowed_roles.includes(userTypeId)
     }
 
-    // 1. Try to find a secure path first
-    const secureQueue: [string, string[]][] = [[simulationParams.startPageId, [simulationParams.startPageId]]]
-    const secureVisited = new Set<string>([simulationParams.startPageId])
-    let securePath: string[] | null = null
+    // 1. Stateful BFS to find a valid route
+    const queue: [string, string[], Record<string, any>, string[]][] = [
+      [
+        simulationParams.startPageId,
+        [simulationParams.startPageId],
+        { ...initialState },
+        []
+      ]
+    ]
+    const visited = new Set<string>()
+    let resolvedPath: string[] | null = null
+    let resolvedLogs: string[] = []
+    let resolvedFinalState: Record<string, any> = {}
 
+    // Check if start page is allowed
     if (isPageAllowed(simulationParams.startPageId)) {
-      while (secureQueue.length > 0) {
-        const [current, path] = secureQueue.shift()!
+      while (queue.length > 0) {
+        const [current, path, state, logs] = queue.shift()!
+        
         if (current === simulationParams.endPageId) {
-          securePath = path
+          resolvedPath = path
+          resolvedLogs = logs
+          resolvedFinalState = state
           break
         }
+
+        const stateKey = `${current}-${JSON.stringify(state)}`
+        if (visited.has(stateKey)) continue
+        visited.add(stateKey)
 
         const neighbors = transitions
           .filter(t => t.from_page_id === current)
           .map(t => t.to_page_id)
 
-        for (const next of neighbors) {
-          if (!secureVisited.has(next) && isPageAllowed(next)) {
-            secureVisited.add(next)
-            secureQueue.push([next, [...path, next]])
+        for (const nextId of neighbors) {
+          const nextPage = pages.find(p => p.id === nextId)
+          if (!nextPage) continue
+
+          // Check role access
+          if (!isPageAllowed(nextId)) continue
+
+          // Check required inputs
+          const pageInputs = inputs.filter(i => i.page_id === nextId)
+          let inputsSatisfied = true
+          for (const input of pageInputs) {
+            if (input.is_required) {
+              const v = variables.find(varItem => varItem.id === input.variable_id)
+              const val = v ? state[v.label] : undefined
+              if (val === undefined || val === null) {
+                inputsSatisfied = false
+                break
+              }
+            }
           }
+          if (!inputsSatisfied) continue
+
+          // Check constraints
+          const pageConstraints = constraints.filter(c => c.page_id === nextId)
+          let constraintsSatisfied = true
+          let fallbackTargetId: string | null = null
+          
+          for (const c of pageConstraints) {
+            const v = variables.find(varItem => varItem.id === c.variable_id)
+            const val = v ? (state[v.label] !== undefined ? state[v.label] : v.default_value) : undefined
+            const passed = evaluateConstraint(val, c.operator, c.expected_value)
+            
+            if (!passed) {
+              if (c.fallback_page_id) {
+                fallbackTargetId = c.fallback_page_id
+              } else {
+                constraintsSatisfied = false
+              }
+              break
+            }
+          }
+
+          if (!constraintsSatisfied) continue
+
+          let nextNodeId = nextId
+          let stepLogs = [...logs]
+
+          if (fallbackTargetId) {
+            const fallbackPage = pages.find(p => p.id === fallbackTargetId)
+            const fallbackTitle = fallbackPage?.title || fallbackPage?.name || 'Fallback'
+            stepLogs.push(`REDIRECT: Flow diverted to fallback "${fallbackTitle}" due to constraint mismatch.`)
+            nextNodeId = fallbackTargetId
+          }
+
+          // Apply mutations from outputs of nextNodeId
+          const nextState = { ...state }
+          const pageOutputs = outputs.filter(o => o.page_id === nextNodeId)
+          for (const out of pageOutputs) {
+            if (out.variable_id) {
+              const v = variables.find(varItem => varItem.id === out.variable_id)
+              if (v) {
+                const val = out.output_config?.value
+                nextState[v.label] = val
+                const name = nextPage.title || nextPage.name || 'Screen'
+                stepLogs.push(`MUTATE: [${name}] Set variable "${v.label}" = ${JSON.stringify(val)}`)
+              }
+            }
+          }
+
+          queue.push([nextNodeId, [...path, nextNodeId], nextState, stepLogs])
         }
       }
     }
 
-    // 2. If no secure path found, check if ANY unconstrained path exists to diagnose the issue
+    // 2. If a stateful path is found, animate and log it
+    if (resolvedPath) {
+      setActivePath(resolvedPath)
+      let step = 0
+      const animate = () => {
+        if (step < resolvedPath.length) {
+          setSimulationStep(step)
+          const currentId = resolvedPath[step]
+          const currentPage = pages.find(p => p.id === currentId)
+          const pageTitle = currentPage?.title || currentPage?.name || 'Screen'
+          const latency = 40 + Math.floor(Math.random() * 80)
+          
+          setSimulationLogs(prev => [
+            ...prev,
+            `[${step * 200}ms] Resolved: "${pageTitle}" (+${latency}ms logic overhead)`
+          ])
+
+          // Print any logs corresponding to this step/transition
+          const stepMutations = resolvedLogs.filter(log => log.includes(`[${pageTitle}]`))
+          if (stepMutations.length > 0) {
+            setSimulationLogs(prev => [...prev, ...stepMutations.map(m => `  ↳ ${m}`)])
+          }
+
+          // Print output mutation logs
+          const pageOutputs = outputs.filter(o => o.page_id === currentId)
+          pageOutputs.forEach(out => {
+            if (out.variable_id) {
+              const v = variables.find(varItem => varItem.id === out.variable_id)
+              if (v) {
+                const val = out.output_config?.value
+                setSimulationLogs(prev => [
+                  ...prev,
+                  `  ↳ Mutation: set state variable "${v.label}" = ${JSON.stringify(val)}`
+                ])
+              }
+            }
+          })
+
+          step++
+          simulationTimerRef.current = setTimeout(animate, 500)
+        } else {
+          setSimulationStatus('path_found')
+          setSimulationLogs(prev => [
+            ...prev,
+            `Simulation complete: Stateful flow baseline verified successfully.`,
+            `Final Context State: ${JSON.stringify(resolvedFinalState)}`
+          ])
+          toast.success(`Path resolved: ${resolvedPath.length} steps`)
+        }
+      }
+      animate()
+      return
+    }
+
+    // 3. Diagnostics Run: If no stateful path was found, trace structurally and report the block point
     const rawQueue: [string, string[]][] = [[simulationParams.startPageId, [simulationParams.startPageId]]]
     const rawVisited = new Set<string>([simulationParams.startPageId])
     let rawPath: string[] | null = null
@@ -422,7 +594,6 @@ export function useCanvasLayout(projectId: string | undefined) {
       }
     }
 
-    // If no path exists even without constraints, it's a structural connection gap
     if (!rawPath) {
       setSimulationStatus('path_not_found')
       setSimulationLogs(prev => [
@@ -435,69 +606,119 @@ export function useCanvasLayout(projectId: string | undefined) {
       return
     }
 
-    // If a raw path exists but no secure path, it's a security/governance block!
-    let blockedPageId: string | null = null
+    // Trace step-by-step structurally and pinpoint why state check blocked it
+    const pathToShow: string[] = []
+    let blockLogs: string[] = []
+    let tempState = { ...initialState }
     let blockedIndex = -1
 
     for (let i = 0; i < rawPath.length; i++) {
-      if (!isPageAllowed(rawPath[i])) {
-        blockedPageId = rawPath[i]
+      const currentId = rawPath[i]
+      const page = pages.find(p => p.id === currentId)
+      if (!page) break
+
+      pathToShow.push(currentId)
+
+      // Role check
+      if (!isPageAllowed(currentId)) {
         blockedIndex = i
+        const requiredRoles = page.allowed_roles || []
+        const requiredRoleNames = requiredRoles.map(rId => userTypes.find(u => u.id === rId)?.name || 'Unknown').join(', ')
+        blockLogs.push(`SECURITY VIOLATION: Access Denied at "${page.title || page.name}"`)
+        blockLogs.push(`↳ Page requires role(s): [${requiredRoleNames}]`)
+        blockLogs.push(`↳ Current agent identity has role: "${agentName}"`)
         break
+      }
+
+      // Check required inputs
+      const pageInputs = inputs.filter(inp => inp.page_id === currentId)
+      let inputBlocked = false
+      for (const input of pageInputs) {
+        if (input.is_required) {
+          const v = variables.find(varItem => varItem.id === input.variable_id)
+          const label = v ? v.label : 'unknown'
+          const val = v ? tempState[v.label] : undefined
+          if (val === undefined || val === null) {
+            blockedIndex = i
+            inputBlocked = true
+            blockLogs.push(`STATE VIOLATION: Required input "${label}" is missing at "${page.title || page.name}"`)
+            blockLogs.push(`↳ Simulation context state: ${JSON.stringify(tempState)}`)
+            break
+          }
+        }
+      }
+      if (inputBlocked) break
+
+      // Check constraints
+      const pageConstraints = constraints.filter(c => c.page_id === currentId)
+      let constraintBlocked = false
+      for (const c of pageConstraints) {
+        const v = variables.find(varItem => varItem.id === c.variable_id)
+        const label = v ? v.label : 'unknown'
+        const val = v ? (tempState[v.label] !== undefined ? tempState[v.label] : v.default_value) : undefined
+        const passed = evaluateConstraint(val, c.operator, c.expected_value)
+        
+        if (!passed) {
+          if (c.fallback_page_id) {
+            const fallback = pages.find(p => p.id === c.fallback_page_id)
+            blockLogs.push(`REDIRECT: Constraint on "${label}" failed. Rediverting flow to fallback screen "${fallback?.title || fallback?.name}".`)
+            rawPath[i + 1] = c.fallback_page_id
+          } else {
+            blockedIndex = i
+            constraintBlocked = true
+            blockLogs.push(`CONSTRAINT VIOLATION: Page guardrail failed at "${page.title || page.name}"`)
+            blockLogs.push(`↳ Constraint: ${label} ${c.operator} ${JSON.stringify(c.expected_value)}`)
+            blockLogs.push(`↳ Current value: ${JSON.stringify(val)}`)
+            break
+          }
+        }
+      }
+      if (constraintBlocked) break
+
+      // Apply mutations
+      const pageOutputs = outputs.filter(o => o.page_id === currentId)
+      for (const out of pageOutputs) {
+        if (out.variable_id) {
+          const v = variables.find(varItem => varItem.id === out.variable_id)
+          if (v) {
+            const val = out.output_config?.value
+            tempState[v.label] = val
+            blockLogs.push(`Mutated state at "${page.title || page.name}": set "${v.label}" = ${JSON.stringify(val)}`)
+          }
+        }
       }
     }
 
-    // We animate the path up to the blocked page to show the user exactly where they get stopped
-    const pathToShow = blockedIndex !== -1 ? rawPath.slice(0, blockedIndex + 1) : rawPath
     setActivePath(pathToShow)
-
     let step = 0
     const animate = () => {
       if (step < pathToShow.length) {
         setSimulationStep(step)
-        const currentPageId = pathToShow[step]
-        const currentPage = pages.find(p => p.id === currentPageId)
+        const currentId = pathToShow[step]
+        const currentPage = pages.find(p => p.id === currentId)
         const pageTitle = currentPage?.title || currentPage?.name || 'Screen'
-        const latency = 50 + Math.floor(Math.random() * 150)
 
-        // If this step is the blocked step, show failure
         if (blockedIndex !== -1 && step === blockedIndex) {
-          const requiredRoles = currentPage?.allowed_roles || []
-          const requiredRoleNames = requiredRoles.map((rId: string) => {
-            const ut = userTypes.find((u: any) => u.id === rId)
-            return ut ? ut.name : 'Unknown'
-          }).join(', ')
-
           setSimulationLogs(prev => [
             ...prev,
-            `[${step * 200}ms] SECURITY VIOLATION: Access Denied at "${pageTitle}"`,
-            `↳ Target page requires role(s): [${requiredRoleNames}]`,
-            `↳ Current agent identity has role: "${agentName}"`,
-            `CRITICAL: Simulation failed due to policy restriction.`
+            ...blockLogs,
+            `CRITICAL: Simulation failed due to policy or state restriction.`
           ])
           setSimulationStatus('path_not_found')
-          toast.error(`Access Denied: Required role not met at "${pageTitle}"`)
+          toast.error(`Simulation blocked at "${pageTitle}"`)
         } else {
           setSimulationLogs(prev => [
             ...prev,
-            `[${step * 200}ms] Resolved: "${pageTitle}" (+${latency}ms logic overhead)`
+            `[${step * 200}ms] Resolved: "${pageTitle}"`
           ])
           step++
-          simulationTimerRef.current = setTimeout(animate, 450)
-        }
-      } else {
-        if (blockedIndex === -1) {
-          setSimulationStatus('path_found')
-          setSimulationLogs(prev => [
-            ...prev,
-            'Simulation complete: Architectural baseline verified successfully.'
-          ])
-          toast.success(`Path resolved: ${pathToShow.length} steps`)
+          simulationTimerRef.current = setTimeout(animate, 500)
         }
       }
     }
     animate()
-  }, [simulationParams, transitions, pages])
+
+  }, [simulationParams, transitions, pages, inputs, outputs, constraints, variables])
 
   const stopSimulation = useCallback(() => {
     if (simulationTimerRef.current) {

@@ -20,6 +20,7 @@ import { PolicyRow } from './identity/PolicyRow'
 import { PolicySandbox } from './identity/PolicySandbox'
 import { RoleFormModal } from './identity/RoleFormModal'
 import { PolicyFormModal } from './identity/PolicyFormModal'
+import { PersonaManagerModal } from './identity/PersonaManagerModal'
 import { IdentityBot } from './IdentityBot'
 import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
 
@@ -28,7 +29,7 @@ export function IdentityPermissions() {
   const { userTypes, policies, fetchIdentityData, addUserType, deleteUserType, updateUserType, addPolicy, deletePolicy } = useIdentity()
   const { tables, fetchProjectData } = useDatabase()
   const { pages } = usePages()
-  const { variables } = useVariables()
+  const { variables, fetchVariables } = useVariables()
   const { setViewAsUserTypeId, viewAsUserTypeId } = useUI()
   const { isOpen, setIsOpen } = useIdentityArchitect()
 
@@ -37,6 +38,7 @@ export function IdentityPermissions() {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [editingRole, setEditingRole] = useState<any | null>(null)
+  const [managingPersonaRole, setManagingPersonaRole] = useState<any | null>(null)
   const [policyFilterUserType, setPolicyFilterUserType] = useState<string>('all')
   const [policyFilterOperation, setPolicyFilterOperation] = useState<string>('all')
 
@@ -44,8 +46,9 @@ export function IdentityPermissions() {
     if (projectId) {
       fetchIdentityData(projectId as string)
       fetchProjectData(projectId as string)
+      fetchVariables(projectId as string)
     }
-  }, [projectId, fetchIdentityData, fetchProjectData])
+  }, [projectId, fetchIdentityData, fetchProjectData, fetchVariables])
 
   const handleImpersonate = (roleId: string) => {
     setViewAsUserTypeId(viewAsUserTypeId === roleId ? null : roleId)
@@ -146,6 +149,7 @@ export function IdentityPermissions() {
                     onDuplicate={() => { setEditingRole(null); setIsRoleModalOpen(true) }}
                     onDelete={() => deleteUserType(projectId as string, ut.id)}
                     onImpersonate={() => handleImpersonate(ut.id)}
+                    onManagePersonas={() => setManagingPersonaRole(ut)}
                   />
                 ))}
               </motion.div>
@@ -271,6 +275,16 @@ export function IdentityPermissions() {
           userTypes={userTypes}
           onClose={() => setIsPolicyModalOpen(false)}
           onSave={async (payload) => addPolicy(projectId as string, payload)}
+        />
+
+        <PersonaManagerModal
+          isOpen={!!managingPersonaRole}
+          userType={managingPersonaRole}
+          availableVariables={variables}
+          onClose={() => setManagingPersonaRole(null)}
+          onSave={async (id, payload) => {
+            await updateUserType(projectId as string, id, payload)
+          }}
         />
       </div>
 

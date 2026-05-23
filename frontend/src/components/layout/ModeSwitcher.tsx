@@ -39,7 +39,7 @@ export function ModeSwitcher() {
                     transition={{ type: "spring", bounce: 0.15, duration: 0.6 }}
                   />
                 )}
-                <Icon className={cn("w-3.5 h-3.5 relative z-10", isActive ? "text-black dark:text-white" : "text-zinc-400 dark:text-zinc-600 transition-colors duration-300 group-hover:text-black dark:group-hover:text-zinc-300")} />
+                <Icon className={cn("w-3.5 h-3.5 size-3.5 min-w-3.5 min-h-3.5 relative z-10", isActive ? "text-black dark:text-white" : "text-zinc-400 dark:text-zinc-600 transition-colors duration-300 group-hover:text-black dark:group-hover:text-zinc-300")} />
                 <span className="relative z-10">{mode.label}</span>
               </button>
             )

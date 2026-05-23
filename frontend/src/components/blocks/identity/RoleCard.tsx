@@ -31,12 +31,14 @@ interface Props {
   onDuplicate: () => void
   onDelete: () => void
   onImpersonate: () => void
+  onManagePersonas: () => void
 }
 
-export function RoleCard({ role, policies, isImpersonating, onEdit, onDuplicate, onDelete, onImpersonate }: Props) {
+export function RoleCard({ role, policies, isImpersonating, onEdit, onDuplicate, onDelete, onImpersonate, onManagePersonas }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const colors = COLOR_MAP[role.color] ?? COLOR_MAP.zinc
   const rolePolicies = policies.filter(p => p.user_type_id === role.id)
+  const instancesCount = role.persona?.instances?.length || 0
 
   return (
     <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -97,18 +99,29 @@ export function RoleCard({ role, policies, isImpersonating, onEdit, onDuplicate,
           )}
 
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-[9px] font-mono text-zinc-400">{rolePolicies.length} polic{rolePolicies.length === 1 ? 'y' : 'ies'}</span>
-            <button
-              onClick={onImpersonate}
-              className={cn(
-                'text-[9px] font-black  px-2 py-1 border transition-all',
-                isImpersonating
-                  ? 'border-amber-500/50 text-amber-500 bg-amber-500/10'
-                  : 'border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
-              )}
-            >
-              {isImpersonating ? 'Exit Persona' : 'Preview Persona'}
-            </button>
+            <div className="flex flex-col text-[9px] font-mono text-zinc-400">
+              <span>{rolePolicies.length} polic{rolePolicies.length === 1 ? 'y' : 'ies'}</span>
+              <span>{instancesCount} instance{instancesCount === 1 ? '' : 's'}</span>
+            </div>
+            <div className="flex gap-1.5">
+              <button
+                onClick={(e) => { e.stopPropagation(); onManagePersonas(); }}
+                className="text-[9px] font-black px-2 py-1 border border-zinc-250 dark:border-zinc-800 text-zinc-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white"
+              >
+                Personas
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onImpersonate(); }}
+                className={cn(
+                  'text-[9px] font-black px-2 py-1 border transition-all',
+                  isImpersonating
+                    ? 'border-amber-500/50 text-amber-500 bg-amber-500/10'
+                    : 'border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
+                )}
+              >
+                {isImpersonating ? 'Exit' : 'Preview'}
+              </button>
+            </div>
           </div>
 
         </CardContent>

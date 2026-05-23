@@ -14,6 +14,8 @@ interface Message {
   content: string
   script?: string
   timestamp: number
+  is_committed?: boolean
+  is_rejected?: boolean
 }
 
 interface SystemArchitectState {
@@ -21,10 +23,12 @@ interface SystemArchitectState {
   isArchitecting: boolean
   isOpen: boolean
   setIsOpen: (open: boolean) => void
-  addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void
+  addMessage: (message: Omit<Message, 'id' | 'timestamp'> & { id?: string; timestamp?: number; is_committed?: boolean; is_rejected?: boolean }) => void
   fetchMessages: (projectId: string) => Promise<void>
   generateSystem: (prompt: string, projectId: string) => Promise<void>
-  commitScript: (script: string, projectId: string) => Promise<void>
+  commitScript: (script: string, projectId: string, messageId?: string) => Promise<void>
+  rejectScript: (messageId: string) => Promise<void>
+  restoreScript: (messageId: string) => Promise<void>
   clearHistory: () => void
 }
 
@@ -36,7 +40,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
   setIsOpen: (open) => set({ isOpen: open }),
 
   addMessage: (msg) => set((state) => ({
-    messages: [...state.messages, { ...msg, id: Math.random().toString(36).substring(7), timestamp: Date.now() }]
+    messages: [...state.messages, { ...msg, id: msg.id || Math.random().toString(36).substring(7), timestamp: msg.timestamp || Date.now() }]
   })),
 
   clearHistory: () => set({ messages: [] }),
@@ -46,6 +50,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
       .from('chat_messages')
       .select('*')
       .eq('project_id', projectId)
+      .eq('architect_type', 'flows')
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -60,6 +65,8 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
           role: m.role,
           content: m.content,
           script: m.script,
+          is_committed: m.is_committed,
+          is_rejected: m.is_rejected,
           timestamp: new Date(m.created_at).getTime()
         }))
       })
@@ -160,19 +167,37 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
 
       // 2. Persist Assistant Response
       if (userData.user) {
-        await supabase.from('chat_messages').insert([{
+        const { data: savedMsg } = await supabase.from('chat_messages').insert([{
           project_id: projectId,
           user_id: userData.user.id,
           role: 'assistant',
           content: data.content,
-          script: data.script
-        }])
+          script: data.script,
+          architect_type: 'flows',
+          is_committed: false,
+          is_rejected: false
+        }]).select().single()
+
+        if (savedMsg) {
+          get().addMessage({
+            id: savedMsg.id,
+            role: 'assistant',
+            content: data.content,
+            script: data.script,
+            is_committed: false,
+            is_rejected: false,
+            timestamp: new Date(savedMsg.created_at).getTime()
+          })
+          return
+        }
       }
 
       get().addMessage({
         role: 'assistant',
         content: data.content,
-        script: data.script
+        script: data.script,
+        is_committed: false,
+        is_rejected: false
       })
     } catch (error: any) {
       console.error(error)
@@ -183,7 +208,7 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
     }
   },
 
-  commitScript: async (script, projectId) => {
+  commitScript: async (script, projectId, messageId) => {
     const { addPage, addTransition, addInput, addAction, addOutput, pages } = usePages.getState()
     const { variables } = useVariables.getState()
 
@@ -278,11 +303,42 @@ export const useSystemArchitect = create<SystemArchitectState>((set, get) => ({
         }
       }
 
+      if (messageId) {
+        await supabase.from('chat_messages').update({ is_committed: true }).eq('id', messageId)
+        set(state => ({
+          messages: state.messages.map(m => m.id === messageId ? { ...m, is_committed: true } : m)
+        }))
+      }
+
       toast.dismiss()
       toast.success('Architecture synchronized successfully')
     } catch (error) {
       toast.dismiss()
       toast.error('Transaction failed: Invalid STEM-script syntax')
+    }
+  },
+
+  rejectScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: true }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: true } : m)
+      }))
+      toast.success('Architecture proposal rejected')
+    } catch (e) {
+      toast.error('Failed to reject proposal')
+    }
+  },
+
+  restoreScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: false }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: false } : m)
+      }))
+      toast.success('Architecture proposal restored')
+    } catch (e) {
+      toast.error('Failed to restore proposal')
     }
   }
 }))

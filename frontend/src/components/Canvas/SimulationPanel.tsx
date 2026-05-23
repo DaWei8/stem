@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, ArrowRight, RefreshCw, Square } from 'lucide-react'
@@ -118,22 +118,64 @@ export function SimulationPanel({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[10px] font-black text-zinc-500">Agent Identity</Label>
+            <Label className="text-[10px] font-black text-zinc-500">Agent Identity / Persona</Label>
             <Select
-              value={simulationParams.userTypeId}
-              onValueChange={(v) => setSimulationParams({ ...simulationParams, userTypeId: v || '' })}
+              value={
+                simulationParams.userTypeId
+                  ? (simulationParams.personaInstanceId && simulationParams.personaInstanceId !== 'default'
+                    ? `instance_${simulationParams.userTypeId}_${simulationParams.personaInstanceId}`
+                    : `role_${simulationParams.userTypeId}`)
+                  : ''
+              }
+              onValueChange={(val) => {
+                if (!val) {
+                  setSimulationParams({ ...simulationParams, userTypeId: '', personaInstanceId: 'default' })
+                  return
+                }
+                if (val.startsWith('role_')) {
+                  const uId = val.replace('role_', '')
+                  setSimulationParams({ ...simulationParams, userTypeId: uId, personaInstanceId: 'default' })
+                } else if (val.startsWith('instance_')) {
+                  const parts = val.replace('instance_', '').split('_')
+                  const uId = parts[0]
+                  const instId = parts[1]
+                  setSimulationParams({ ...simulationParams, userTypeId: uId, personaInstanceId: instId })
+                }
+              }}
             >
               <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
                 <SelectValue placeholder="Default Permission Set">
-                  {simulationParams.userTypeId ? userTypes.find((ut: any) => ut.id === simulationParams.userTypeId)?.name : "Default Permission Set"}
+                  {(() => {
+                    if (!simulationParams.userTypeId) return "Default Permission Set"
+                    const ut = userTypes.find((u: any) => u.id === simulationParams.userTypeId)
+                    if (!ut) return "Default Permission Set"
+                    if (simulationParams.personaInstanceId && simulationParams.personaInstanceId !== 'default') {
+                      const inst = ut.persona?.instances?.find((i: any) => i.id === simulationParams.personaInstanceId)
+                      return inst ? `${ut.name} (Instance: ${inst.name})` : ut.name
+                    }
+                    return `${ut.name} (Base Role)`
+                  })()}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
-                {userTypes.map((ut: any) => (
-                  <SelectItem key={ut.id} value={ut.id} className="text-[10px] font-bold">
-                    {ut.name}
-                  </SelectItem>
-                ))}
+              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none max-h-60 overflow-y-auto">
+                {userTypes.map((ut: any) => {
+                  const hasInstances = ut.persona?.instances && ut.persona.instances.length > 0
+                  return (
+                    <SelectGroup key={ut.id}>
+                      <SelectLabel className="text-[9px] uppercase tracking-wider font-extrabold text-zinc-500 bg-zinc-50/50 dark:bg-zinc-950 px-2 py-1 border-b border-zinc-150 dark:border-zinc-900 mt-1 first:mt-0">
+                        {ut.name}
+                      </SelectLabel>
+                      <SelectItem value={`role_${ut.id}`} className="text-[10px] font-bold pl-4">
+                        Default {ut.name} (Base Role)
+                      </SelectItem>
+                      {hasInstances && ut.persona.instances.map((inst: any) => (
+                        <SelectItem key={inst.id} value={`instance_${ut.id}_${inst.id}`} className="text-[10px] font-semibold pl-4">
+                          ↳ {inst.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )
+                })}
               </SelectContent>
             </Select>
           </div>

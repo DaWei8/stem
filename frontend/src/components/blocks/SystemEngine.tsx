@@ -276,7 +276,7 @@ export function SystemEngine() {
           <div className="flex gap-2">
             <Button
               onClick={() => setIsOpen(!isOpen)}
-              className={cn("px-4 h-10 text-xs font-bold text-nowrap rounded-none gap-2", isOpen ? "bg-emerald-500 text-white hover:bg-emerald-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
+              className={cn("px-4 h-10 text-xs font-bold text-nowrap rounded-none gap-2", isOpen ? "bg-blue-700 text-white hover:bg-blue-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
             >
               <Cpu className="size-3.5" /> AI Architect
             </Button>

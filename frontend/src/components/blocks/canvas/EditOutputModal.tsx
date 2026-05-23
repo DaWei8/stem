@@ -27,21 +27,47 @@ export function EditOutputModal({
   const [name, setName] = useState(outputItem.name)
   const [outputType, setOutputType] = useState(outputItem.output_type || 'state_update')
   const [variableId, setVariableId] = useState(outputItem.variable_id || '')
+  const [outputValue, setOutputValue] = useState(() => {
+    const val = (outputItem as any).output_config?.value
+    if (val === undefined || val === null) return ''
+    if (typeof val === 'object') return JSON.stringify(val)
+    return String(val)
+  })
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     setName(outputItem.name)
     setOutputType(outputItem.output_type || 'state_update')
     setVariableId(outputItem.variable_id || '')
+    const val = (outputItem as any).output_config?.value
+    if (val === undefined || val === null) setOutputValue('')
+    else if (typeof val === 'object') setOutputValue(JSON.stringify(val))
+    else setOutputValue(String(val))
   }, [outputItem])
+
+  const parseValue = (valStr: string) => {
+    const trimmed = valStr.trim()
+    if (trimmed === '') return null
+    if (trimmed === 'true') return true
+    if (trimmed === 'false') return false
+    if (!isNaN(Number(trimmed)) && trimmed !== '') return Number(trimmed)
+    try {
+      return JSON.parse(trimmed)
+    } catch {
+      return trimmed
+    }
+  }
 
   const handleSave = async () => {
     setIsSaving(true)
     try {
+      const parsedVal = parseValue(outputValue)
+      const currentConfig = (outputItem as any).output_config || {}
       await onUpdate(outputItem.id, {
         name,
         output_type: outputType,
         variable_id: variableId || null,
+        output_config: { ...currentConfig, value: parsedVal }
       })
       onClose()
     } finally {
@@ -113,6 +139,18 @@ export function EditOutputModal({
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">
+            Output Mutation Value (Raw string, number, boolean, or JSON)
+          </label>
+          <Input
+            value={outputValue}
+            onChange={(e) => setOutputValue(e.target.value)}
+            placeholder="e.g. true, 100, usr_123, or {&quot;role&quot;: &quot;pro&quot;}"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-mono shadow-sm"
+          />
         </div>
 
         <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">

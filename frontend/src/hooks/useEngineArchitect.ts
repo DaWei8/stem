@@ -16,6 +16,7 @@ interface Message {
   script?: string
   timestamp: number
   is_committed?: boolean
+  is_rejected?: boolean
 }
 
 interface EngineArchitectState {
@@ -27,6 +28,8 @@ interface EngineArchitectState {
   fetchMessages: (projectId: string) => Promise<void>
   generateSystem: (prompt: string, projectId: string) => Promise<void>
   commitScript: (script: string, projectId: string, messageId?: string) => Promise<void>
+  rejectScript: (messageId: string) => Promise<void>
+  restoreScript: (messageId: string) => Promise<void>
   clearHistory: () => void
 }
 
@@ -76,6 +79,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
           content: m.content,
           script: m.script,
           is_committed: m.is_committed,
+          is_rejected: m.is_rejected,
           timestamp: new Date(m.created_at).getTime()
         }))
       })
@@ -168,7 +172,8 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
           content: data.content,
           script: data.script,
           architect_type: 'engine',
-          is_committed: false
+          is_committed: false,
+          is_rejected: false
         }).select().single()
 
         if (savedMsg) {
@@ -178,6 +183,7 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
             content: data.content,
             script: data.script,
             is_committed: false,
+            is_rejected: false,
             timestamp: new Date(savedMsg.created_at).getTime()
           })
           return
@@ -332,6 +338,30 @@ export const useEngineArchitect = create<EngineArchitectState>((set, get) => ({
     } catch (error) {
       toast.dismiss()
       toast.error('Transaction failed: Invalid STEM-script syntax')
+    }
+  },
+
+  rejectScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: true }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: true } : m)
+      }))
+      toast.success('Engine Architecture proposal rejected')
+    } catch (e) {
+      toast.error('Failed to reject proposal')
+    }
+  },
+
+  restoreScript: async (messageId) => {
+    try {
+      await supabase.from('chat_messages').update({ is_rejected: false }).eq('id', messageId)
+      set(state => ({
+        messages: state.messages.map(m => m.id === messageId ? { ...m, is_rejected: false } : m)
+      }))
+      toast.success('Engine Architecture proposal restored')
+    } catch (e) {
+      toast.error('Failed to restore proposal')
     }
   }
 }))

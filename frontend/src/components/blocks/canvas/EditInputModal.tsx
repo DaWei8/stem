@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ScreenInput, Variable } from '@/types'
 import { StandardModal } from '@/components/ui/StandardModal'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -28,6 +29,7 @@ export function EditInputModal({
   const [label, setLabel] = useState(inputItem.label || '')
   const [inputType, setInputType] = useState(inputItem.input_type || 'form_field')
   const [variableId, setVariableId] = useState(inputItem.variable_id || '')
+  const [isRequired, setIsRequired] = useState(inputItem.is_required || false)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export function EditInputModal({
     setLabel(inputItem.label || '')
     setInputType(inputItem.input_type || 'form_field')
     setVariableId(inputItem.variable_id || '')
+    setIsRequired(inputItem.is_required || false)
   }, [inputItem])
 
   const handleSave = async () => {
@@ -45,6 +48,7 @@ export function EditInputModal({
         label: label || null,
         input_type: inputType,
         variable_id: variableId || null,
+        is_required: isRequired,
       })
       onClose()
     } finally {
@@ -128,6 +132,18 @@ export function EditInputModal({
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800">
+          <Checkbox
+            id="is_required_input"
+            checked={isRequired}
+            onCheckedChange={(v) => setIsRequired(!!v)}
+            className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
+          />
+          <label htmlFor="is_required_input" className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider cursor-pointer">
+            Required Input (Simulation fails if not set)
+          </label>
         </div>
 
         <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">

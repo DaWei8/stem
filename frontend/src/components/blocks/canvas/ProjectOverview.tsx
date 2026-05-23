@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import {
-  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap
+  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap, X, Play
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -39,7 +39,7 @@ export function ProjectOverview({
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { messages, isArchitecting, generateSystem, commitScript, addMessage } = useSystemArchitect()
+  const { messages, isArchitecting, generateSystem, commitScript, rejectScript, restoreScript, addMessage } = useSystemArchitect()
   const { canvasFilter, setCanvasFilter } = useUI()
 
   const stats = useMemo(() => ({
@@ -182,7 +182,16 @@ export function ProjectOverview({
             >
               <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-zinc-50 dark:bg-black/30">
                 {messages.map(msg => (
-                  <MessageBubble key={msg.id} msg={msg} copiedId={copiedId} handleCopy={handleCopy} commitScript={commitScript} projectId={projectId} />
+                  <MessageBubble
+                    key={msg.id}
+                    msg={msg}
+                    copiedId={copiedId}
+                    handleCopy={handleCopy}
+                    commitScript={commitScript}
+                    rejectScript={rejectScript}
+                    restoreScript={restoreScript}
+                    projectId={projectId}
+                  />
                 ))}
                 {isArchitecting && (
                   <div className="flex items-center gap-4 p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl">
@@ -222,7 +231,7 @@ export function ProjectOverview({
   )
 }
 
-function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: any) {
+function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId }: any) {
   const [showReview, setShowReview] = useState(false)
   const [isCommitting, setIsCommitting] = useState(false)
 
@@ -230,7 +239,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: a
     setShowReview(false)
     setIsCommitting(true)
     try {
-      await commitScript(msg.script!, projectId)
+      await commitScript(msg.script!, projectId, msg.id)
     } finally {
       setIsCommitting(false)
     }
@@ -269,34 +278,70 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, projectId }: a
       </div>
 
       {msg.script && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl"
-        >
-          <div className="h-10 bg-zinc-900/50 flex items-center justify-between px-4 border-b border-zinc-800/50">
-            <div className="flex items-center gap-2">
-              <Terminal className="size-3.5 text-emerald-500" />
-              <span className="text-[10px] font-black  text-zinc-500 tracking-widest">Blueprint Script</span>
-            </div>
+        msg.is_rejected ? (
+          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+            <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
+              <X className="size-3 text-red-500" />
+              Architecture proposal rejected
+            </span>
             <button
-              onClick={() => handleCopy(msg.id, msg.script!)}
-              className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all rounded-md"
+              onClick={() => restoreScript(msg.id)}
+              className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
             >
-              {copiedId === msg.id ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+              Restore
             </button>
           </div>
-          <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
-            <code>{msg.script}</code>
-          </pre>
-          <button
-            onClick={() => setShowReview(true)}
-            disabled={isCommitting}
-            className="w-full h-12 bg-white text-black text-[11px] font-black  hover:bg-emerald-500 hover:text-white transition-all active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl"
           >
-            {isCommitting ? 'Committing...' : 'Commit Architecture'}
-          </button>
-        </motion.div>
+            <div className="h-10 bg-zinc-900/50 flex items-center justify-between px-4 border-b border-zinc-800/50">
+              <div className="flex items-center gap-2">
+                <Terminal className="size-3.5 text-emerald-500" />
+                <span className="text-[10px] font-black  text-zinc-500 tracking-widest">Blueprint Script</span>
+              </div>
+              <button
+                onClick={() => handleCopy(msg.id, msg.script!)}
+                className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all rounded-md"
+              >
+                {copiedId === msg.id ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+              </button>
+            </div>
+            <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
+              <code>{msg.script}</code>
+            </pre>
+            <div className="flex border-t border-zinc-850">
+              <button
+                onClick={() => {
+                  if (msg.is_committed) return;
+                  setShowReview(true);
+                }}
+                disabled={isCommitting || msg.is_committed}
+                className={cn(
+                  "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
+                  msg.is_committed
+                    ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
+                    : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
+                )}
+              >
+                {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
+                {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
+              </button>
+              {!msg.is_committed && (
+                <button
+                  type="button"
+                  onClick={() => rejectScript(msg.id)}
+                  className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <X className="size-3.5" />
+                  Reject
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )
       )}
     </div>
   )
