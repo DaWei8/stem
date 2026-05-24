@@ -62,8 +62,10 @@ export function SystemEngine() {
   const [activeTab, setActiveTab] = useState('state')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVarId, setSelectedVarId] = useState<string | null>(null)
+  const [varDrawerEditing, setVarDrawerEditing] = useState(false)
   const [selectedConstantId, setSelectedConstantId] = useState<string | null>(null)
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
+  const [tableDrawerEditing, setTableDrawerEditing] = useState(false)
   const [selectedFunctionId, setSelectedFunctionId] = useState<string | null>(null)
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null)
 
@@ -268,9 +270,9 @@ export function SystemEngine() {
           title="System Engine"
           description="The unified backend of your system. Orchestrate persistent schemas, transient state, and deterministic cloud logic."
           stats={[
-            { label: 'Total State', value: variables.length + constants.length },
-            { label: 'Logic Blocks', value: functions.length },
-            { label: 'Entities', value: tables.length },
+            { label: 'Variables', value: variables.length + constants.length },
+            { label: 'Logic', value: functions.length },
+            { label: 'Schema', value: tables.length },
           ]}
         >
           <div className="flex gap-2">
@@ -337,7 +339,30 @@ export function SystemEngine() {
               transition={{ duration: 0.2 }}
             >
               {activeTab === 'state' && (
-                <div className="space-y-8">
+                <div className="flex flex-col gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest px-1 uppercase">Registry (Variables)</h3>
+                    <DataStateTable
+                      variables={variables}
+                      searchQuery={searchQuery}
+                      orphanIds={orphanIds}
+                      varSourceMap={varSourceMap}
+                      selectedVarId={selectedVarId}
+                      onSelect={id => {
+                        setSelectedVarId(selectedVarId === id ? null : id);
+                        setSelectedConstantId(null);
+                        setSelectedTableId(null);
+                        setVarDrawerEditing(false);
+                      }}
+                      onEdit={v => {
+                        setSelectedVarId(v.id);
+                        setSelectedConstantId(null);
+                        setSelectedTableId(null);
+                        setVarDrawerEditing(true);
+                      }}
+                      onDelete={id => deleteVariable(projectId, id)}
+                    />
+                  </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest px-1 uppercase">Global Constants</h3>
@@ -360,19 +385,7 @@ export function SystemEngine() {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest px-1 uppercase">Registry (Variables)</h3>
-                    <DataStateTable
-                      variables={variables}
-                      searchQuery={searchQuery}
-                      orphanIds={orphanIds}
-                      varSourceMap={varSourceMap}
-                      selectedVarId={selectedVarId}
-                      onSelect={id => { setSelectedVarId(selectedVarId === id ? null : id); setSelectedConstantId(null); setSelectedTableId(null); }}
-                      onEdit={() => { }}
-                      onDelete={id => deleteVariable(projectId, id)}
-                    />
-                  </div>
+
                 </div>
               )}
 
@@ -384,10 +397,9 @@ export function SystemEngine() {
                   searchQuery={searchQuery}
                   projectId={projectId}
                   onDeleteTable={id => deleteTable(projectId, id)}
-                  onUpdateTable={(id, name) => updateTable(projectId, id, name)}
-                  onAddColumn={(tableId, data) => addColumn(projectId, tableId, data)}
                   selectedTableId={selectedTableId}
-                  onSelectTable={(id) => { setSelectedTableId(id); setSelectedVarId(null); setSelectedConstantId(null); }}
+                  onSelectTable={(id) => { setSelectedTableId(id); setSelectedVarId(null); setSelectedConstantId(null); setTableDrawerEditing(false); }}
+                  onEditTable={(table) => { setSelectedTableId(table.id); setSelectedVarId(null); setSelectedConstantId(null); setTableDrawerEditing(true); }}
                 />
               )}
 
@@ -443,12 +455,12 @@ export function SystemEngine() {
                           setSelectedFunctionId(null)
                         }}
                         className={cn(
-                          "p-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4 group hover:border-black dark:hover:border-white transition-all cursor-pointer",
+                          "p-4 bg-zinc-50 dark:bg-zinc-900/30 border rounded-lg border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4 group hover:border-black dark:hover:border-white transition-all cursor-pointer",
                           isSelected && "border-zinc-400 dark:border-zinc-300"
                         )}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="size-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
+                          <div className="size-10 bg-white rounded-md dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
                             <Package className="size-5 text-zinc-400" />
                           </div>
                           <div>
@@ -504,11 +516,13 @@ export function SystemEngine() {
             tables={tables}
             policies={policies}
             functions={functions}
+            isEditingInitially={varDrawerEditing}
+            onEditModeChange={setVarDrawerEditing}
             onLinkColumn={async (columnId, variableId) => {
               await linkColumnToVariable(projectId, columnId, variableId)
             }}
             onLinkNewColumn={handleLinkNewColumn}
-            onClose={() => setSelectedVarId(null)}
+            onClose={() => { setSelectedVarId(null); setVarDrawerEditing(false); }}
           />
         )}
         {selectedConstant && (
@@ -524,13 +538,18 @@ export function SystemEngine() {
             table={selectedTable}
             columns={columns.filter(c => c.table_id === selectedTable.id)}
             variables={variables}
+            isEditingInitial={tableDrawerEditing}
+            onEditModeChange={setTableDrawerEditing}
             onSelectVariable={(id) => {
               setSelectedVarId(id);
               setSelectedTableId(null);
               setSelectedConstantId(null);
               setActiveTab('state');
             }}
-            onClose={() => setSelectedTableId(null)}
+            onClose={() => {
+              setSelectedTableId(null);
+              setTableDrawerEditing(false);
+            }}
             onAddColumn={async (tableId, columnData) => {
               await addColumn(projectId, tableId, columnData)
             }}
@@ -790,3 +809,5 @@ export function SystemEngine() {
     </div>
   )
 }
+
+// SystemEngine component orchestrates variables, database schema, functions, and page logic

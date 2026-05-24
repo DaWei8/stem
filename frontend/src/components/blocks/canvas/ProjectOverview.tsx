@@ -2,8 +2,11 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import {
-  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap, X, Play
+  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap, X, Play, Folder
 } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { FolderSelect } from './FolderSelect'
+import { usePages } from '@/hooks/usePages'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -34,6 +37,11 @@ export function ProjectOverview({
   pages, variables, inputs, actions, outputs, projectId, onSelectScreen, selectedNodeId
 }: Props) {
   const [search, setSearch] = useState('')
+  const [checkedPageIds, setCheckedPageIds] = useState<string[]>([])
+  const [bulkFolder, setBulkFolder] = useState('')
+  const [isBulkSaving, setIsBulkSaving] = useState(false)
+  const updatePage = usePages(s => s.updatePage)
+
   const [sidebarTab, setSidebarTab] = useState<'overview' | 'chat'>('overview')
   const [chatInput, setChatInput] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
@@ -49,6 +57,23 @@ export function ProjectOverview({
   }), [inputs, actions, outputs])
 
   const filteredPages = pages.filter(p => (p.title || p.name || '').toLowerCase().includes(search.toLowerCase()))
+
+  const handleBulkGroup = async () => {
+    if (!bulkFolder.trim() || checkedPageIds.length === 0) return
+    setIsBulkSaving(true)
+    try {
+      await Promise.all(
+        checkedPageIds.map(id => updatePage(id, { folder: bulkFolder.trim() }))
+      )
+      toast.success(`Moved ${checkedPageIds.length} screens to "${bulkFolder.trim()}"`)
+      setCheckedPageIds([])
+      setBulkFolder('')
+    } catch (err) {
+      toast.error('Bulk grouping failed')
+    } finally {
+      setIsBulkSaving(false)
+    }
+  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -144,31 +169,77 @@ export function ProjectOverview({
 
               {/* Screens List */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-zinc-100 dark:border-zinc-900">
-                  <Laptop className="size-3 text-zinc-400" />
-                  <span className="text-[10px] font-black text-zinc-400">Active Architecture</span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {filteredPages.map(page => (
-                    <motion.div
-                      key={page.id}
-                      onClick={() => onSelectScreen?.(page.id)}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      className={cn(
-                        "group flex items-center justify-between p-2.5 border rounded-md cursor-pointer transition-all shadow-sm",
-                        selectedNodeId?.includes(page.id)
-                          ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                          : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-black dark:hover:border-zinc-600"
-                      )}
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-zinc-900">
+                  <div className="flex items-center gap-2">
+                    <Laptop className="size-3 text-zinc-400" />
+                    <span className="text-xs font-black text-zinc-400">Active Architecture</span>
+                  </div>
+                  {checkedPageIds.length > 0 && (
+                    <button
+                      onClick={() => setCheckedPageIds([])}
+                      className="text-xs font-black text-zinc-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
                     >
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[11px] font-black">{page.title || page.name}</span>
-                        <span className="text-[9px] font-bold opacity-40">{page.page_type || 'Logic Node'}</span>
+                      Deselect All
+                    </button>
+                  )}
+                </div>
+
+                {checkedPageIds.length > 0 && (
+                  <div className="p-3 bg-zinc-100/50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-3 shadow-sm animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-black text-black dark:text-white uppercase tracking-wider">Group {checkedPageIds.length} Screens</span>
+                    </div>
+                    <FolderSelect value={bulkFolder} onChange={setBulkFolder} placeholder="Move to folder (e.g. Auth Flow)" inputClassName="h-10" />
+                    <Button
+                      onClick={handleBulkGroup}
+                      disabled={isBulkSaving || !bulkFolder.trim()}
+                      className="w-full h-10 text-[10px] font-black bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md gap-1.5 transition-all"
+                    >
+                      {isBulkSaving ? <Loader2 className="size-3.5 animate-spin" /> : <Folder className="size-3.5" />}
+                      Group Screens
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  {filteredPages.map(page => {
+                    const isChecked = checkedPageIds.includes(page.id)
+                    return (
+                      <div key={page.id} className="flex items-center gap-2 w-full group/item">
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setCheckedPageIds(prev => [...prev, page.id])
+                            } else {
+                              setCheckedPageIds(prev => prev.filter(id => id !== page.id))
+                            }
+                          }}
+                          onClick={e => e.stopPropagation()}
+                          className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
+                        />
+                        <motion.div
+                          onClick={() => onSelectScreen?.(page.id)}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          className={cn(
+                            "flex-1 group flex items-center justify-between p-2.5 border rounded-md cursor-pointer transition-all shadow-sm",
+                            selectedNodeId?.includes(page.id)
+                              ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-black dark:hover:border-zinc-600"
+                          )}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[11px] font-black">{page.title || page.name}</span>
+                            <span className="text-[9px] font-bold opacity-40">
+                              {page.page_type || 'Logic Node'} {page.folder ? `· ${page.folder}` : ''}
+                            </span>
+                          </div>
+                          <ChevronRight className={cn("size-3 transition-transform group-hover:translate-x-1", selectedNodeId?.includes(page.id) ? "text-white dark:text-black" : "text-zinc-300")} />
+                        </motion.div>
                       </div>
-                      <ChevronRight className={cn("size-3 transition-transform group-hover:translate-x-1", selectedNodeId?.includes(page.id) ? "text-white dark:text-black" : "text-zinc-300")} />
-                    </motion.div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </motion.div>

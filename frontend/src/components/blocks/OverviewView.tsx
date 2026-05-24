@@ -1,21 +1,31 @@
 'use client'
 
-import { useUI, PillarView } from '@/hooks/useUI'
-import { usePages } from '@/hooks/usePages'
-import { useVariables } from '@/hooks/useVariables'
+import { useActivityLogs } from '@/hooks/useActivityLogs'
+import { useCollaborators } from '@/hooks/useCollaborators'
 import { useDatabase } from '@/hooks/useDatabase'
+import { useDesignSystem } from '@/hooks/useDesignSystem'
 import { useIdentity } from '@/hooks/useIdentity'
 import { useLogic } from '@/hooks/useLogic'
-import { useDesignSystem } from '@/hooks/useDesignSystem'
-import { useCollaborators } from '@/hooks/useCollaborators'
 import { useObservability } from '@/hooks/useObservability'
-import { useActivityLogs } from '@/hooks/useActivityLogs'
-import {
-  LayoutTemplate, Palette, Brain, Users, ArrowRight, Database,
-  Activity, CheckCircle, Shield, History, ChevronRight, Share2, Download
-} from 'lucide-react'
-import { motion } from 'framer-motion'
+import { usePages } from '@/hooks/usePages'
+import { PillarView, useUI } from '@/hooks/useUI'
+import { useVariables } from '@/hooks/useVariables'
 import { cn } from '@/lib/utils'
+import {
+  Activity,
+  ArrowRight,
+  Brain,
+  CheckCircle,
+  ChevronRight,
+  Database,
+  Download,
+  History,
+  LayoutTemplate, Palette,
+  Share2,
+  Shield,
+  Users
+} from 'lucide-react'
+import { Button } from '../ui/button'
 
 export function OverviewView() {
   const { setActiveView } = useUI()
@@ -54,7 +64,7 @@ export function OverviewView() {
       metrics: [
         { label: 'Variables', value: variables.length },
         { label: 'Constants', value: constants.length },
-        { label: 'Logic Funcs', value: functions.length }
+        { label: 'Logic Functions', value: functions.length }
       ]
     },
     {
@@ -133,20 +143,20 @@ export function OverviewView() {
             <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">Overview of the project </p>
           </div>
           <div className="flex gap-3">
-            <button
+            <Button
               onClick={() => setActiveView('collaborators')}
               className="flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 hover:border-black dark:hover:border-white transition-colors h-10 px-4 text-xs font-black text-black dark:text-white bg-white dark:bg-zinc-950"
             >
               <Share2 className="size-3.5" />
               Team Access
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setActiveView('documentation')}
               className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors h-10 px-4 text-xs font-black"
             >
               <Download className="size-3.5" />
               Build Documentation
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -175,13 +185,13 @@ export function OverviewView() {
             <h2 className="text-lg font-black text-zinc-400 dark:text-zinc-500 ">System Modules</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.map((card, i) => (
               <div
                 key={i}
                 onClick={() => setActiveView(card.view)}
                 className={cn(
-                  "group relative p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/10 cursor-pointer overflow-hidden transition-all duration-300",
+                  "group relative p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/10 cursor-pointer overflow-hidden transition-all duration-300",
                   card.borderColor
                 )}
               >
@@ -200,7 +210,7 @@ export function OverviewView() {
                   </div>
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pt-2 border-t border-zinc-100 dark:border-zinc-900">
                     {card.metrics.map((m, j) => (
-                      <div key={j} className="flex flex-col gap-2 p-3 bg-gray-500/5">
+                      <div key={j} className="flex flex-col gap-2 p-3 rounded-md bg-gray-500/5">
                         <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 leading-none">{m.label}</span>
                         <span className="text-xl font-black text-black dark:text-white mt-1 leading-none font-mono">{m.value}</span>
                       </div>
@@ -213,7 +223,7 @@ export function OverviewView() {
         </section>
 
         {/* Recent Activity Log & Performance Summary */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
           {/* Recent Activity Logs */}
           <section className="lg:col-span-8 space-y-4">
@@ -230,7 +240,7 @@ export function OverviewView() {
               </button>
             </div>
 
-            <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 divide-y divide-zinc-200 dark:divide-zinc-900 overflow-hidden">
+            <div className="border rounded-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 divide-y divide-zinc-200 dark:divide-zinc-900 overflow-hidden">
               {recentLogs.length === 0 ? (
                 <div className="p-10 text-center text-zinc-400 dark:text-zinc-600 italic text-xs">
                   No activity logs registered yet. Make updates to see updates here.
@@ -273,7 +283,7 @@ export function OverviewView() {
               <h2 className="text-lg font-black text-zinc-400 dark:text-zinc-500 ">System Observability</h2>
             </div>
 
-            <div className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 space-y-4">
+            <div className="p-6 border rounded-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 space-y-4">
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 ">Estimated Monthly Cloud Cost</span>
                 <div className="text-2xl font-black text-black dark:text-white font-mono mt-1">$0.00</div>

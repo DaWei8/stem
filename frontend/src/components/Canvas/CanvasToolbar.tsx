@@ -26,20 +26,20 @@ export function CanvasToolbar({
   const { viewAsUserTypeId, setViewAsUserTypeId } = useUI()
 
   return (
-    <div className="absolute bottom-4 left-4 translate-x-1/2 z-50 flex items-center gap-2">
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
       <div className="flex items-center gap-1">
         <Button
           onClick={onAddScreen}
           className="bg-white dark:bg-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm"
         >
-          <Plus className="w-3 h-3" />
+          Add Screen<Plus className="w-3 h-3" />
         </Button>
-        <Tooltip content="Architectural Linting: Check for orphaned screens or invalid data flows">
+        <Tooltip content="Quick Audit: Check for orphaned screens or invalid data flows">
           <Button
             onClick={onValidate}
             className="h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
           >
-            <ShieldAlert className="w-3 h-3" />
+            Quick Audit<ShieldAlert className="w-3 h-3" />
           </Button>
         </Tooltip>
 
@@ -48,7 +48,7 @@ export function CanvasToolbar({
             onClick={onAutoLayout}
             className="h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
           >
-            <LayoutGrid className="w-3 h-3" />
+            Auto layout<LayoutGrid className="w-3 h-3" />
           </Button>
         </Tooltip>
 

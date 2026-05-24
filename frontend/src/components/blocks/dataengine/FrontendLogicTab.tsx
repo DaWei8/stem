@@ -23,17 +23,19 @@ interface Props {
 function MiniPhoneFrame({
   children,
   liveUrl,
+  className
 }: {
   children: React.ReactNode
   liveUrl?: string | null
+  className?: string
 }) {
   const displayUrl = liveUrl
     ? liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
     : null
 
   return (
-    <div className="rounded-md! h-full max-h-[600px] p-1 bg-linear-to-b from-zinc-600/60 to-zinc-800/60 hover:from-zinc-500/70 hover:to-zinc-700/70 transition-all duration-300 group/phone">
-      <div className="bg-zinc-950 rounded-[20px] overflow-hidden flex flex-col">
+    <div className={cn("rounded-2xl! h-full max-h-[600px] p-1 bg-linear-to-b from-zinc-600/60 to-zinc-800/60 hover:from-zinc-500/70 hover:to-zinc-700/70 transition-all duration-300 group/phone", className)}>
+      <div className="bg-zinc-950 rounded-lg overflow-hidden flex flex-col">
         {/* Status Bar */}
         <div className="flex items-center justify-between px-4 pt-2 pb-0.5">
           <span className="text-[7px] font-semibold text-zinc-600 tabular-nums tracking-wide">9:41</span>
@@ -46,31 +48,31 @@ function MiniPhoneFrame({
 
         {/* Dynamic Island */}
         <div className="flex justify-center pb-1">
-          <div className="w-20 h-4 bg-black rounded-full border border-zinc-800/40" />
+          <div className="w-20 h-5 -mt-3 bg-black rounded-full border border-zinc-800/40" />
         </div>
 
         {/* Screen Content */}
-        <div className="flex-1 h-full flex flex-col min-h-0">
+        <div className="w-full h-[400px] relative overflow-y-scroll no-scrollbar flex flex-col min-h-0">
           {children}
         </div>
 
         {/* URL Bar */}
         <div className="px-3 py-1.5 border-t border-zinc-800/40">
           <div className={cn(
-            'flex items-center gap-1.5 px-2 py-1 rounded-md',
+            'flex items-center gap-1.5 px-2 py-2 rounded-md',
             'bg-zinc-900/50 border',
             liveUrl ? 'border-zinc-700/40' : 'border-dashed border-zinc-800/50',
           )}>
             {liveUrl ? (
-              <Globe className="size-2 text-emerald-500 shrink-0" />
+              <Globe className="size-4 text-emerald-500 shrink-0" />
             ) : (
-              <Link2 className="size-2 text-zinc-700 shrink-0" />
+              <Link2 className="size-4 text-zinc-700 shrink-0" />
             )}
             <span className={cn(
-              'flex-1 text-[7px] font-mono truncate',
+              'flex-1 text-xs font-mono truncate',
               liveUrl ? 'text-zinc-400' : 'text-zinc-700 italic',
             )}>
-              {displayUrl || 'No live URL'}
+              {displayUrl || 'No live url'}
             </span>
             {liveUrl && (
               <button
@@ -214,7 +216,7 @@ export function FrontendLogicTab({
 
           return (
             <div key={page.id}>
-              <MiniPhoneFrame liveUrl={page.live_url}>
+              <MiniPhoneFrame className="w-full scrollbar-thin scrollbar-track-zinc-900/20 scrollbar-thumb-zinc-700/40" liveUrl={page.live_url}>
                 {/* Screen Header */}
                 <div className="px-3 py-2">
                   <div className="flex items-center justify-between mb-1">
@@ -226,10 +228,8 @@ export function FrontendLogicTab({
                       {page.folder || 'Global'}
                     </span>
                   </div>
-                  <h4 className="text-[11px] font-bold text-white truncate">{page.title}</h4>
-                  <span className="text-[7px] font-mono text-zinc-700 block mt-0.5">
-                    {page.id.slice(0, 8)}...
-                  </span>
+                  <h4 className="text-sm font-bold text-white truncate">{page.title}</h4>
+                  <p className="text-xs font-medium text-white">{page.description}</p>
                 </div>
 
                 {/* Inputs */}

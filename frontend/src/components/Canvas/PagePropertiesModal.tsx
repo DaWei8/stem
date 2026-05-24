@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -73,17 +73,33 @@ export function PagePropertiesModal({
   }
 
   const availableVariables = useVariables((state) => state.variables)
+  const allInputs = usePages((state) => state.inputs)
+  const allOutputs = usePages((state) => state.outputs)
+
+  const filteredVariables = useMemo(() => {
+    return availableVariables.filter(v => {
+      if (v.scope !== 'transient') return true
+      const boundPageIds = new Set<string>()
+      allInputs.forEach(i => {
+        if (i.variable_id === v.id) boundPageIds.add(i.page_id)
+      })
+      allOutputs.forEach(o => {
+        if (o.variable_id === v.id) boundPageIds.add(o.page_id)
+      })
+      return boundPageIds.size === 0 || boundPageIds.has(page_id)
+    })
+  }, [availableVariables, allInputs, allOutputs, page_id])
 
   const handleAddInput = async () => {
     if (!projectId) return
-    if (availableVariables.length === 0) {
+    if (filteredVariables.length === 0) {
       toast.error('Define variables in the Registry first.')
       return
     }
     await addInput(page_id, {
       name: `input_${inputs.length + 1}`,
       input_type: 'form_field',
-      variable_id: availableVariables[0].id
+      variable_id: filteredVariables[0].id
     })
   }
 

@@ -5,6 +5,7 @@ import { Folder, Layout, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
+import { FolderSelect } from './FolderSelect'
 
 interface Props {
   selectedNodes: any[]
@@ -42,15 +43,7 @@ export function BulkEdit({ selectedNodes, updatePage }: Props) {
         <div className="space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Move to Folder</label>
-            <div className="relative">
-              <Folder className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400" />
-              <Input
-                value={folder}
-                onChange={(e) => setFolder(e.target.value)}
-                placeholder="e.g. Auth Flow, Onboarding"
-                className="pl-9 bg-white dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-lg h-11 text-xs"
-              />
-            </div>
+            <FolderSelect value={folder} onChange={setFolder} placeholder="e.g. Auth Flow, Onboarding" inputClassName="h-11" />
           </div>
 
           <Button

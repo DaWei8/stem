@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import {
   Fingerprint, Database, Play, Terminal, ArrowRight,
@@ -136,6 +136,19 @@ export function InputsSection({
   onRemove?: (id: string) => void
   onRebindVariable?: (inputId: string, variableId: string) => void
 }) {
+  const filteredVariables = useMemo(() => {
+    if (inputs.length === 0) return variables
+    const pageId = inputs[0].page_id
+    return variables.filter(v => {
+      if (v.scope !== 'transient') return true
+      const boundPageIds = new Set<string>()
+      inputs.forEach(i => {
+        if (i.variable_id === v.id) boundPageIds.add(i.page_id)
+      })
+      return boundPageIds.size === 0 || boundPageIds.has(pageId)
+    })
+  }, [variables, inputs])
+
   if (inputs.length === 0 && !onAdd) return null
 
   return (
@@ -176,7 +189,7 @@ export function InputsSection({
                         {input.variable_id.slice(0, 8)}
                       </option>
                     )}
-                    {variables.map(v => (
+                    {filteredVariables.map(v => (
                       <option key={v.id} value={v.id} className="bg-zinc-900 text-zinc-300 font-mono text-[10px]">{v.label}</option>
                     ))}
                   </select>
@@ -285,6 +298,19 @@ export function OutputsSection({
   onRemove?: (id: string) => void
   onRebindVariable?: (outputId: string, variableId: string) => void
 }) {
+  const filteredVariables = useMemo(() => {
+    if (outputs.length === 0) return variables
+    const pageId = outputs[0].page_id
+    return variables.filter(v => {
+      if (v.scope !== 'transient') return true
+      const boundPageIds = new Set<string>()
+      outputs.forEach(o => {
+        if (o.variable_id === v.id) boundPageIds.add(o.page_id)
+      })
+      return boundPageIds.size === 0 || boundPageIds.has(pageId)
+    })
+  }, [variables, outputs])
+
   if (outputs.length === 0 && !onAdd) return null
 
   return (
@@ -323,7 +349,7 @@ export function OutputsSection({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <option value="">No Binding</option>
-                      {variables.map(v => (
+                      {filteredVariables.map(v => (
                         <option key={v.id} value={v.id} className="bg-zinc-900 text-zinc-300 font-mono text-[10px]">{v.label}</option>
                       ))}
                     </select>

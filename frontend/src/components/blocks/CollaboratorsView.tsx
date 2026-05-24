@@ -266,7 +266,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             {activeMembersList.length === 0 && !isLoading && (
               <div className="p-10 text-center flex flex-col items-center justify-center gap-2">
                 <Users className="size-8 text-zinc-300 dark:text-zinc-700" />
-                <p className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No active team members registered.</p>
+                <p className="text-sm font-black text-zinc-400 dark:text-zinc-500">No active team members registered.</p>
               </div>
             )}
 

@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Database, HelpCircle, Key, Layers, Plus, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowRight, Database, HelpCircle, Key, Layers, Plus, X, Edit3 } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
 import { AddColumnForm } from './AddColumnForm'
+import { InlineTableEditForm } from './InlineTableEditForm'
 
 interface Props {
   table: any
@@ -12,6 +13,8 @@ interface Props {
   onSelectVariable?: (id: string) => void
   onClose: () => void
   onAddColumn?: (tableId: string, column: any) => Promise<void>
+  isEditingInitial?: boolean
+  onEditModeChange?: (editing: boolean) => void
 }
 
 export function TableDetailsDrawer({
@@ -20,17 +23,26 @@ export function TableDetailsDrawer({
   variables,
   onSelectVariable,
   onClose,
-  onAddColumn
+  onAddColumn,
+  isEditingInitial = false,
+  onEditModeChange
 }: Props) {
   const [isAddingField, setIsAddingField] = useState(false)
-  // Find linked variables for the table's columns
+  const [isEditing, setIsEditing] = useState(isEditingInitial)
+
+  useEffect(() => {
+    setIsEditing(isEditingInitial)
+  }, [isEditingInitial])
+
+  const handleSetEditing = (val: boolean) => {
+    setIsEditing(val)
+    onEditModeChange?.(val)
+  }
+
   const fields = useMemo(() => {
     return columns.map(col => {
       const linkedVar = variables.find(v => v.id === col.variable_id)
-      return {
-        ...col,
-        variable: linkedVar
-      }
+      return { ...col, variable: linkedVar }
     })
   }, [columns, variables])
 
@@ -52,129 +64,156 @@ export function TableDetailsDrawer({
             <Database className="size-4 text-emerald-500" />
             <span className="text-sm font-black text-black dark:text-white">Table Schema</span>
           </div>
-          <button
-            onClick={onClose}
-            className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
-            aria-label="Close details"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        {/* Table identity */}
-        <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-2">
-          <p className="text-sm font-black text-black dark:text-white lowercase font-mono break-all">{table.name}</p>
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[9px] font-bold px-2 py-0.5 border border-emerald-500/20 text-emerald-500 bg-emerald-500/5 uppercase">
-              Persistent Entity
-            </span>
-            <span className="text-[9px] font-bold px-2 py-0.5 border border-zinc-200 dark:border-zinc-800 text-zinc-400">
-              Columns: {columns.length}
-            </span>
-          </div>
-        </div>
-
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800">
-            <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Primary Keys</p>
-            <div className="flex items-center gap-1.5">
-              <Key className="size-3.5 text-zinc-400" />
-              <span className="text-xs font-black text-black dark:text-white">{pkCount}</span>
-            </div>
-          </div>
-          <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800">
-            <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Linked Variables</p>
-            <div className="flex items-center gap-1.5">
-              <Layers className="size-3.5 text-blue-500" />
-              <span className="text-xs font-black text-black dark:text-white">{linkedVarsCount}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Column Fields List */}
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest uppercase">Schema Fields</p>
-            {onAddColumn && !isAddingField && (
+          <div className="flex items-center gap-2">
+            {!isEditing && (
               <button
-                onClick={() => setIsAddingField(true)}
-                className="text-[9px] font-black cursor-pointer text-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase tracking-wider flex items-center gap-0.5"
+                type="button"
+                onClick={() => handleSetEditing(true)}
+                className="flex items-center gap-1 text-[10px] font-black text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
               >
-                <Plus className="size-2.5" /> Add Field
+                <Edit3 className="size-3" /> Edit
               </button>
             )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+              aria-label="Close details"
+            >
+              <X className="size-4" />
+            </button>
           </div>
-          <div className="space-y-1.5">
-            {isAddingField && onAddColumn && (
-              <AddColumnForm
-                variables={variables}
-                onCancel={() => setIsAddingField(false)}
-                onAdd={async (data) => {
-                  await onAddColumn(table.id, data)
-                  setIsAddingField(false)
-                }}
-              />
-            )}
+        </div>
 
-            {fields.map(col => (
-              <div
-                key={col.id}
-                className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex flex-col gap-2 group hover:border-zinc-400 dark:hover:border-zinc-650 transition-colors"
-              >
-                <div className="flex items-start justify-between min-w-0">
-                  <div className="flex items-center gap-2 min-w-0">
-                    {col.is_primary_key ? (
-                      <span title="Primary Key">
-                        <Key className="size-3 text-emerald-500 shrink-0" />
-                      </span>
-                    ) : (
-                      <Database className="size-3 text-zinc-400 shrink-0" />
-                    )}
-                    <span className="text-xs font-bold font-mono text-black dark:text-white truncate">
-                      {col.name}
-                    </span>
-                  </div>
-                  <span className="text-[9px] font-mono text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 px-1 py-0.5 shrink-0 uppercase">
-                    {col.type}
-                  </span>
+        {isEditing ? (
+          <InlineTableEditForm
+            table={table}
+            columns={columns}
+            variables={variables}
+            onClose={() => handleSetEditing(false)}
+            onDeleted={onClose}
+          />
+        ) : (
+          <>
+            {/* Table identity */}
+            <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-2">
+              <p className="text-sm font-black text-black dark:text-white lowercase font-mono break-all">{table.name}</p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[9px] font-bold px-2 py-0.5 border border-emerald-500/20 text-emerald-500 bg-emerald-500/5 uppercase">
+                  Persistent Entity
+                </span>
+                <span className="text-[9px] font-bold px-2 py-0.5 border border-zinc-200 dark:border-zinc-800 text-zinc-400">
+                  Columns: {columns.length}
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800">
+                <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Primary Keys</p>
+                <div className="flex items-center gap-1.5">
+                  <Key className="size-3.5 text-zinc-400" />
+                  <span className="text-xs font-black text-black dark:text-white">{pkCount}</span>
                 </div>
+              </div>
+              <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800">
+                <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Linked Variables</p>
+                <div className="flex items-center gap-1.5">
+                  <Layers className="size-3.5 text-blue-500" />
+                  <span className="text-xs font-black text-black dark:text-white">{linkedVarsCount}</span>
+                </div>
+              </div>
+            </div>
 
-                {col.variable && (
-                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-900 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <Layers className="size-3 text-blue-500 shrink-0" />
-                      <span className="text-[10px] font-mono text-zinc-400 truncate">
-                        Linked: <span className="text-blue-500 font-bold">{col.variable.label}</span>
-                      </span>
-                    </div>
-                    {onSelectVariable && (
-                      <button
-                        onClick={() => onSelectVariable(col.variable.id)}
-                        className="text-[9px] font-bold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5 transition-colors"
-                      >
-                        Trace <ArrowRight className="size-2.5" />
-                      </button>
-                    )}
-                  </div>
+            {/* Column Fields List */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest uppercase">Schema Fields</p>
+                {onAddColumn && !isAddingField && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingField(true)}
+                    className="text-[9px] font-black cursor-pointer text-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase tracking-wider flex items-center gap-0.5"
+                  >
+                    <Plus className="size-2.5" /> Add Field
+                  </button>
                 )}
               </div>
-            ))}
-
-            {fields.length === 0 && !isAddingField && (
-              <button
-                onClick={() => setIsAddingField(true)}
-                className="w-full py-8 text-center border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-zinc-450 dark:hover:border-zinc-650 transition-colors flex flex-col items-center justify-center gap-1.5"
-              >
-                <HelpCircle className="size-5 text-zinc-400 mx-auto mb-1" />
-                <p className="text-[10px] font-bold text-zinc-400 uppercase">No fields defined</p>
-                {onAddColumn && (
-                  <span className="text-[9px] font-black cursor-pointer text-emerald-500 uppercase mt-1">+ Click to Add Field</span>
+              <div className="space-y-1.5">
+                {isAddingField && onAddColumn && (
+                  <AddColumnForm
+                    variables={variables}
+                    onCancel={() => setIsAddingField(false)}
+                    onAdd={async (data) => {
+                      await onAddColumn(table.id, data)
+                      setIsAddingField(false)
+                    }}
+                  />
                 )}
-              </button>
-            )}
-          </div>
-        </div>
+
+                {fields.map(col => (
+                  <div
+                    key={col.id}
+                    className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 flex flex-col gap-2 group hover:border-zinc-400 dark:hover:border-zinc-650 transition-colors"
+                  >
+                    <div className="flex items-start justify-between min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {col.is_primary_key ? (
+                          <span title="Primary Key">
+                            <Key className="size-3 text-emerald-500 shrink-0" />
+                          </span>
+                        ) : (
+                          <Database className="size-3 text-zinc-400 shrink-0" />
+                        )}
+                        <span className="text-xs font-bold font-mono text-black dark:text-white truncate">
+                          {col.name}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-mono text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 px-1 py-0.5 shrink-0 uppercase">
+                        {col.type}
+                      </span>
+                    </div>
+
+                    {col.variable && (
+                      <div className="pt-2 border-t border-zinc-100 dark:border-zinc-900 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Layers className="size-3 text-blue-500 shrink-0" />
+                          <span className="text-[10px] font-mono text-zinc-400 truncate">
+                            Linked: <span className="text-blue-500 font-bold">{col.variable.label}</span>
+                          </span>
+                        </div>
+                        {onSelectVariable && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectVariable(col.variable.id)}
+                            className="text-[9px] font-bold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5 transition-colors"
+                          >
+                            Trace <ArrowRight className="size-2.5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {fields.length === 0 && !isAddingField && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingField(true)}
+                    className="w-full py-8 text-center border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-zinc-450 dark:hover:border-zinc-650 transition-colors flex flex-col items-center justify-center gap-1.5"
+                  >
+                    <HelpCircle className="size-5 text-zinc-400 mx-auto mb-1" />
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase">No fields defined</p>
+                    {onAddColumn && (
+                      <span className="text-[9px] font-black cursor-pointer text-emerald-500 uppercase mt-1">+ Click to Add Field</span>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </motion.div>
   )

@@ -12,15 +12,14 @@ import {
   ShieldCheck,
   X,
   Zap,
-  Edit3,
-  Save,
-  RotateCcw
+  Edit3
 } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
 import { LinkTableForm } from './LinkTableForm'
 import { useParams } from 'next/navigation'
 import { useVariables } from '@/hooks/useVariables'
 import { toast } from 'sonner'
+import { VariableEditForm } from './VariableEditForm'
 
 interface Props {
   variable: any
@@ -32,6 +31,8 @@ interface Props {
   tables: any[]
   policies: any[]
   functions: any[]
+  isEditingInitially?: boolean
+  onEditModeChange?: (editing: boolean) => void
   onLinkColumn: (columnId: string, variableId: string | null) => Promise<void>
   onLinkNewColumn: (data: {
     tableId: string | 'new'
@@ -45,90 +46,22 @@ interface Props {
 
 export function DataLineagePanel({
   variable, inputs, outputs, actions, pages,
-  columns, tables, policies, functions, onLinkColumn, onLinkNewColumn, onClose
+  columns, tables, policies, functions, isEditingInitially = false, onEditModeChange, onLinkColumn, onLinkNewColumn, onClose
 }: Props) {
   const params = useParams()
   const projectId = params?.id as string
-  const { updateVariable } = useVariables()
 
   const [isLinking, setIsLinking] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  
-  // Editing state variables
-  const [editLabel, setEditLabel] = useState(variable.label)
-  const [editType, setEditType] = useState(variable.type)
-  const [editScope, setEditScope] = useState(variable.scope)
-  const [editDesc, setEditDesc] = useState(variable.description || '')
-  const [editDefaultVal, setEditDefaultVal] = useState(
-    variable.default_value !== undefined && variable.default_value !== null
-      ? typeof variable.default_value === 'object'
-        ? JSON.stringify(variable.default_value)
-        : String(variable.default_value)
-      : ''
-  )
+  const [isEditing, setIsEditing] = useState(isEditingInitially)
 
-  // Reset editing values when variable changes
+  // Sync isEditing with prop if prop changes or variable changes
   useEffect(() => {
-    setEditLabel(variable.label)
-    setEditType(variable.type)
-    setEditScope(variable.scope)
-    setEditDesc(variable.description || '')
-    setEditDefaultVal(
-      variable.default_value !== undefined && variable.default_value !== null
-        ? typeof variable.default_value === 'object'
-          ? JSON.stringify(variable.default_value)
-          : String(variable.default_value)
-        : ''
-    )
-    setIsEditing(false)
-  }, [variable])
+    setIsEditing(isEditingInitially)
+  }, [isEditingInitially, variable])
 
-  const handleSave = async () => {
-    if (!editLabel.trim()) {
-      toast.error('Variable label is required')
-      return
-    }
-
-    let parsedDefaultVal: any = editDefaultVal.trim()
-    if (parsedDefaultVal !== '') {
-      if (editType === 'boolean') {
-        if (parsedDefaultVal.toLowerCase() === 'true') parsedDefaultVal = true
-        else if (parsedDefaultVal.toLowerCase() === 'false') parsedDefaultVal = false
-        else {
-          toast.error('Default value must be "true" or "false" for boolean type')
-          return
-        }
-      } else if (editType === 'number') {
-        const num = Number(parsedDefaultVal)
-        if (isNaN(num)) {
-          toast.error('Default value must be a valid number')
-          return
-        }
-        parsedDefaultVal = num
-      } else if (editType === 'object' || editType === 'array') {
-        try {
-          parsedDefaultVal = JSON.parse(parsedDefaultVal)
-        } catch (e) {
-          toast.error(`Invalid JSON format for type ${editType}`)
-          return
-        }
-      }
-    } else {
-      parsedDefaultVal = null
-    }
-
-    try {
-      await updateVariable(projectId, variable.id, {
-        label: editLabel.trim(),
-        type: editType,
-        scope: editScope,
-        description: editDesc.trim() || null,
-        default_value: parsedDefaultVal
-      })
-      setIsEditing(false)
-    } catch (e) {
-      console.error(e)
-    }
+  const setIsEditingWrapped = (editing: boolean) => {
+    setIsEditing(editing)
+    onEditModeChange?.(editing)
   }
 
   // 1. Screens that READ this variable (inputs mapped to it)
@@ -183,12 +116,30 @@ export function DataLineagePanel({
             <Layers className="size-4 text-blue-500" />
             <span className="text-sm font-black text-black dark:text-white ">Variables</span>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-            <X className="size-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditingWrapped(true)}
+                className="flex items-center gap-1 text-[10px] font-black text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+              >
+                <Edit3 className="size-3" /> Edit
+              </button>
+            )}
+            <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+              <X className="size-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Variable identity */}
+        {isEditing ? (
+          <VariableEditForm
+            variable={variable}
+            projectId={projectId}
+            onClose={() => setIsEditingWrapped(false)}
+          />
+        ) : (
+          <>
+
         <div className="p-3 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-2">
           <p className="text-sm font-black text-black dark:text-white font-mono">{variable.label}</p>
           <div className="flex items-center gap-2">
@@ -296,10 +247,13 @@ export function DataLineagePanel({
             ))}
           </LineageSection>
         )}
+          </>
+        )}
       </div>
     </motion.div>
   )
 }
+
 
 /* ────── Sub-components ────── */
 

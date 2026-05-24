@@ -18,9 +18,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
       className={cn(
-        "flex-1 inline-flex text-nowrap items-center justify-center gap-2 px-1 py-2 text-[10px] font-black transition-all disabled:opacity-50 rounded-md",
-        "bg-transparent text-white/50 hover:text-white",
-        "data-[state=active]:bg-white data-[state=active]:text-black",
+        "flex-1 inline-flex text-nowrap items-center justify-center gap-2 px-1 py-2 text-[10px] font-black transition-all disabled:opacity-50 rounded-md cursor-pointer select-none outline-none",
+        "bg-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100",
+        "data-[active]:bg-white dark:data-[active]:bg-zinc-800 data-[active]:text-black dark:data-[active]:text-white data-[active]:shadow-sm",
         className
       )}
       {...props}

@@ -40,6 +40,7 @@ import { EditInputModal } from './EditInputModal'
 import { EditOutputModal } from './EditOutputModal'
 import { EditConstraintModal } from './EditConstraintModal'
 import { SidebarSection } from './helpers'
+import { FolderSelect } from './FolderSelect'
 
 interface Props {
   page: any
@@ -87,6 +88,23 @@ export function ScreenDetails({
   const addConstraint = usePages(s => s.addConstraint)
   const updateConstraint = usePages(s => s.updateConstraint)
   const removeConstraint = usePages(s => s.removeConstraint)
+
+  const allInputs = usePages(s => s.inputs)
+  const allOutputs = usePages(s => s.outputs)
+
+  const filteredVariables = useMemo(() => {
+    return availableVariables.filter(v => {
+      if (v.scope !== 'transient') return true
+      const boundPageIds = new Set<string>()
+      allInputs.forEach(i => {
+        if (i.variable_id === v.id) boundPageIds.add(i.page_id)
+      })
+      allOutputs.forEach(o => {
+        if (o.variable_id === v.id) boundPageIds.add(o.page_id)
+      })
+      return boundPageIds.size === 0 || boundPageIds.has(page.id)
+    })
+  }, [availableVariables, allInputs, allOutputs, page.id])
 
   const { constants, functions: availableFunctions, fetchLogicData } = useLogic()
   const { messages, isArchitecting, generateSystem, commitScript, rejectScript, restoreScript, addMessage } = useSystemArchitect()
@@ -183,10 +201,7 @@ export function ScreenDetails({
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Architectural Folder</label>
-                      <div className="relative group">
-                        <Folder className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
-                        <Input value={folder} onChange={e => setFolder(e.target.value)} placeholder="Auth Flow, Dashboard..." className="pl-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold shadow-sm" />
-                      </div>
+                      <FolderSelect value={folder} onChange={setFolder} placeholder="Auth Flow, Dashboard..." inputClassName="h-12" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Live URL</label>
@@ -249,7 +264,7 @@ export function ScreenDetails({
                               }
                             }}
                             className={cn(
-                              "flex items-center justify-between p-3 border transition-all text-left group",
+                              "flex items-center rounded-md justify-between truncate text-nowrap lowercase py-3 px-2 border transition-all text-left group",
                               isSelected
                                 ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
                                 : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-400"
@@ -260,7 +275,7 @@ export function ScreenDetails({
                                 "size-1.5 rounded-full",
                                 isSelected ? "bg-white dark:bg-black" : "bg-zinc-200 dark:bg-zinc-800 group-hover:bg-zinc-400"
                               )} />
-                              <span className="text-[10px] font-black  tracking-tight">{ut.name}</span>
+                              <span className="text-[10px] font-black  tracking-tight">{ut.name.length > 15 ? `${ut.name.slice(0, 15)}...` : ut.name}</span>
                             </div>
                             {isSelected && <Check className="size-3" />}
                           </button>
@@ -327,7 +342,7 @@ export function ScreenDetails({
                   <SidebarSection
                     title="Input Interfaces"
                     icon={<Fingerprint className="size-3.5 text-blue-500" />}
-                    onAdd={() => addInput(page.id, { name: `input_${(page.inputs || []).length + 1}`, input_type: 'form_field', variable_id: availableVariables[0]?.id })}
+                    onAdd={() => addInput(page.id, { name: `input_${(page.inputs || []).length + 1}`, input_type: 'form_field', variable_id: filteredVariables[0]?.id })}
                     items={page.inputs || []}
                     renderItem={(i) => {
                       const variable = availableVariables.find(v => v.id === i.variable_id)
@@ -489,7 +504,7 @@ export function ScreenDetails({
           isOpen={!!editingInput}
           onClose={() => setEditingInput(null)}
           inputItem={editingInput}
-          availableVariables={availableVariables}
+          availableVariables={filteredVariables}
           onUpdate={updateInput}
           onRemove={removeInput}
         />
@@ -500,7 +515,7 @@ export function ScreenDetails({
           isOpen={!!editingOutput}
           onClose={() => setEditingOutput(null)}
           outputItem={editingOutput}
-          availableVariables={availableVariables}
+          availableVariables={filteredVariables}
           onUpdate={updateOutput}
           onRemove={removeOutput}
         />
@@ -522,7 +537,7 @@ export function ScreenDetails({
           isOpen={!!editingConstraint}
           onClose={() => setEditingConstraint(null)}
           constraintItem={editingConstraint.id ? editingConstraint : null}
-          availableVariables={availableVariables}
+          availableVariables={filteredVariables}
           allPages={allPages}
           currentPageId={page.id}
           onSave={async (payload) => {
