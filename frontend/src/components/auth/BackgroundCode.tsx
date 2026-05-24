@@ -18,7 +18,7 @@ export const BackgroundCode = () => {
   }
 
   return (
-    <div className="absolute inset-0 overflow-hidden opacity-[0.06] pointer-events-none font-mono text-[9px] whitespace-pre leading-loose select-none p-4">
+    <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none font-mono text-sm whitespace-pre leading-loose select-none p-4">
       <motion.div
         initial={{ y: '0%' }}
         animate={{ y: '-50%' }}

@@ -48,7 +48,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const router = undefined;
-    const baseStyles = "flex flex-row items-center text-nowrap w-full gap-2 capitalize justify-center cursor-pointer rounded-none font-bold transition-all duration-200 outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:cursor-not-allowed font-sans";
+    const baseStyles = "flex flex-row items-center text-nowrap w-full gap-2 capitalize justify-center cursor-pointer rounded-md font-bold transition-all duration-200 outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:cursor-not-allowed font-sans";
 
     const variants: Record<ButtonVariant, string> = {
       primary: "bg-foreground text-background hover:opacity-90 shadow-none",

@@ -106,7 +106,7 @@ export function ProjectOverview({
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Query system components..."
-                  className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-11 pl-10 text-[11px] font-bold rounded-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all shadow-sm"
+                  className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-11 pl-10 text-[11px] font-bold rounded-md focus:ring-1 focus:ring-black dark:focus:ring-white transition-all shadow-sm"
                 />
               </div>
 
@@ -156,7 +156,7 @@ export function ProjectOverview({
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                       className={cn(
-                        "group flex items-center justify-between p-2.5 border rounded-none cursor-pointer transition-all shadow-sm",
+                        "group flex items-center justify-between p-2.5 border rounded-md cursor-pointer transition-all shadow-sm",
                         selectedNodeId?.includes(page.id)
                           ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
                           : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-black dark:hover:border-zinc-600"
@@ -212,12 +212,12 @@ export function ProjectOverview({
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     placeholder="Ask, describe, request ..."
-                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
+                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
                   />
                   <Button
                     type="submit"
                     disabled={isArchitecting || !chatInput.trim()}
-                    className="absolute right-2 top-2 max-w-7 rounded-none bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
+                    className="absolute right-2 top-2 max-w-7 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
                   >
                     <Send className="size-4" />
                   </Button>
@@ -279,7 +279,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
 
       {msg.script && (
         msg.is_rejected ? (
-          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-md">
             <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
               <X className="size-3 text-red-500" />
               Architecture proposal rejected

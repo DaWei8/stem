@@ -96,7 +96,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
               setTableSelection(e.target.value)
               setColumnSelection('')
             }}
-            className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+            className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-md focus:outline-none focus:border-zinc-400"
             required
           >
             <option value="">Select table...</option>
@@ -115,7 +115,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
               value={newTableName}
               onChange={e => setNewTableName(e.target.value)}
               placeholder="e.g. user_profiles"
-              className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs font-mono focus-visible:ring-1 focus-visible:ring-zinc-400"
+              className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-xs font-mono focus-visible:ring-1 focus-visible:ring-zinc-400"
               required
             />
           </div>
@@ -128,7 +128,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
             <select
               value={columnSelection}
               onChange={(e) => setColumnSelection(e.target.value)}
-              className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-md focus:outline-none focus:border-zinc-400"
               required
             >
               <option value="">Select column...</option>
@@ -149,7 +149,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
                 value={newColumnName}
                 onChange={e => setNewColumnName(e.target.value)}
                 placeholder="e.g. bio_text"
-                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs font-mono focus-visible:ring-1 focus-visible:ring-zinc-400"
+                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-xs font-mono focus-visible:ring-1 focus-visible:ring-zinc-400"
                 required
               />
             </div>
@@ -159,7 +159,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
               <select
                 value={newColumnType}
                 onChange={e => setNewColumnType(e.target.value)}
-                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-3 rounded-md focus:outline-none focus:border-zinc-400"
               >
                 {['uuid', 'varchar', 'int4', 'timestamp', 'jsonb', 'boolean', 'text'].map(t => (
                   <option key={t} value={t}>{t.toUpperCase()}</option>
@@ -174,7 +174,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 h-9 text-[10px] font-black uppercase tracking-wider rounded-none bg-black dark:bg-white text-white dark:text-black"
+          className="flex-1 h-9 text-[10px] font-black uppercase tracking-wider rounded-md bg-black dark:bg-white text-white dark:text-black"
         >
           {isSubmitting ? 'Linking...' : 'Confirm Link'}
         </Button>
@@ -182,7 +182,7 @@ export function LinkTableForm({ tables, columns, onCancel, onLink }: Props) {
           type="button"
           onClick={onCancel}
           variant="outline"
-          className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-none border-zinc-200 dark:border-zinc-800 text-black dark:text-white"
+          className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-md border-zinc-200 dark:border-zinc-800 text-black dark:text-white"
         >
           Cancel
         </Button>

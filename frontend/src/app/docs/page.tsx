@@ -88,9 +88,9 @@ export default function DocsPage() {
     <div className="min-h-screen bg-background font-heading text-foreground flex flex-col selection:bg-foreground/10">
       <Navbar />
 
-      <div className="flex-1 flex max-w-[1600px] mx-auto w-full pt-20">
+      <div className="flex-1 flex max-w-7xl mx-auto w-full pt-20">
         {/* Sidebar */}
-        <aside className="w-80 hidden lg:flex flex-col border-r border-border h-[calc(100vh-5rem)] sticky top-20 overflow-y-auto px-8 py-10 scrollbar-hide">
+        <aside className="w-80 hidden lg:flex flex-col border-r border-border h-[calc(100vh-5rem)] sticky top-20 overflow-y-auto pr-4 py-10 scrollbar-hide">
           <div className="relative mb-10 group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-500 group-focus-within:text-white transition-colors" />
             <input
@@ -118,7 +118,7 @@ export default function DocsPage() {
                 <div key={cat.title} className="space-y-4">
                   <div className="flex items-center gap-2.5 text-zinc-400">
                     <cat.icon className="size-3.5" />
-                    <h3 className="text-[10px] font-bold tracking-[0.15em]  text-zinc-600">
+                    <h3 className="text-sm font-bold text-zinc-600">
                       {cat.title}
                     </h3>
                   </div>
@@ -150,16 +150,6 @@ export default function DocsPage() {
               )
             })}
           </nav>
-
-          <div className="mt-auto pt-10 border-t border-border">
-            <div className="p-4 bg-muted/30 border border-border rounded-xl space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-muted-foreground">SYSTEM STATUS</span>
-              </div>
-              <p className="text-[10px] text-muted-foreground font-medium">All engines operating within deterministic parameters.</p>
-            </div>
-          </div>
         </aside>
 
         {/* Main Content */}
@@ -189,9 +179,9 @@ export default function DocsPage() {
         </main>
 
         {/* Table of Contents */}
-        <aside className="w-64 hidden xl:flex flex-col h-[calc(100vh-5rem)] sticky top-20 py-16 px-6 border-l border-border/50">
+        <aside className="w-80 hidden xl:flex flex-col h-[calc(100vh-5rem)] sticky top-20 py-16 pl-8 border-l border-border/50">
           <div className="space-y-6">
-            <h4 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground ">On this page</h4>
+            <h4 className="text-sm font-bold text-muted-foreground ">On this page</h4>
             <nav className="space-y-4">
               <TOCLinks slug={activeSlug} />
             </nav>
@@ -200,8 +190,8 @@ export default function DocsPage() {
           <div className="mt-auto space-y-6">
             <div className="p-5 bg-foreground text-background rounded-2xl space-y-4">
               <h4 className="font-bold text-sm leading-tight">Need custom architecture?</h4>
-              <p className="text-[10px] font-medium leading-relaxed opacity-70">Our engineering team can help you build mission-critical blueprints.</p>
-              <button className="w-full bg-background text-foreground text-[10px] font-black py-2.5 rounded-lg hover:opacity-90 transition-all  border border-border/20">
+              <p className="text-xs font-medium leading-relaxed opacity-70">Our engineering team can help you build mission-critical blueprints.</p>
+              <button className="w-full bg-background text-foreground text-xs font-black py-2.5 rounded-lg hover:opacity-90 transition-all  border border-border/20">
                 Contact Sales
               </button>
             </div>

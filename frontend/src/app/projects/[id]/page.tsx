@@ -252,7 +252,7 @@ export default function ProjectEditorPage() {
         className="h-16 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between pl-2 pr-4 z-50 shrink-0 transition-colors duration-300"
       >
         <div className="flex items-center gap-3">
-          <Button href='../projects/' className='bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-black dark:text-white size-7 rounded-none p-0 group hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all'>
+          <Button href='../projects/' className='bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-black dark:text-white size-7 rounded-md p-0 group hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all'>
             <ChevronLeft className='size-5 group-hover:-translate-x-0.5 transition-transform' />
           </Button>
 
@@ -280,7 +280,7 @@ export default function ProjectEditorPage() {
           <Button
             variant="ghost"
             onClick={() => setIsShareModalOpen(true)}
-            className="text-[10px] font-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-none h-10 px-4 gap-2 transition-colors"
+            className="text-[10px] font-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-md h-10 px-4 gap-2 transition-colors"
           >
             <Share2 className="size-3.5" />
             Share
@@ -289,13 +289,13 @@ export default function ProjectEditorPage() {
           <Button
             variant='outline'
             onClick={() => setIsExportModalOpen(true)}
-            className=" rounded-none h-10 px-4 text-[10px] font-black gap-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+            className=" rounded-md h-10 px-4 text-[10px] font-black gap-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
           >
             <Download className="size-3.5" />
             Export
           </Button>
           <Button
-            className="bg-black dark:bg-white border-black dark:border-white text-[10px] font-black text-white dark:text-black hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-none h-10 px-4 gap-2 transition-colors"
+            className="bg-black dark:bg-white border-black dark:border-white text-[10px] font-black text-white dark:text-black hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-md h-10 px-4 gap-2 transition-colors"
             onClick={() => toast.info('Auto-save enabled. Registry state is persistent.')}
           >
             <Save className="size-3.5 text-zinc-400 dark:text-zinc-500" />

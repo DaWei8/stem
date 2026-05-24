@@ -481,13 +481,13 @@ export function DesignSystem() {
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-            className={cn("border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-none h-10 text-xs font-bold gap-2", isPreviewOpen ? "bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white" : "bg-white dark:bg-black text-black dark:text-white")}
+            className={cn("border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-md h-10 text-xs font-bold gap-2", isPreviewOpen ? "bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white" : "bg-white dark:bg-black text-black dark:text-white")}
           >
             <Eye className="size-3.5" /> {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
           </Button>
           <Button
             onClick={() => setPresetModal('all')}
-            className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2"
+            className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2"
           >
             <Layers className="size-3.5" /> Use Preset Pack
           </Button>
@@ -552,7 +552,7 @@ export function DesignSystem() {
           footer={
             <Button
               onClick={() => handleSaveToken(activeModal)}
-              className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black transition-all"
+              className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-12 text-xs font-black transition-all"
             >
               {editingTokenId ? 'Update Token' : 'Save Token'}
             </Button>
@@ -565,7 +565,7 @@ export function DesignSystem() {
                 value={newTokenName}
                 onChange={(e) => setNewTokenName(e.target.value)}
                 placeholder="e.g., brand-primary"
-                className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
+                className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-md h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
               />
             </div>
 
@@ -587,8 +587,8 @@ export function DesignSystem() {
                         <div className="space-y-2">
                           <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Font Family</Label>
                           <Select value={fontFamily} onValueChange={(v) => setFontFamily(v || 'Inter')}>
-                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
+                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-md text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-md">
                               {presetFonts.map(f => <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>)}
                             </SelectContent>
                           </Select>
@@ -606,8 +606,8 @@ export function DesignSystem() {
                               }
                             }
                           }}>
-                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors capitalize"><SelectValue /></SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
+                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-md text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors capitalize"><SelectValue /></SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-md">
                               {Object.keys(rolePresets).map(role => <SelectItem key={role} value={role} className="text-xs capitalize">{role}</SelectItem>)}
                             </SelectContent>
                           </Select>
@@ -618,20 +618,20 @@ export function DesignSystem() {
                       <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Size</Label>
-                          <Input value={fontSize} onChange={(e) => setFontSize(e.target.value)} placeholder="16px" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
+                          <Input value={fontSize} onChange={(e) => setFontSize(e.target.value)} placeholder="16px" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-md text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Weight</Label>
                           <Select value={fontWeight} onValueChange={(v) => setFontWeight(v || 'regular')}>
-                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-none">
+                            <SelectTrigger className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-md text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"><SelectValue /></SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white rounded-md">
                               {presetWeights.map(w => <SelectItem key={w} value={w} className="text-xs">{w}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs font-bold text-zinc-400 dark:text-zinc-600">Tracking</Label>
-                          <Input value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} placeholder="-1.4%" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-none text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
+                          <Input value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} placeholder="-1.4%" className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-12! w-full! rounded-md text-xs font-mono text-black dark:text-white focus:border-black dark:focus:border-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700" />
                         </div>
                       </div>
 
@@ -691,10 +691,10 @@ export function DesignSystem() {
                     <div className="space-y-2 w-full">
                       <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-600">Color Classification</Label>
                       <Select value={newTokenRole} onValueChange={(v) => { if (v) setNewTokenRole(v) }}>
-                        <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-10 text-[10px] font-bold">
+                        <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-10 text-[10px] font-bold">
                           <SelectValue placeholder="Select a role..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
+                        <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md">
                           <SelectItem value="none" className="text-[10px]">None (Custom)</SelectItem>
                           <SelectItem value="color-primary" className="text-[10px]">Primary</SelectItem>
                           <SelectItem value="color-secondary" className="text-[10px]">Secondary</SelectItem>
@@ -728,7 +728,7 @@ export function DesignSystem() {
                           <Input
                             value={newTokenValue}
                             onChange={(e) => setNewTokenValue(e.target.value)}
-                            className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 h-9 rounded-none text-[10px] font-mono text-black dark:text-white transition-colors"
+                            className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 h-9 rounded-md text-[10px] font-mono text-black dark:text-white transition-colors"
                           />
                         </div>
                       </div>
@@ -763,7 +763,7 @@ export function DesignSystem() {
                   <Input
                     value={newTokenValue}
                     onChange={(e) => setNewTokenValue(e.target.value)}
-                    className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
+                    className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-md h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors"
                   />
                 )}
               </div>
@@ -780,7 +780,7 @@ export function DesignSystem() {
           footer={
             <Button
               onClick={handleSaveComponent}
-              className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-xs font-black  transition-all"
+              className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-12 text-xs font-black  transition-all"
             >
               {editingComponentId ? 'Update Blueprint' : 'Create Component'}
             </Button>
@@ -789,13 +789,13 @@ export function DesignSystem() {
           <div className="space-y-8">
             <div className="space-y-3">
               <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Component name</Label>
-              <Input value={newCompName} onChange={(e) => setNewCompName(e.target.value)} className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors" />
+              <Input value={newCompName} onChange={(e) => setNewCompName(e.target.value)} className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-md h-12 font-mono text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors" />
             </div>
             <div className="space-y-3">
               <Label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">Classification</Label>
               <Select value={newCompType} onValueChange={(v) => v && setNewCompType(v as any)}>
-                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 w-full border-zinc-200 dark:border-zinc-800 rounded-none h-12! text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors font-mono"><SelectValue /></SelectTrigger>
-                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white capitalize rounded-none">
+                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 w-full border-zinc-200 dark:border-zinc-800 rounded-md h-12! text-xs text-black dark:text-white focus:border-black dark:focus:border-white transition-colors font-mono"><SelectValue /></SelectTrigger>
+                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 text-black dark:text-white capitalize rounded-md">
                   <SelectItem value="button" className="text-xs">Button</SelectItem>
                   <SelectItem value="input" className="text-xs">Input</SelectItem>
                   <SelectItem value="form" className="text-xs">Form</SelectItem>
@@ -821,7 +821,7 @@ export function DesignSystem() {
                   <h4 className="text-sm font-bold">{preset.name}</h4>
                   <Button
                     onClick={() => handleApplyPreset(preset.id, presetModal!)}
-                    className="bg-black dark:bg-white text-white dark:text-black h-8 text-[10px] font-bold rounded-none hover:bg-zinc-800 dark:hover:bg-zinc-200"
+                    className="bg-black dark:bg-white text-white dark:text-black h-8 text-[10px] font-bold rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-200"
                   >
                     Apply
                   </Button>

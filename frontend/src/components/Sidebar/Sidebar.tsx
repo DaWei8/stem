@@ -58,7 +58,7 @@ export function Sidebar() {
         }
         <div className="space-y-8">
           {/* Main Pillars */}
-          <nav className="px-3 pt-3">
+          <nav className="px-3 pt-3 space-y-1">
             {pillars.map((item) => {
               const Icon = item.icon
               const isActive = activeView === item.id
@@ -67,7 +67,7 @@ export function Sidebar() {
                   key={item.id}
                   onClick={() => setActiveView(item.id as PillarView)}
                   className={cn(
-                    "relative flex items-center w-full transition-all duration-200 group rounded-none",
+                    "relative flex items-center w-full transition-all duration-200 group rounded-md",
                     sidebarVisible ? "px-4 py-3.5 gap-4" : "px-0 py-3 justify-center",
                     isActive
                       ? "bg-black text-white dark:bg-white dark:text-black"
@@ -103,7 +103,7 @@ export function Sidebar() {
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-active-glow"
-                      className="absolute inset-0 bg-white shadow-[0_0_20px_rgba(255,255,255,0.15)] z-[-1]"
+                      className="absolute inset-0 bg-white shadow-[0_0_20px_rgba(255,255,255,0.15)] z-[-1] rounded-md"
                     />
                   )}
                 </button>
@@ -127,7 +127,7 @@ export function Sidebar() {
                   key={item.id}
                   onClick={() => setActiveView(item.id as PillarView)}
                   className={cn(
-                    "flex items-center w-full transition-all duration-200 group rounded-none relative",
+                    "flex items-center w-full transition-all duration-200 group rounded-md relative",
                     sidebarVisible ? "px-4 py-3 gap-4" : "px-0 py-4 justify-center",
                     isActive
                       ? "bg-black text-white dark:bg-white dark:text-black"
@@ -146,7 +146,7 @@ export function Sidebar() {
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-active-glow"
-                      className="absolute inset-0 bg-white z-[-1]"
+                      className="absolute inset-0 bg-white z-[-1] rounded-md"
                     />
                   )}
                 </button>

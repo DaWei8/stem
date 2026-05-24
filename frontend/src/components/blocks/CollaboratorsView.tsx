@@ -195,13 +195,13 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   placeholder="colleague@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white"
+                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white"
                 />
               </div>
               <select
                 value={roleSelection}
                 onChange={(e: any) => setRoleSelection(e.target.value)}
-                className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400"
               >
                 <option value="editor">Editor</option>
                 <option value="viewer">Viewer</option>
@@ -209,7 +209,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
               <Button
                 type="submit"
                 disabled={isInviting}
-                className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-colors"
+                className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-11 px-6 text-xs font-black transition-colors"
               >
                 {isInviting ? <Loader2 className="size-3.5 animate-spin" /> : 'Invite'}
               </Button>
@@ -227,13 +227,13 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                 placeholder="Enter collaborator email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white w-full"
+                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 pl-10 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-colors text-black dark:text-white w-full"
               />
             </div>
             <select
               value={roleSelection}
               onChange={(e: any) => setRoleSelection(e.target.value)}
-              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 col-span-1 sm:col-span-3 w-full"
+              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 col-span-1 sm:col-span-3 w-full"
             >
               <option value="editor">Editor</option>
               <option value="viewer">Viewer</option>
@@ -241,7 +241,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             <Button
               type="submit"
               disabled={isInviting}
-              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-colors col-span-1 sm:col-span-2 w-full shrink-0 flex items-center justify-center"
+              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-11 px-6 text-xs font-black transition-colors col-span-1 sm:col-span-2 w-full shrink-0 flex items-center justify-center"
             >
               {isInviting ? <Loader2 className="size-3.5 animate-spin" /> : 'Invite'}
             </Button>
@@ -293,7 +293,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_edit_pages ?? true}
                         onChange={(e) => handlePermissionChange(user, 'can_edit_pages', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Pages
                     </label>
@@ -302,7 +302,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_edit_variables ?? true}
                         onChange={(e) => handlePermissionChange(user, 'can_edit_variables', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Variables
                     </label>
@@ -311,7 +311,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_edit_constraints ?? true}
                         onChange={(e) => handlePermissionChange(user, 'can_edit_constraints', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Constraints
                     </label>
@@ -320,7 +320,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_run_simulation ?? false}
                         onChange={(e) => handlePermissionChange(user, 'can_run_simulation', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Simulation
                     </label>
@@ -329,7 +329,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_export ?? false}
                         onChange={(e) => handlePermissionChange(user, 'can_export', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Export
                     </label>
@@ -338,7 +338,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         type="checkbox"
                         checked={user.can_invite_others ?? false}
                         onChange={(e) => handlePermissionChange(user, 'can_invite_others', e.target.checked)}
-                        className="rounded-none border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
+                        className="rounded-md border-zinc-300 dark:border-zinc-800 bg-transparent text-black dark:text-white focus:ring-0 focus:ring-offset-0 size-3 cursor-pointer"
                       />
                       Invite
                     </label>
@@ -351,7 +351,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                       <select
                         value={user.role}
                         onChange={(e) => updateRole(projectId as string, user.id, e.target.value)}
-                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-8 px-2 rounded-none focus:outline-none focus:border-zinc-400 cursor-pointer animate-fade-in"
+                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400 h-8 px-2 rounded-md focus:outline-none focus:border-zinc-400 cursor-pointer animate-fade-in"
                       >
                         <option value="editor">Editor</option>
                         <option value="viewer">Viewer</option>
@@ -361,7 +361,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                         onClick={() => handleDelete(user)}
                         size="icon"
                         variant="ghost"
-                        className="size-8 rounded-none border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all opacity-0 sm:group-hover:opacity-100 max-sm:opacity-100"
+                        className="size-8 rounded-md border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all opacity-0 sm:group-hover:opacity-100 max-sm:opacity-100"
                         title="Revoke collaborator access"
                       >
                         <Trash2 className="size-3.5" />
@@ -430,7 +430,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                       onClick={() => removeInviteFromList(invite.email)}
                       size="icon"
                       variant="ghost"
-                      className="size-8 rounded-none border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all"
+                      className="size-8 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:bg-red-950/20 hover:text-red-500 transition-all"
                       title={invite.status === 'pending' ? "Cancel Invitation" : "Delete Invitation Log"}
                     >
                       <Trash2 className="size-3.5" />
@@ -481,7 +481,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
                   <Button
                     onClick={() => handleRestoreRevokedAccess(log)}
                     size="sm"
-                    className="h-8 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-[10px] font-black uppercase text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-none hover:bg-zinc-100 dark:hover:bg-zinc-900 gap-1.5 px-3 shrink-0"
+                    className="h-8 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-[10px] font-black uppercase text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 gap-1.5 px-3 shrink-0"
                   >
                     <Undo2 className="size-3" />
                     Restore Access

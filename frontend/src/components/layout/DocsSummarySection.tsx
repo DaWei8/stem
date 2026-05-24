@@ -52,7 +52,7 @@ export function DocsSummarySection() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {docs.map((doc) => (
-              <div key={doc.title} className="p-8 bg-muted/30 border border-border space-y-6 group hover:border-foreground/20 transition-colors">
+              <div key={doc.title} className="p-8 bg-muted/30 border border-border space-y-6 rounded-lg group hover:border-foreground/20 transition-colors">
                 <doc.icon className="size-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 <div className="space-y-4">
                   <h4 className="text-sm font-bold tracking-tight text-foreground">{doc.title}</h4>

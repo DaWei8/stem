@@ -24,7 +24,7 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
     <section className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center">
+          <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center rounded-md">
             {icon}
           </div>
           <h3 className="text-xl font-bold tracking-tight">{title}</h3>
@@ -33,14 +33,14 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
           {onPreset && (
             <Button
               onClick={onPreset}
-              className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-3 rounded-none transition-all text-xs"
+              className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-3 rounded-md transition-all text-xs"
             >
               Presets
             </Button>
           )}
           <Button
             onClick={onAdd}
-            className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-none transition-all"
+            className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-md transition-all"
           >
             <Plus className="w-4 h-4" />
           </Button>
@@ -52,16 +52,16 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
           {tokens.map(token => (
             <div
               key={token.id}
-              className="group relative flex items-center justify-between p-3 bg-black/40 border border-zinc-800 hover:border-zinc-500 transition-all cursor-pointer"
+              className="group relative flex items-center justify-between p-3 bg-black/40 border border-zinc-800 hover:border-zinc-500 rounded-lg transition-all cursor-pointer"
               onClick={() => onEdit(token)}
             >
               <div className="flex items-center gap-4 overflow-hidden">
                 {title === 'Colors' ? (
-                  <div className="size-7 border border-zinc-800 shadow-inner group-hover:scale-105 transition-transform shrink-0" style={{ backgroundColor: token.value }} />
+                  <div className="size-7 border border-zinc-800 shadow-inner group-hover:scale-105 transition-transform shrink-0 rounded-md" style={{ backgroundColor: token.value }} />
                 ) : title === 'Typography' ? (
-                  <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center font-bold text-lg shrink-0" style={{ fontFamily: token.value.split(' ')[1] || 'inherit' }}>Ag</div>
+                  <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center font-bold text-lg shrink-0 rounded-md" style={{ fontFamily: token.value.split(' ')[1] || 'inherit' }}>Ag</div>
                 ) : (
-                  <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center shrink-0">
+                  <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center shrink-0 rounded-md">
                     {icon}
                   </div>
                 )}
@@ -76,7 +76,7 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
                     e.stopPropagation();
                     onEdit(token);
                   }}
-                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-white transition-all rounded-none"
+                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-white transition-all rounded-md"
                 >
                   <Edit2 className="size-4" />
                 </Button>
@@ -85,7 +85,7 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
                     e.stopPropagation();
                     onDelete(token.id);
                   }}
-                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all rounded-none"
+                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all rounded-md"
                 >
                   <Trash2 className="size-4" />
                 </Button>
@@ -94,7 +94,7 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
           ))}
         </div>
         {tokens.length === 0 && (
-          <div className="py-8 border border-dashed border-zinc-800 text-center text-[10px] font-bold text-zinc-700">
+          <div className="py-8 border border-dashed border-zinc-800 text-center text-[10px] font-bold text-zinc-700 rounded-lg">
             No {title.toLowerCase()} defined.
           </div>
         )}

@@ -199,7 +199,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         </div>
 
         {/* Identity block */}
-        <div className="p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-3">
+        <div className="p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-3 rounded-lg">
           {isEditing ? (
             <div className="space-y-3">
               <div className="space-y-1">
@@ -208,7 +208,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-9 px-2 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
                 />
               </div>
               <div className="space-y-1">
@@ -216,7 +216,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                 <select
                   value={editType}
                   onChange={(e) => setEditType(e.target.value)}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-9 px-2 rounded-md focus:outline-none focus:border-zinc-400"
                 >
                   <option value="string">String (Text)</option>
                   <option value="number">Number (Float/Int)</option>
@@ -278,7 +278,7 @@ export function ConstantDrawer({ constant, onClose }: Props) {
         <div className="flex-1 flex flex-col min-h-0">
           {isEditing ? (
             <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-2.5">
+              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-start gap-2.5">
                 <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review Required</p>
@@ -290,19 +290,19 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 rows={15}
-                className="flex-1 p-4 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] text-black dark:text-zinc-300 rounded-none focus:outline-none focus:border-zinc-400 resize-none overflow-auto whitespace-pre leading-relaxed shadow-inner"
+                className="flex-1 p-4 bg-zinc-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] text-black dark:text-zinc-300 rounded-md focus:outline-none focus:border-zinc-400 resize-none overflow-auto whitespace-pre leading-relaxed shadow-inner"
                 placeholder={editType === 'json' ? 'e.g. { "name": "Stem" }' : 'Enter constant value...'}
               />
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black  transition-all"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black rounded-md transition-all"
                 >
                   <Save className="size-3.5" /> Save Changes
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black  transition-all bg-white dark:bg-black"
+                  className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black rounded-md transition-all bg-white dark:bg-black"
                 >
                   <RotateCcw className="size-3.5" /> Cancel
                 </button>
@@ -317,21 +317,21 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black rounded-md transition-all"
                       >
                         <Edit3 className="size-3" />
                         <span>Edit</span>
                       </button>
                       <button
                         onClick={copyToClipboard}
-                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black rounded-md transition-all"
                       >
                         {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
                         <span>{copied ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
                   </div>
-                  <div className="flex-1 p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 overflow-auto">
+                  <div className="flex-1 p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-auto">
                     {renderValue(parsedValue)}
                   </div>
                 </div>
@@ -344,21 +344,21 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black rounded-md transition-all"
                       >
                         <Edit3 className="size-3" />
                         <span>Edit</span>
                       </button>
                       <button
                         onClick={copyToClipboard}
-                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                        className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black rounded-md transition-all"
                       >
                         {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
                         <span>{copied ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
                   </div>
-                  <pre className="flex-1 p-4 bg-black border border-zinc-800 font-mono text-[11px] text-zinc-300 overflow-auto select-all whitespace-pre-wrap leading-relaxed">
+                  <pre className="flex-1 p-4 bg-black border border-zinc-800 font-mono text-[11px] text-zinc-300 rounded-lg overflow-auto select-all whitespace-pre-wrap leading-relaxed">
                     {typeof parsedValue === 'object' ? JSON.stringify(parsedValue, null, 2) : String(parsedValue)}
                   </pre>
                 </div>
@@ -370,13 +370,13 @@ export function ConstantDrawer({ constant, onClose }: Props) {
                     <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500  tracking-widest">Tabular View</h3>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black transition-all"
+                      className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 bg-white dark:bg-black rounded-md transition-all"
                     >
                       <Edit3 className="size-3" />
                       <span>Edit</span>
                     </button>
                   </div>
-                  <div className="flex-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black overflow-auto">
+                  <div className="flex-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black rounded-lg overflow-auto">
                     {Array.isArray(parsedValue) ? (
                       <table className="w-full text-left border-collapse text-[10px] font-mono">
                         <thead>

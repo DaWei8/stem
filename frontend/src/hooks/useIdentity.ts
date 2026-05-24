@@ -8,7 +8,8 @@ import {
   deleteUserTypeAction,
   updateUserTypeAction,
   addPolicyAction,
-  deletePolicyAction
+  deletePolicyAction,
+  updatePolicyAction
 } from '@/lib/actions/identity'
 
 import { UserType, RLSPolicy } from '@/types'
@@ -24,6 +25,7 @@ interface IdentityState {
   updateUserType: (projectId: string, id: string, payload: any) => Promise<void>
   addPolicy: (projectId: string, policy: any, silent?: boolean) => Promise<void>
   deletePolicy: (projectId: string, id: string) => Promise<void>
+  updatePolicy: (projectId: string, id: string, payload: any) => Promise<void>
 }
 
 const supabase = createClient()
@@ -111,6 +113,18 @@ export const useIdentity = create<IdentityState>((set) => ({
       toast.success('Policy revoked')
     } catch (error: any) {
       toast.error(`Delete failed: ${error.message}`)
+    }
+  },
+
+  updatePolicy: async (projectId, id, payload) => {
+    try {
+      const data = await updatePolicyAction(projectId, id, payload)
+      set((state) => ({
+        policies: state.policies.map(p => p.id === id ? data : p)
+      }))
+      toast.success('RLS policy updated')
+    } catch (error: any) {
+      toast.error(`Update failed: ${error.message}`)
     }
   }
 }))

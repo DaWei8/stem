@@ -43,13 +43,13 @@ export default function HelpPage() {
       <header className="flex items-center justify-between px-8 py-6 border-b border-zinc-800 bg-black/50 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Link href="/projects">
-            <Button size="icon" className="bg-black border border-zinc-800 hover:bg-zinc-800 rounded-none size-8">
+            <Button size="icon" className="bg-black border border-zinc-800 hover:bg-zinc-800 rounded-md size-8">
               <ChevronLeft className="size-4" />
             </Button>
           </Link>
           <h1 className="text-sm font-bold text-zinc-500 ">Global / Help & Docs</h1>
         </div>
-        <Button variant="outline" className="rounded-none border-zinc-800 h-10 px-6 text-xs font-bold gap-2 hover:bg-black transition-none">
+        <Button variant="outline" className="rounded-md border-zinc-800 h-10 px-6 text-xs font-bold gap-2 hover:bg-black transition-none">
           <MessageSquare className="size-3" />
           Contact Support
         </Button>

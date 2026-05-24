@@ -124,7 +124,7 @@ export function ObservabilityView() {
             <h2 className="text-sm font-black text-black dark:text-white">Latency Models</h2>
             <Button
               onClick={() => setShowAddLatency(!showAddLatency)}
-              className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
+              className="h-8 rounded-md px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
             >
               <Plus className="size-3 mr-1" /> Add Model
             </Button>
@@ -146,10 +146,10 @@ export function ObservabilityView() {
                 {functions.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
               </select>
               <div className="grid grid-cols-2 gap-3">
-                <Input value={latMin} onChange={(e) => setLatMin(e.target.value)} placeholder="Min (ms)" className="h-10 rounded-none text-xs" />
-                <Input value={latMax} onChange={(e) => setLatMax(e.target.value)} placeholder="Max (ms)" className="h-10 rounded-none text-xs" />
+                <Input value={latMin} onChange={(e) => setLatMin(e.target.value)} placeholder="Min (ms)" className="h-10 rounded-md text-xs" />
+                <Input value={latMax} onChange={(e) => setLatMax(e.target.value)} placeholder="Max (ms)" className="h-10 rounded-md text-xs" />
               </div>
-              <Button onClick={handleAddLatency} className="w-full h-9 rounded-none bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
+              <Button onClick={handleAddLatency} className="w-full h-9 rounded-md bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
                 Commit Latency Projection
               </Button>
             </motion.div>
@@ -187,7 +187,7 @@ export function ObservabilityView() {
             <h2 className="text-sm font-black text-black dark:text-white">Bottleneck Annotations</h2>
             <Button
               onClick={() => setShowAddBottleneck(!showAddBottleneck)}
-              className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
+              className="h-8 rounded-md px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
             >
               <Plus className="size-3 mr-1" /> Annotate
             </Button>
@@ -217,8 +217,8 @@ export function ObservabilityView() {
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
               </select>
-              <Input value={bnDescription} onChange={(e) => setBnDescription(e.target.value)} placeholder="Describe the bottleneck..." className="h-10 rounded-none text-xs" />
-              <Button onClick={handleAddBottleneck} className="w-full h-9 rounded-none bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
+              <Input value={bnDescription} onChange={(e) => setBnDescription(e.target.value)} placeholder="Describe the bottleneck..." className="h-10 rounded-md text-xs" />
+              <Button onClick={handleAddBottleneck} className="w-full h-9 rounded-md bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
                 Commit Annotation
               </Button>
             </motion.div>

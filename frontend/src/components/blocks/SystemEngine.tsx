@@ -276,13 +276,13 @@ export function SystemEngine() {
           <div className="flex gap-2">
             <Button
               onClick={() => setIsOpen(!isOpen)}
-              className={cn("px-4 h-10 text-xs font-bold text-nowrap rounded-none gap-2", isOpen ? "bg-blue-700 text-white hover:bg-blue-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
+              className={cn("px-4 h-10 text-xs font-bold text-nowrap rounded-md gap-2", isOpen ? "bg-blue-700 text-white hover:bg-blue-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850")}
             >
               <Cpu className="size-3.5" /> AI Architect
             </Button>
             <Button
               onClick={() => setIsNewEntryOpen(true)}
-              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-10 text-xs font-bold gap-2 group"
+              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2 group"
             >
               <Plus className="size-3" /> New Entry <ArrowRight className="size-0 group-hover:size-3 transition-all" />
             </Button>
@@ -291,7 +291,7 @@ export function SystemEngine() {
 
         {/* Custom Navigation Tab bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-850 pb-2">
-          <div className="flex bg-zinc-50 dark:bg-zinc-900/50 p-1 border border-zinc-200 dark:border-zinc-800 gap-1 overflow-x-auto select-none rounded-none">
+          <div className="flex bg-zinc-50 dark:bg-zinc-900/50 p-1 border border-zinc-200 dark:border-zinc-800 gap-1 overflow-x-auto select-none rounded-md">
             {tabs.map((tab) => {
               const active = activeTab === tab.id
               return (
@@ -299,7 +299,7 @@ export function SystemEngine() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest border transition-all rounded-none whitespace-nowrap",
+                    "flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest border transition-all rounded-md whitespace-nowrap",
                     active
                       ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-sm"
                       : "bg-transparent text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent"
@@ -321,7 +321,7 @@ export function SystemEngine() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search engine components..."
-              className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-none pl-10 h-11 text-[11px] font-mono text-black dark:text-white focus-visible:ring-1 focus-visible:ring-zinc-400"
+              className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-md pl-10 h-11 text-[11px] font-mono text-black dark:text-white focus-visible:ring-1 focus-visible:ring-zinc-400"
             />
           </div>
         </div>
@@ -461,16 +461,16 @@ export function SystemEngine() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="size-8 rounded-none hover:bg-zinc-800 p-0"
+                              className="size-8 rounded-md hover:bg-zinc-800 p-0"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <MoreVertical className="size-4 text-zinc-600" />
                             </Button>
                           } />
-                          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none">
+                          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-md">
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); deleteDependency(projectId, d.id); }}
-                              className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 cursor-pointer"
+                              className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 cursor-pointer"
                             >
                               <Trash2 className="size-3 mr-2" /> Delete
                             </DropdownMenuItem>
@@ -563,7 +563,7 @@ export function SystemEngine() {
         className="max-w-xl"
       >
         <div className="space-y-6 pb-4">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-2.5">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-start gap-2.5">
             <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review Required</p>
@@ -588,7 +588,7 @@ export function SystemEngine() {
                     type="button"
                     onClick={() => setEntryType(t.id as any)}
                     className={cn(
-                      "flex flex-col items-center justify-center p-3 border text-center transition-all gap-1.5 rounded-none",
+                      "flex flex-col items-center justify-center p-3 border text-center transition-all gap-1.5 rounded-md",
                       active
                         ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-sm"
                         : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:text-black dark:hover:text-white"
@@ -612,7 +612,7 @@ export function SystemEngine() {
                     value={varLabel}
                     onChange={e => setVarLabel(e.target.value)}
                     placeholder="e.g. cart_items"
-                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                   />
                 </div>
 
@@ -622,7 +622,7 @@ export function SystemEngine() {
                     <select
                       value={varType}
                       onChange={e => setVarType(e.target.value as any)}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-md focus:outline-none focus:border-zinc-400"
                     >
                       <option value="string">String (Text)</option>
                       <option value="number">Number (Float/Int)</option>
@@ -639,7 +639,7 @@ export function SystemEngine() {
                     <select
                       value={varScope}
                       onChange={e => setVarScope(e.target.value as any)}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-md focus:outline-none focus:border-zinc-400"
                     >
                       <option value="persistent">Persistent (DB Column)</option>
                       <option value="transient">Transient (RAM)</option>
@@ -655,7 +655,7 @@ export function SystemEngine() {
                     onChange={e => setVarDesc(e.target.value)}
                     placeholder="Describe this variable's function in the store..."
                     rows={2}
-                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
                   />
                 </div>
               </>
@@ -670,7 +670,7 @@ export function SystemEngine() {
                       value={constName}
                       onChange={e => setConstName(e.target.value)}
                       placeholder="e.g. TAX_RATE"
-                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                     />
                   </div>
 
@@ -679,7 +679,7 @@ export function SystemEngine() {
                     <select
                       value={constType}
                       onChange={e => setConstType(e.target.value as any)}
-                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-md focus:outline-none focus:border-zinc-400"
                     >
                       <option value="string">String (Text)</option>
                       <option value="number">Number (Float/Int)</option>
@@ -702,7 +702,7 @@ export function SystemEngine() {
                           constType === 'boolean' ? 'true or false' : 'e.g. 0.15'
                     }
                     rows={3}
-                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
                   />
                   <p className="text-[9px] text-zinc-400 font-mono">
                     {constType === 'array' || constType === 'object' || constType === 'dictionary' ? 'Must be valid JSON formatted string.' : ''}
@@ -718,7 +718,7 @@ export function SystemEngine() {
                   value={tableName}
                   onChange={e => setTableName(e.target.value)}
                   placeholder="e.g. orders"
-                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                 />
               </div>
             )}
@@ -731,7 +731,7 @@ export function SystemEngine() {
                     value={funcName}
                     onChange={e => setFuncName(e.target.value)}
                     placeholder="e.g. calculateTotalTax"
-                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                   />
                 </div>
                 <div className="space-y-1">
@@ -741,7 +741,7 @@ export function SystemEngine() {
                     onChange={e => setFuncDesc(e.target.value)}
                     placeholder="What logic does this cloud function perform? Parameters, dependencies..."
                     rows={3}
-                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                    className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
                   />
                 </div>
               </>
@@ -756,7 +756,7 @@ export function SystemEngine() {
                       value={depName}
                       onChange={e => setDepName(e.target.value)}
                       placeholder="e.g. stripe"
-                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                     />
                   </div>
                   <div className="space-y-1">
@@ -765,7 +765,7 @@ export function SystemEngine() {
                       value={depVersion}
                       onChange={e => setDepVersion(e.target.value)}
                       placeholder="e.g. latest or ^14.2.0"
-                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-none focus-visible:ring-1 focus-visible:ring-zinc-400"
+                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-xs font-mono h-10 rounded-md focus-visible:ring-1 focus-visible:ring-zinc-400"
                     />
                   </div>
                 </div>
@@ -775,7 +775,7 @@ export function SystemEngine() {
                   <select
                     value={depType}
                     onChange={e => setDepType(e.target.value as any)}
-                    className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-none focus:outline-none focus:border-zinc-400"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-10 px-3 rounded-md focus:outline-none focus:border-zinc-400"
                   >
                     <option value="npm">NPM Package (Backend Logic)</option>
                     <option value="api">External API Service</option>

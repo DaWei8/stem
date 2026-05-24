@@ -127,7 +127,7 @@ export function EditConstraintModal({
             <select
               value={variableId}
               onChange={(e) => setVariableId(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-mono font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-mono font-bold"
             >
               {availableVariables.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -144,7 +144,7 @@ export function EditConstraintModal({
             <select
               value={operator}
               onChange={(e) => setOperator(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-bold"
             >
               <option value="eq">Equals (=)</option>
               <option value="neq">Not Equals (!=)</option>
@@ -168,7 +168,7 @@ export function EditConstraintModal({
             value={expectedValue}
             onChange={(e) => setExpectedValue(e.target.value)}
             placeholder="e.g. true, 100, pro, or [&quot;US&quot;, &quot;CA&quot;]"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-mono shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-mono shadow-sm"
           />
         </div>
 
@@ -180,7 +180,7 @@ export function EditConstraintModal({
             value={errorMessage}
             onChange={(e) => setErrorMessage(e.target.value)}
             placeholder="e.g. You must be a pro user to access this page"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-bold shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-bold shadow-sm"
           />
         </div>
 
@@ -191,7 +191,7 @@ export function EditConstraintModal({
           <select
             value={fallbackPageId}
             onChange={(e) => setFallbackPageId(e.target.value)}
-            className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-bold"
+            className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-bold"
           >
             <option value="">(None - Fail Simulation)</option>
             {otherPages.map((p) => (
@@ -208,7 +208,7 @@ export function EditConstraintModal({
               type="button"
               variant="ghost"
               onClick={handleRemove}
-              className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-none text-[11px] font-black gap-2 h-11 px-4"
+              className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-md text-[11px] font-black gap-2 h-11 px-4"
             >
               <Trash2 className="size-4" /> Delete Constraint
             </Button>

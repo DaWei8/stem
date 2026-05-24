@@ -103,7 +103,7 @@ export default function ProjectsPage() {
               <Button
                 onClick={() => setSearchQuery('')}
                 variant="outline"
-                className="rounded-none border-zinc-800 text-[10px] font-bold h-10 px-8 hover:bg-white hover:text-black transition-all"
+                className="rounded-md border-zinc-800 text-[10px] font-bold h-10 px-8 hover:bg-white hover:text-black transition-all"
               >
                 Clear filter
               </Button>
@@ -136,11 +136,11 @@ export default function ProjectsPage() {
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-black/50 border border-zinc-800 rounded-none h-11 pl-10 pr-4 text-xs focus:outline-none focus:border-zinc-600 focus:bg-black transition-all w-64 text-white"
+                  className="bg-black/50 border border-zinc-800 rounded-md h-11 pl-10 pr-4 text-xs focus:outline-none focus:border-zinc-600 focus:bg-black transition-all w-64 text-white"
                 />
               </div>
               <Link href="/projects/settings">
-                <Button variant="outline" className="bg-black border-zinc-800 hover:bg-zinc-800 rounded-none h-11 px-4">
+                <Button variant="outline" className="bg-black border-zinc-800 hover:bg-zinc-800 rounded-md h-11 px-4">
                   <Settings className="size-4" />
                 </Button>
               </Link>
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setViewMode('grid')}
-                className={cn("size-9 rounded-none border transition-colors", viewMode === 'grid' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
+                className={cn("size-9 rounded-md border transition-colors", viewMode === 'grid' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
               >
                 <LayoutGrid className="size-4" />
               </Button>
@@ -175,7 +175,7 @@ export default function ProjectsPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setViewMode('list')}
-                className={cn("size-9 rounded-none border transition-colors", viewMode === 'list' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
+                className={cn("size-9 rounded-md border transition-colors", viewMode === 'list' ? "bg-black border-zinc-800 text-white" : "border-transparent text-zinc-600 hover:text-white hover:bg-black")}
               >
                 <ListFilter className="size-4" />
               </Button>

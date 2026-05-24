@@ -71,7 +71,7 @@ export const StemIllustration = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Bot className="size-3.5 text-zinc-400" />
-                    <span className="text-[10px] font-mono font-bold text-zinc-400 tracking-wider">Stem Architect v1.0</span>
+                    <span className="text-xs font-mono font-bold text-zinc-400">System design v1.0</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-zinc-600 font-mono text-[8px] font-bold">
@@ -208,10 +208,6 @@ export const StemIllustration = () => {
                 <div className={`px-3 py-1.5 border rounded-lg backdrop-blur-md flex flex-col items-center transition-all duration-300 bg-zinc-950/90 ${isHovered ? 'border-zinc-600' : 'border-zinc-800/80'}`}>
                   <span className="text-[9px] font-bold font-mono tracking-widest text-zinc-300 whitespace-nowrap">
                     {pillar.label}
-                  </span>
-                  <span className="text-[8px] font-mono font-bold text-emerald-400 mt-0.5 tracking-widest flex items-center gap-1">
-                    <span className="size-1 rounded-full bg-emerald-400 animate-pulse" />
-                    SYS.OK
                   </span>
                 </div>
               </motion.div>

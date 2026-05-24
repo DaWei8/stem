@@ -113,7 +113,7 @@ export function DataEntityTable({
           {!isAddingTable ? (
             <Button
               onClick={() => setIsAddingTable(true)}
-              className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-none bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+              className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
             >
               <Plus className="size-3 mr-1" /> Add Table
             </Button>
@@ -123,14 +123,14 @@ export function DataEntityTable({
                 value={newTableName}
                 onChange={e => setNewTableName(e.target.value)}
                 placeholder="table_name (e.g. users)"
-                className="h-8 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-[10px] font-mono rounded-none w-48 focus-visible:ring-1 focus-visible:ring-zinc-400"
+                className="h-8 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-[10px] font-mono rounded-md w-48 focus-visible:ring-1 focus-visible:ring-zinc-400"
                 autoFocus
                 required
               />
-              <Button type="submit" className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-none bg-black dark:bg-white text-white dark:text-black">
+              <Button type="submit" className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-md bg-black dark:bg-white text-white dark:text-black">
                 Create
               </Button>
-              <Button type="button" onClick={() => setIsAddingTable(false)} variant="outline" className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-none border-zinc-200 dark:border-zinc-800 text-black dark:text-white">
+              <Button type="button" onClick={() => setIsAddingTable(false)} variant="outline" className="h-8 px-3 text-[10px] font-black uppercase tracking-wider rounded-md border-zinc-200 dark:border-zinc-800 text-black dark:text-white">
                 Cancel
               </Button>
             </form>
@@ -212,18 +212,18 @@ export function DataEntityTable({
                           <Button
                             variant="ghost"
                             onClick={(e) => e.stopPropagation()}
-                            className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-none shadow-none opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md shadow-none opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <MoreVertical className="size-3.5 text-zinc-400" />
                           </Button>
                         } />
-                        <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none shadow-xl text-black dark:text-white">
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
                           <DropdownMenuItem onClick={() => { setEditingTable(table); setIsEditModalOpen(true) }}
-                            className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-none">
+                            className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-md">
                             <Edit3 className="size-3" /> Configure
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onDeleteTable(table.id)}
-                            className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-none">
+                            className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-md">
                             <Trash2 className="size-3" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -242,7 +242,7 @@ export function DataEntityTable({
                   {onAddTable && !isAddingTable && (
                     <Button
                       onClick={() => setIsAddingTable(true)}
-                      className="h-8 px-4 text-[10px] font-black uppercase tracking-wider rounded-none bg-black dark:bg-white text-white dark:text-black mx-auto"
+                      className="h-8 px-4 text-[10px] font-black uppercase tracking-wider rounded-md bg-black dark:bg-white text-white dark:text-black mx-auto"
                     >
                       <Plus className="size-3 mr-1.5" /> Create First Table
                     </Button>
@@ -263,12 +263,12 @@ export function DataEntityTable({
         footer={
           isDefiningColumn ? (
             <div className="flex gap-2 w-full">
-              <Button onClick={() => setIsDefiningColumn(false)} variant="outline" className="flex-1 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs text-black dark:text-white">Cancel</Button>
-              <Button onClick={handleSaveColumns} className="flex-2 bg-black dark:bg-white text-white dark:text-black rounded-none h-12 text-xs">Deploy Fields</Button>
+              <Button onClick={() => setIsDefiningColumn(false)} variant="outline" className="flex-1 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs text-black dark:text-white">Cancel</Button>
+              <Button onClick={handleSaveColumns} className="flex-2 bg-black dark:bg-white text-white dark:text-black rounded-md h-12 text-xs">Deploy Fields</Button>
             </div>
           ) : (
             <Button onClick={() => { if (editingTable) onUpdateTable(editingTable.id, editingTable.name); setIsEditModalOpen(false) }}
-              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-none h-12 text-xs">Save Changes</Button>
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-md h-12 text-xs">Save Changes</Button>
           )
         }
       >
@@ -278,14 +278,14 @@ export function DataEntityTable({
               <Label className="text-[10px] font-black text-zinc-400 ">Table Identity</Label>
               <Input value={editingTable.name}
                 onChange={e => setEditingTable({ ...editingTable, name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
-                className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white" />
+                className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-12 font-mono text-black dark:text-white" />
             </div>
             {isDefiningColumn ? (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-[10px] font-black text-zinc-400 ">Define Schema Fields</Label>
-                    <Button onClick={addPendingRow} variant="outline" className="h-7 px-3 text-[10px] border-zinc-200 dark:border-zinc-800 rounded-none font-black text-black dark:text-white ">
+                    <Button onClick={addPendingRow} variant="outline" className="h-7 px-3 text-[10px] border-zinc-200 dark:border-zinc-800 rounded-md font-black text-black dark:text-white ">
                       <Plus className="size-3 mr-1" /> Add Row
                     </Button>
                   </div>
@@ -300,14 +300,14 @@ export function DataEntityTable({
                               value={col.name}
                               onChange={e => updatePendingRow(col.id, { name: e.target.value.replace(/\s+/g, '_').toLowerCase() })}
                               placeholder="column_name"
-                              className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs font-mono"
+                              className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-xs font-mono"
                             />
                           </div>
                           <div className="space-y-1.5">
                             <Label className="text-[9px] font-bold text-zinc-400 ">Type</Label>
                             <Select value={col.type} onValueChange={v => updatePendingRow(col.id, { type: v })}>
-                              <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs w-full"><SelectValue /></SelectTrigger>
-                              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+                              <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-xs w-full"><SelectValue /></SelectTrigger>
+                              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
                                 {['uuid', 'varchar', 'int4', 'timestamp', 'jsonb', 'boolean', 'text'].map(t => <SelectItem key={t} value={t}>{t.toUpperCase()}</SelectItem>)}
                               </SelectContent>
                             </Select>
@@ -318,8 +318,8 @@ export function DataEntityTable({
                           <div className="flex-1 space-y-1.5">
                             <Label className="text-[9px] font-bold text-zinc-400 ">Registry Binding</Label>
                             <Select value={col.variable_id} onValueChange={v => updatePendingRow(col.id, { variable_id: v })}>
-                              <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-xs w-full"><SelectValue placeholder="Map to variable..." /></SelectTrigger>
-                              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+                              <SelectTrigger className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-xs w-full"><SelectValue placeholder="Map to variable..." /></SelectTrigger>
+                              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
                                 {variables.map(v => <SelectItem key={v.id} value={v.id}>{v.label}</SelectItem>)}
                               </SelectContent>
                             </Select>
@@ -353,7 +353,7 @@ export function DataEntityTable({
                 <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
                   <Label className="text-[10px] font-black text-zinc-400 ">Fields & Schema</Label>
                   <Button onClick={() => setIsDefiningColumn(true)} variant="outline"
-                    className="h-7 px-3 text-xs border-zinc-200 dark:border-zinc-800 rounded-none font-bold text-black dark:text-white">
+                    className="h-7 px-3 text-xs border-zinc-200 dark:border-zinc-800 rounded-md font-bold text-black dark:text-white">
                     <Plus className="size-3 mr-1" /> Add Field
                   </Button>
                 </div>

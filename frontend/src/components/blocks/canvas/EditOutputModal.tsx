@@ -100,7 +100,7 @@ export function EditOutputModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. update_cart"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-bold shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-bold shadow-sm"
           />
         </div>
 
@@ -112,7 +112,7 @@ export function EditOutputModal({
             <select
               value={outputType}
               onChange={(e) => setOutputType(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-bold"
             >
               <option value="state_update">State Update</option>
               <option value="database_write">Database Write</option>
@@ -129,7 +129,7 @@ export function EditOutputModal({
             <select
               value={variableId}
               onChange={(e) => setVariableId(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-mono font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-mono font-bold"
             >
               <option value="">(None)</option>
               {availableVariables.map((v) => (
@@ -149,7 +149,7 @@ export function EditOutputModal({
             value={outputValue}
             onChange={(e) => setOutputValue(e.target.value)}
             placeholder="e.g. true, 100, usr_123, or {&quot;role&quot;: &quot;pro&quot;}"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-mono shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-mono shadow-sm"
           />
         </div>
 
@@ -158,7 +158,7 @@ export function EditOutputModal({
             type="button"
             variant="ghost"
             onClick={handleRemove}
-            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-none text-[11px] font-black gap-2 h-11 px-4"
+            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-md text-[11px] font-black gap-2 h-11 px-4"
           >
             <Trash2 className="size-4" /> Delete Output
           </Button>

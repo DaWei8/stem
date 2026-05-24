@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
 import { useLogicBot } from '@/hooks/useLogicBot'
 import { cn } from '@/lib/utils'
-import { Cpu, X, Play, RotateCcw, CheckCircle2, XCircle, AlertTriangle, Database, ShieldAlert, Sparkles, HelpCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
+import { CheckCircle2, Cpu, Database, Play, RotateCcw, X, XCircle } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 interface MockVar {
@@ -208,59 +208,64 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
-      className="overflow-hidden border border-violet-500/30 bg-zinc-950/95 dark:bg-black/90 p-5 space-y-6"
+      initial={{ width: 0, opacity: 0 }}
+      animate={{ width: 440, opacity: 1 }}
+      exit={{ width: 0, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="h-full border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto overflow-x-hidden shrink-0 flex flex-col"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <div className="flex items-center gap-2">
-          <Cpu className="size-4 text-violet-400" />
-          <span className="text-xs font-black text-violet-400 uppercase tracking-widest">Policy Sandbox</span>
-          <span className="text-[10px] font-mono text-zinc-500 ml-2">Testing rule: {policy.name}</span>
-        </div>
-        <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
-          <X className="size-4" />
-        </button>
-      </div>
-
-      {/* SQL Logic Display */}
-      <div className="space-y-1.5">
-        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">SQL Rule Expression</span>
-        <div className="p-3 bg-black border border-zinc-900 font-mono text-xs text-emerald-400 select-all overflow-x-auto custom-scrollbar whitespace-pre-wrap leading-relaxed">
-          <span className="text-zinc-600 font-bold select-none mr-2">USING</span>
-          {policy.policy_logic}
-        </div>
-      </div>
-
-      {/* Mocking Panel */}
-      <div className="space-y-4">
+      <div className="p-6 space-y-6 w-[440px] flex-1 flex flex-col">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Mock Sandbox Environment</span>
-          {groupedVars.subquery.length > 0 && (
-            <span className="flex items-center gap-1 text-[9px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 animate-pulse">
-              <Database className="size-3" />
-              <span>SQL subqueries detected. Mock their evaluation values below.</span>
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            <Cpu className="size-4 text-violet-500" />
+            <span className="text-sm font-black text-black dark:text-white">Policy Sandbox</span>
+          </div>
+          <button onClick={onClose} className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
+            <X className="size-4" />
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column: Context & Fields */}
-          <div className="space-y-4">
+        <div className="p-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 space-y-2 rounded-lg">
+          <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 tracking-wider">Rule Context</span>
+          <p className="text-xs font-mono font-bold text-black dark:text-white break-all">{policy.name}</p>
+        </div>
+
+        {/* SQL Logic Display */}
+        <div className="space-y-1.5">
+          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">SQL Rule Expression</span>
+          <div className="p-3 bg-black border border-zinc-900 font-mono text-xs text-emerald-400 select-all overflow-x-auto custom-scrollbar whitespace-pre-wrap leading-relaxed">
+            <span className="text-zinc-650 font-bold select-none mr-2">USING</span>
+            {policy.policy_logic}
+          </div>
+        </div>
+
+        {/* Mocking Panel */}
+        <div className="space-y-4">
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Mock Sandbox Environment</span>
+            {groupedVars.subquery.length > 0 && (
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-md text-[9px] font-bold">
+                <Database className="size-3 shrink-0" />
+                <span>SQL subqueries detected. Mock values below.</span>
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-6">
+            {/* Context & Fields */}
             {groupedVars.system.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">System Context</h4>
                 <div className="grid grid-cols-1 gap-2">
                   {groupedVars.system.map(v => (
-                    <div key={v.name} className="flex items-center justify-between p-2 bg-black border border-zinc-900 text-xs">
-                      <span className="font-mono text-[10px] text-zinc-400">{v.name}</span>
+                    <div key={v.name} className="flex items-center justify-between p-2 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs rounded-md">
+                      <span className="font-mono text-[10px] text-zinc-550 dark:text-zinc-400">{v.name}</span>
                       {v.type === 'boolean' ? (
                         <button
                           onClick={() => updateVar(v.name, !v.value)}
                           className={cn(
-                            'text-[9px] font-black px-2.5 py-1 border transition-all uppercase tracking-wider',
+                            'text-[9px] font-black px-2.5 py-1 border transition-all uppercase tracking-wider rounded-md',
                             v.value
                               ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5'
                               : 'border-red-500/30 text-red-400 bg-red-500/5'
@@ -272,7 +277,7 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
                         <input
                           value={String(v.value)}
                           onChange={e => updateVar(v.name, e.target.value)}
-                          className="bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-white px-2 py-1 focus:outline-none focus:border-violet-500 w-32"
+                          className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-black dark:text-white px-2 py-1 focus:outline-none focus:border-zinc-400 rounded-md w-32"
                         />
                       )}
                     </div>
@@ -286,35 +291,33 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
                 <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Entity Fields</h4>
                 <div className="grid grid-cols-1 gap-2">
                   {groupedVars.field.map(v => (
-                    <div key={v.name} className="flex items-center justify-between p-2 bg-black border border-zinc-900 text-xs">
-                      <span className="font-mono text-[10px] text-violet-400">{v.name}</span>
+                    <div key={v.name} className="flex items-center justify-between p-2 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs rounded-md">
+                      <span className="font-mono text-[10px] text-violet-500 dark:text-violet-400">{v.name}</span>
                       <input
                         value={String(v.value)}
                         onChange={e => updateVar(v.name, e.target.value)}
-                        className="bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-white px-2 py-1 focus:outline-none focus:border-violet-500 w-32"
+                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-black dark:text-white px-2 py-1 focus:outline-none focus:border-zinc-400 rounded-md w-32"
                       />
                     </div>
                   ))}
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Right Column: SQL Subqueries & Functions */}
-          <div className="space-y-4">
+            {/* SQL Subqueries */}
             {groupedVars.subquery.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">SQL Subqueries Mock Results</h4>
                 <div className="grid grid-cols-1 gap-2">
                   {groupedVars.subquery.map((v, i) => (
-                    <div key={i} className="flex flex-col p-2.5 bg-black border border-zinc-900 gap-2">
+                    <div key={i} className="flex flex-col p-2.5 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 gap-2 rounded-md">
                       <span className="font-mono text-[9px] text-amber-500/80 truncate" title={v.name}>{v.name}</span>
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-[9px] text-zinc-500">Evaluates To:</span>
                         <input
                           value={String(v.value)}
                           onChange={e => updateVar(v.name, e.target.value)}
-                          className="bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-white px-2 py-1 focus:outline-none focus:border-violet-500 flex-1 max-w-[180px]"
+                          className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-black dark:text-white px-2 py-1 focus:outline-none focus:border-zinc-400 rounded-md flex-1 max-w-[180px]"
                           placeholder="e.g. user_abc123"
                         />
                       </div>
@@ -329,12 +332,12 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
                 <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Database Functions</h4>
                 <div className="grid grid-cols-1 gap-2">
                   {groupedVars.function.map(v => (
-                    <div key={v.name} className="flex items-center justify-between p-2 bg-black border border-zinc-900 text-xs">
-                      <span className="font-mono text-[10px] text-zinc-400">{v.name}</span>
+                    <div key={v.name} className="flex items-center justify-between p-2 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs rounded-md">
+                      <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">{v.name}</span>
                       <input
                         value={String(v.value)}
                         onChange={e => updateVar(v.name, e.target.value)}
-                        className="bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-white px-2 py-1 focus:outline-none focus:border-violet-500 w-32"
+                        className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-black dark:text-white px-2 py-1 focus:outline-none focus:border-zinc-400 rounded-md w-32"
                       />
                     </div>
                   ))}
@@ -343,57 +346,58 @@ export function PolicySandbox({ policy, variables, onClose }: Props) {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Evaluated Substitute Expression preview */}
-      {evaluatedExpressionText && evaluatedExpressionText !== policy.policy_logic && (
-        <div className="space-y-1.5 bg-zinc-900/40 p-3 border border-zinc-900">
-          <span className="text-[9px] font-black text-zinc-600 uppercase tracking-wider flex items-center gap-1">
-            <Sparkles className="size-3" />
-            <span>Substituted Rule Sandbox Preview</span>
-          </span>
-          <p className="font-mono text-[10px] text-zinc-400 truncate leading-relaxed">
-            {evaluatedExpressionText}
-          </p>
-        </div>
-      )}
-
-      {/* Run & Results Panel */}
-      <div className="flex items-center gap-3 border-t border-zinc-800 pt-4">
-        <Button
-          onClick={handleRun}
-          disabled={isRunning}
-          className="rounded-none bg-violet-600 hover:bg-violet-505 text-white text-xs font-bold gap-2 h-9 px-5 transition-all"
-        >
-          <Play className="size-3" />
-          {isRunning ? 'Evaluating...' : 'Evaluate Policy'}
-        </Button>
-
-        {result !== null && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={cn(
-              'flex items-center gap-2 px-4 h-9 border text-[11px] font-black uppercase tracking-wider',
-              result
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                : 'border-red-500/30 bg-red-500/10 text-red-400'
-            )}
-          >
-            {result
-              ? <><CheckCircle2 className="size-3.5" /> Rule Allowed (Access Granted)</>
-              : <><XCircle className="size-3.5" /> Rule Denied (Access Blocked)</>
-            }
-          </motion.div>
+        {/* Evaluated Substitute Expression preview */}
+        {evaluatedExpressionText && evaluatedExpressionText !== policy.policy_logic && (
+          <div className="space-y-1.5 bg-zinc-900/40 p-3 border border-zinc-200 dark:border-zinc-900 rounded-md">
+            <span className="text-[9px] font-black text-zinc-550 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+              <span>Rule Sandbox Preview</span>
+            </span>
+            <p className="font-mono text-[10px] text-zinc-650 dark:text-zinc-400 break-all leading-relaxed">
+              {evaluatedExpressionText}
+            </p>
+          </div>
         )}
 
-        <button
-          onClick={() => { setMockVars(buildInitialVars()); setResult(null); setEvaluatedExpressionText(null) }}
-          className="ml-auto text-zinc-500 hover:text-white transition-colors"
-          title="Reset mockup settings"
-        >
-          <RotateCcw className="size-3.5" />
-        </button>
+        {/* Run & Results Panel */}
+        <div className="flex flex-col gap-3 border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-auto">
+          <div className="flex items-center justify-between">
+            <Button
+              onClick={handleRun}
+              disabled={isRunning}
+              className="rounded-md bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold gap-2 h-9 px-5 transition-all cursor-pointer"
+            >
+              <Play className="size-3" />
+              {isRunning ? 'Evaluating...' : 'Evaluate Policy'}
+            </Button>
+
+            <button
+              onClick={() => { setMockVars(buildInitialVars()); setResult(null); setEvaluatedExpressionText(null) }}
+              className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+              title="Reset mockup settings"
+            >
+              <RotateCcw className="size-3.5" />
+            </button>
+          </div>
+
+          {result !== null && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn(
+                'flex items-center justify-center gap-2 px-4 h-9 border text-[10px] font-black uppercase tracking-wider rounded-md',
+                result
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                  : 'border-red-500/30 bg-red-500/10 text-red-400'
+              )}
+            >
+              {result
+                ? <><CheckCircle2 className="size-3.5" /> Rule Allowed (Access Granted)</>
+                : <><XCircle className="size-3.5" /> Rule Denied (Access Blocked)</>
+              }
+            </motion.div>
+          )}
+        </div>
       </div>
     </motion.div>
   )

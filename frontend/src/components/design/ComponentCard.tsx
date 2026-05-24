@@ -29,11 +29,11 @@ export function ComponentCard({ component, onEdit, onDelete }: ComponentCardProp
       initial="hidden"
       animate="visible"
       layout
-      className="group relative bg-black/40 border border-zinc-800 hover:border-zinc-500 p-6 rounded-none transition-all cursor-pointer"
+      className="group relative bg-black/40 border border-zinc-800 hover:border-zinc-500 p-6 rounded-xl transition-all cursor-pointer"
       onClick={() => onEdit(component)}
     >
       <div className="flex items-center justify-between mb-6">
-        <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 transition-colors">
+        <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center rounded-md group-hover:border-zinc-600 transition-colors">
           {component.type === 'button' && <MousePointer2 className="size-4 text-zinc-400 group-hover:text-white" />}
           {component.type === 'input' && <TypeIcon className="size-4 text-zinc-400 group-hover:text-white" />}
           {component.type === 'form' && <Layout className="size-4 text-zinc-400 group-hover:text-white" />}
@@ -42,15 +42,15 @@ export function ComponentCard({ component, onEdit, onDelete }: ComponentCardProp
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger render={
-            <Button variant="ghost" size="icon" className="size-8 rounded-none hover:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="size-8 rounded-md hover:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
               <MoreVertical className="size-4 text-zinc-600" />
             </Button>
           } />
-          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(component); }} className="hover:bg-zinc-900 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer">
+          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-lg">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(component); }} className="hover:bg-zinc-900 rounded-md text-xs font-bold py-2 flex items-center gap-2 cursor-pointer">
               <Edit2 className="size-3" /> Edit Blueprint
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(component.id); }} className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(component.id); }} className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 flex items-center gap-2 cursor-pointer">
               <Trash2 className="size-3" /> Purge Component
             </DropdownMenuItem>
           </DropdownMenuContent>

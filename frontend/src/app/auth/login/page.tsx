@@ -48,10 +48,10 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen bg-black overflow-hidden selection:bg-white/20">
       {/* Split Layout Container */}
-      <div className="flex flex-col lg:flex-row w-full">
+      <div className="grid grid-cols-2 w-full">
 
         {/* Right Side: Dashboard Animation */}
-        <div className="hidden lg:flex w-full lg:w-[55%] relative items-center justify-center">
+        <div className="hidden lg:flex w-full relative items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -63,7 +63,7 @@ export default function LoginPage() {
         </div>
 
         {/* Left Side: Auth Form */}
-        <div className="w-full lg:w-[45%] flex items-center justify-center p-8 md:p-16 z-20 relative bg-black">
+        <div className="w-full flex items-center justify-center p-8 md:p-16 z-20 relative bg-black">
 
           <motion.div
             initial={{ opacity: 0, x: -20 }}

@@ -139,7 +139,7 @@ export function LifecycleView() {
             <h2 className="text-sm font-black text-black dark:text-white">Feature Flags</h2>
             <Button
               onClick={() => setShowAddFlag(!showAddFlag)}
-              className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
+              className="h-8 rounded-md px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
             >
               <Plus className="size-3 mr-1" /> New Flag
             </Button>
@@ -152,11 +152,11 @@ export function LifecycleView() {
               className="border border-zinc-200 dark:border-zinc-800 p-4 space-y-3 bg-white dark:bg-zinc-950"
             >
               <div className="grid grid-cols-2 gap-3">
-                <Input value={flagKey} onChange={(e) => setFlagKey(e.target.value)} placeholder="flag_key (e.g. v2_onboarding)" className="h-10 rounded-none text-xs font-mono" />
-                <Input value={flagLabel} onChange={(e) => setFlagLabel(e.target.value)} placeholder="Human Label" className="h-10 rounded-none text-xs" />
+                <Input value={flagKey} onChange={(e) => setFlagKey(e.target.value)} placeholder="flag_key (e.g. v2_onboarding)" className="h-10 rounded-md text-xs font-mono" />
+                <Input value={flagLabel} onChange={(e) => setFlagLabel(e.target.value)} placeholder="Human Label" className="h-10 rounded-md text-xs" />
               </div>
-              <Input value={flagDesc} onChange={(e) => setFlagDesc(e.target.value)} placeholder="Description (optional)" className="h-10 rounded-none text-xs" />
-              <Button onClick={handleAddFlag} className="w-full h-9 rounded-none bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
+              <Input value={flagDesc} onChange={(e) => setFlagDesc(e.target.value)} placeholder="Description (optional)" className="h-10 rounded-md text-xs" />
+              <Button onClick={handleAddFlag} className="w-full h-9 rounded-md bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
                 Create Flag
               </Button>
             </motion.div>
@@ -243,7 +243,7 @@ export function LifecycleView() {
                                 <option value="">Select screen to gate...</option>
                                 {pages.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                               </select>
-                              <Button onClick={() => handleGatePage(flag.id)} className="h-8 rounded-none px-3 text-[10px] font-bold bg-black dark:bg-white text-white dark:text-black">
+                              <Button onClick={() => handleGatePage(flag.id)} className="h-8 rounded-md px-3 text-[10px] font-bold bg-black dark:bg-white text-white dark:text-black">
                                 Gate
                               </Button>
                             </div>
@@ -264,7 +264,7 @@ export function LifecycleView() {
             <h2 className="text-sm font-black text-black dark:text-white">Schema Migrations</h2>
             <Button
               onClick={() => setShowAddMigration(!showAddMigration)}
-              className="h-8 rounded-none px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
+              className="h-8 rounded-md px-3 text-xs font-bold bg-black dark:bg-white text-white dark:text-black"
             >
               <Plus className="size-3 mr-1" /> New Migration
             </Button>
@@ -276,12 +276,12 @@ export function LifecycleView() {
               animate={{ opacity: 1, height: 'auto' }}
               className="border border-zinc-200 dark:border-zinc-800 p-4 space-y-3 bg-white dark:bg-zinc-950"
             >
-              <Input value={migName} onChange={(e) => setMigName(e.target.value)} placeholder="Migration Name (e.g. add_user_preferences)" className="h-10 rounded-none text-xs" />
+              <Input value={migName} onChange={(e) => setMigName(e.target.value)} placeholder="Migration Name (e.g. add_user_preferences)" className="h-10 rounded-md text-xs" />
               <div className="grid grid-cols-2 gap-3">
-                <Input value={migFromVer} onChange={(e) => setMigFromVer(e.target.value)} placeholder="From Version (e.g. 1.0.0)" className="h-10 rounded-none text-xs font-mono" />
-                <Input value={migToVer} onChange={(e) => setMigToVer(e.target.value)} placeholder="To Version (e.g. 1.1.0)" className="h-10 rounded-none text-xs font-mono" />
+                <Input value={migFromVer} onChange={(e) => setMigFromVer(e.target.value)} placeholder="From Version (e.g. 1.0.0)" className="h-10 rounded-md text-xs font-mono" />
+                <Input value={migToVer} onChange={(e) => setMigToVer(e.target.value)} placeholder="To Version (e.g. 1.1.0)" className="h-10 rounded-md text-xs font-mono" />
               </div>
-              <Button onClick={handleAddMigration} className="w-full h-9 rounded-none bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
+              <Button onClick={handleAddMigration} className="w-full h-9 rounded-md bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
                 Create Migration Blueprint
               </Button>
             </motion.div>

@@ -155,7 +155,7 @@ export const AIProviderIntegrations: React.FC<AIProviderIntegrationsProps> = ({
                   }}
                   placeholder={p.placeholder}
                   type={p.show ? 'text' : 'password'}
-                  className="bg-black border-zinc-800 rounded-none h-10 text-xs pr-10 focus-visible:ring-1 focus-visible:ring-zinc-700 font-mono"
+                  className="bg-black border-zinc-800 rounded-md h-10 text-xs pr-10 focus-visible:ring-1 focus-visible:ring-zinc-700 font-mono"
                 />
                 <button
                   type="button"
@@ -178,7 +178,7 @@ export const AIProviderIntegrations: React.FC<AIProviderIntegrationsProps> = ({
                 onClick={() => handleTestKey(p.id, p.value)}
                 disabled={p.status === 'testing' || !p.value}
                 variant="outline"
-                className="rounded-none border-zinc-800 h-8 text-[9px] font-black uppercase tracking-wider flex-1 hover:bg-white hover:text-black gap-1.5"
+                className="rounded-md border-zinc-800 h-8 text-[9px] font-black uppercase tracking-wider flex-1 hover:bg-white hover:text-black gap-1.5"
               >
                 {p.status === 'testing' ? (
                   <Loader2 className="size-3 animate-spin" />
@@ -191,7 +191,7 @@ export const AIProviderIntegrations: React.FC<AIProviderIntegrationsProps> = ({
                 <Button
                   onClick={() => handleClearKey(p.id)}
                   variant="ghost"
-                  className="rounded-none h-8 px-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5"
+                  className="rounded-md h-8 px-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5"
                 >
                   <Trash2 className="size-3.5" />
                 </Button>

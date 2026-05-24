@@ -74,3 +74,17 @@ export async function deletePolicyAction(projectId: string, id: string) {
   if (error) throw new Error(error.message)
   revalidatePath(`/projects/${projectId}`)
 }
+
+export async function updatePolicyAction(projectId: string, id: string, policy: any) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('rls_policies')
+    .update(policy)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/projects/${projectId}`)
+  return data
+}

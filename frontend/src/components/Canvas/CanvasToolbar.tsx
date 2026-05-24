@@ -30,14 +30,14 @@ export function CanvasToolbar({
       <div className="flex items-center gap-1">
         <Button
           onClick={onAddScreen}
-          className="bg-white dark:bg-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-none transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm"
+          className="bg-white dark:bg-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm"
         >
           <Plus className="w-3 h-3" />
         </Button>
         <Tooltip content="Architectural Linting: Check for orphaned screens or invalid data flows">
           <Button
             onClick={onValidate}
-            className="h-8 rounded-none px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
+            className="h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
           >
             <ShieldAlert className="w-3 h-3" />
           </Button>
@@ -46,7 +46,7 @@ export function CanvasToolbar({
         <Tooltip content="Auto-Arrange Nodes: Deterministically organize the architecture to resolve overlaps and maintain spacing.">
           <Button
             onClick={onAutoLayout}
-            className="h-8 rounded-none px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
+            className="h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
           >
             <LayoutGrid className="w-3 h-3" />
           </Button>
@@ -55,7 +55,7 @@ export function CanvasToolbar({
         <Tooltip content={isSimulating ? "Terminate Simulation" : "Run Flow Simulation: Deterministically test the path between two screens"}>
           <Button
             onClick={toggleSimulation}
-            className={`h-8 rounded-none px-4 text-xs font-bold transition-all border ${isSimulating
+            className={`h-8 rounded-md px-4 text-xs font-bold transition-all border ${isSimulating
               ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-lg'
               : 'bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm'
               }`}

@@ -67,7 +67,7 @@ export function SimulationPanel({
               onClick={toggleChaosMode}
               size="icon"
               className={cn(
-                "size-8 rounded-none transition-all",
+                "size-8 rounded-md transition-all",
                 isChaosMode ? "bg-red-500 text-white" : "bg-zinc-100 dark:bg-zinc-900 text-zinc-400"
               )}
             >
@@ -84,12 +84,12 @@ export function SimulationPanel({
                 value={simulationParams.startPageId}
                 onValueChange={(v) => setSimulationParams({ ...simulationParams, startPageId: v || '' })}
               >
-                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
+                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-md text-[10px] font-bold">
                   <SelectValue placeholder="Start">
                     {simulationParams.startPageId ? (pages.find((p: any) => p.id === simulationParams.startPageId)?.title || pages.find((p: any) => p.id === simulationParams.startPageId)?.name) : "Start"}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
+                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md">
                   {pages.map((p: any) => (
                     <SelectItem key={p.id} value={p.id} className="text-[10px] font-bold">{p.title || p.name}</SelectItem>
                   ))}
@@ -103,12 +103,12 @@ export function SimulationPanel({
                 value={simulationParams.endPageId}
                 onValueChange={(v) => setSimulationParams({ ...simulationParams, endPageId: v || '' })}
               >
-                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
+                <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-md text-[10px] font-bold">
                   <SelectValue placeholder="End">
                     {simulationParams.endPageId ? (pages.find((p: any) => p.id === simulationParams.endPageId)?.title || pages.find((p: any) => p.id === simulationParams.endPageId)?.name) : "End"}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none">
+                <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md">
                   {pages.map((p: any) => (
                     <SelectItem key={p.id} value={p.id} className="text-[10px] font-bold">{p.title || p.name}</SelectItem>
                   ))}
@@ -143,7 +143,7 @@ export function SimulationPanel({
                 }
               }}
             >
-              <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-none text-[10px] font-bold">
+              <SelectTrigger className="bg-zinc-50 dark:bg-zinc-950 h-10 w-full border-zinc-200 dark:border-zinc-800 rounded-md text-[10px] font-bold">
                 <SelectValue placeholder="Default Permission Set">
                   {(() => {
                     if (!simulationParams.userTypeId) return "Default Permission Set"
@@ -157,7 +157,7 @@ export function SimulationPanel({
                   })()}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none max-h-60 overflow-y-auto">
+              <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md max-h-60 overflow-y-auto">
                 {userTypes.map((ut: any) => {
                   const hasInstances = ut.persona?.instances && ut.persona.instances.length > 0
                   return (
@@ -191,7 +191,7 @@ export function SimulationPanel({
               />
               <Button
                 onClick={handleTraceNarrative}
-                className="absolute bottom-2 right-2 size-6 rounded-none bg-black dark:bg-white text-white dark:text-black opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-2 right-2 size-6 rounded-md bg-black dark:bg-white text-white dark:text-black opacity-0 group-hover:opacity-100 transition-opacity"
                 size="icon"
               >
                 <ArrowRight className="size-3" />
@@ -223,14 +223,14 @@ export function SimulationPanel({
             <Button
               onClick={runFlowSimulation}
               disabled={simulationStatus === 'running'}
-              className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none text-[10px] font-black  tracking-widest h-11 transition-all"
+              className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md text-[10px] font-black  tracking-widest h-11 transition-all"
             >
               {simulationStatus === 'running' ? 'Tracing...' : 'Run Simulation'}
             </Button>
             {(simulationStatus === 'running' || activePath.length > 0) && (
               <Button
                 onClick={stopSimulation}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-none text-[10px] font-black tracking-widest h-11 px-4 transition-all"
+                className="bg-red-600 hover:bg-red-700 text-white rounded-md text-[10px] font-black tracking-widest h-11 px-4 transition-all"
               >
                 <Square className="size-3 fill-white" />
               </Button>

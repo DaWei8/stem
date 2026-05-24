@@ -47,7 +47,7 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
       title={editingRole ? 'Modify User Role' : 'Define User Role'}
       description={editingRole ? 'Update archetype parameters and permissions.' : 'Establish a new user archetype and their global permissions.'}
       footer={
-        <Button onClick={handleSave} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-12 text-[10px] font-black ">
+        <Button onClick={handleSave} className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-12 text-[10px] font-black ">
           {editingRole ? 'Save Changes' : 'Establish Role'}
         </Button>
       }
@@ -59,7 +59,7 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
             value={editingRole ? editingRole.name : name}
             onChange={e => editingRole ? null : setName(e.target.value.replace(/\s+/g, '_').toLowerCase())}
             placeholder="e.g. branch_manager"
-            className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 font-mono text-black dark:text-white"
+            className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-12 font-mono text-black dark:text-white"
           />
         </div>
         <div className="space-y-2">
@@ -68,7 +68,7 @@ export function RoleFormModal({ isOpen, editingRole, onClose, onSave }: Props) {
             value={editingRole ? editingRole.description : description}
             onChange={e => editingRole ? null : setDescription(e.target.value)}
             placeholder="What can this user do in the system?"
-            className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none min-h-[100px] text-xs resize-none text-black dark:text-white"
+            className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md min-h-[100px] text-xs resize-none text-black dark:text-white"
           />
         </div>
         <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800">

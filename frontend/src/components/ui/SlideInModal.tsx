@@ -62,7 +62,7 @@ export function SlideInModal({
             )}
 
             <DialogPrimitive.Close
-              render={<Button variant="ghost" size="icon" className="absolute top-8 right-8 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-none transition-all" />}
+              render={<Button variant="ghost" size="icon" className="absolute top-8 right-8 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-md transition-all" />}
             >
               <XIcon className="size-5" />
             </DialogPrimitive.Close>

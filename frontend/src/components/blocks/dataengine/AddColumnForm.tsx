@@ -68,7 +68,7 @@ export function AddColumnForm({ variables, onAdd, onCancel }: Props) {
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="e.g. status_code"
-            className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-8 text-xs font-mono"
+            className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-8 text-xs font-mono"
             required
             autoFocus
           />
@@ -78,10 +78,10 @@ export function AddColumnForm({ variables, onAdd, onCancel }: Props) {
         <div className="space-y-1">
           <Label className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Data Type</Label>
           <Select value={type} onValueChange={(val) => setType(val || '')}>
-            <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-8 text-xs w-full">
+            <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-8 text-xs w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
               {['uuid', 'varchar', 'int4', 'timestamp', 'jsonb', 'boolean', 'text'].map(t => (
                 <SelectItem key={t} value={t} className="text-xs">{t.toUpperCase()}</SelectItem>
               ))}
@@ -93,10 +93,10 @@ export function AddColumnForm({ variables, onAdd, onCancel }: Props) {
         <div className="space-y-1">
           <Label className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Registry Binding (Optional)</Label>
           <Select value={variableId} onValueChange={(val) => setVariableId(val || '')}>
-            <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-8 text-xs w-full">
+            <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-8 text-xs w-full">
               <SelectValue placeholder="Map to variable..." />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+            <SelectContent className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
               <SelectItem value="none" className="text-xs italic text-zinc-400">None</SelectItem>
               {variables.map(v => (
                 <SelectItem key={v.id} value={v.id} className="text-xs font-mono">{v.label}</SelectItem>
@@ -111,7 +111,7 @@ export function AddColumnForm({ variables, onAdd, onCancel }: Props) {
             id="drawer-pk"
             checked={isPrimaryKey}
             onCheckedChange={c => setIsPrimaryKey(!!c)}
-            className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white rounded-none"
+            className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white rounded-md"
           />
           <Label htmlFor="drawer-pk" className="text-[10px] font-bold text-zinc-500 cursor-pointer flex items-center gap-1">
             <Key className="size-3 text-amber-500" />
@@ -126,14 +126,14 @@ export function AddColumnForm({ variables, onAdd, onCancel }: Props) {
           type="button"
           onClick={onCancel}
           variant="outline"
-          className="flex-1 border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-[10px] uppercase font-bold"
+          className="flex-1 border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-[10px] uppercase font-bold"
         >
           Cancel
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-none h-9 text-[10px] uppercase font-bold"
+          className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-9 text-[10px] uppercase font-bold"
         >
           {isSubmitting ? 'Adding...' : 'Add Field'}
         </Button>

@@ -74,7 +74,7 @@ export function EditActionModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. on_click_submit"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-bold shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-bold shadow-sm"
           />
         </div>
 
@@ -86,7 +86,7 @@ export function EditActionModal({
             <select
               value={actionType}
               onChange={(e) => setActionType(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-bold"
             >
               <option value="function_call">Function Call (Backend Linked)</option>
               <option value="navigation">Navigation / Link</option>
@@ -103,7 +103,7 @@ export function EditActionModal({
               value={functionId}
               disabled={actionType !== 'function_call'}
               onChange={(e) => setFunctionId(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-mono font-bold disabled:opacity-50"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-mono font-bold disabled:opacity-50"
             >
               <option value="">(None - Pure Frontend Logic)</option>
               {availableFunctions.map((f) => (
@@ -120,7 +120,7 @@ export function EditActionModal({
             type="button"
             variant="ghost"
             onClick={handleRemove}
-            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-none text-[11px] font-black gap-2 h-11 px-4"
+            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-md text-[11px] font-black gap-2 h-11 px-4"
           >
             <Trash2 className="size-4" /> Delete Trigger
           </Button>

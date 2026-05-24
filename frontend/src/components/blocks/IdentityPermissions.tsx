@@ -1,32 +1,31 @@
 'use client'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useIdentity } from '@/hooks/useIdentity'
-import { useDatabase } from '@/hooks/useDatabase'
-import { usePages } from '@/hooks/usePages'
-import { useVariables } from '@/hooks/useVariables'
-import { useUI } from '@/hooks/useUI'
-import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { LayoutGrid, Table2, ShieldCheck, Plus, Cpu, Filter } from 'lucide-react'
+import { PillarHeader } from '@/components/layout/PillarHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { PillarHeader } from '@/components/layout/PillarHeader'
-import { RoleCard } from './identity/RoleCard'
+import { useDatabase } from '@/hooks/useDatabase'
+import { useIdentity } from '@/hooks/useIdentity'
+import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
+import { usePages } from '@/hooks/usePages'
+import { useUI } from '@/hooks/useUI'
+import { useVariables } from '@/hooks/useVariables'
+import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Cpu, Filter, LayoutGrid, Plus, ShieldCheck, Table2 } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { PermissionMatrix } from './identity/PermissionMatrix'
+import { PersonaManagerModal } from './identity/PersonaManagerModal'
+import { PolicyFormModal } from './identity/PolicyFormModal'
 import { PolicyRow } from './identity/PolicyRow'
 import { PolicySandbox } from './identity/PolicySandbox'
+import { RoleCard } from './identity/RoleCard'
 import { RoleFormModal } from './identity/RoleFormModal'
-import { PolicyFormModal } from './identity/PolicyFormModal'
-import { PersonaManagerModal } from './identity/PersonaManagerModal'
 import { IdentityBot } from './IdentityBot'
-import { useIdentityArchitect } from '@/hooks/useIdentityArchitect'
 
 export function IdentityPermissions() {
   const { id: projectId } = useParams()
-  const { userTypes, policies, fetchIdentityData, addUserType, deleteUserType, updateUserType, addPolicy, deletePolicy } = useIdentity()
+  const { userTypes, policies, fetchIdentityData, addUserType, deleteUserType, updateUserType, addPolicy, deletePolicy, updatePolicy } = useIdentity()
   const { tables, fetchProjectData } = useDatabase()
   const { pages } = usePages()
   const { variables, fetchVariables } = useVariables()
@@ -38,6 +37,7 @@ export function IdentityPermissions() {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [editingRole, setEditingRole] = useState<any | null>(null)
+  const [editingPolicy, setEditingPolicy] = useState<any | null>(null)
   const [managingPersonaRole, setManagingPersonaRole] = useState<any | null>(null)
   const [policyFilterUserType, setPolicyFilterUserType] = useState<string>('all')
   const [policyFilterOperation, setPolicyFilterOperation] = useState<string>('all')
@@ -122,13 +122,13 @@ export function IdentityPermissions() {
               </div>
               <Button
                 onClick={() => setIsOpen(!isOpen)}
-                className={cn("px-4 h-10 text-xs font-bold rounded-none gap-2", isOpen ? "bg-violet-500 text-white hover:bg-violet-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
+                className={cn("px-4 h-10 text-xs font-bold rounded-md gap-2", isOpen ? "bg-violet-500 text-white hover:bg-violet-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
               >
                 <Cpu className="size-3.5" /> AI Architect
               </Button>
               <Button
                 onClick={() => setIsRoleModalOpen(true)}
-                className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-none gap-2"
+                className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-md gap-2"
               >
                 <Plus className="size-3.5" /> New User Type
               </Button>
@@ -138,7 +138,7 @@ export function IdentityPermissions() {
           <AnimatePresence mode="wait">
             {viewMode === 'cards' ? (
               <motion.div key="cards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-col-4 gap-4">
                 {userTypes.map(ut => (
                   <RoleCard
                     key={ut.id}
@@ -182,12 +182,12 @@ export function IdentityPermissions() {
               <div className="flex items-center gap-2">
                 <Filter className="size-3.5 text-zinc-400" />
                 <Select value={policyFilterUserType} onValueChange={(v) => { if (v) setPolicyFilterUserType(v) }}>
-                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-none h-10 w-[200px] text-black dark:text-white">
+                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[200px] text-black dark:text-white">
                     <SelectValue placeholder="Filter by User Type">
                       {policyFilterUserType === 'all' ? 'All User Types' : userTypes.find(ut => ut.id === policyFilterUserType)?.name || 'Filter by User Type'}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
                     <SelectItem value="all" className="text-xs">All User Types</SelectItem>
                     {userTypes.map(ut => (
                       <SelectItem key={ut.id} value={ut.id} className="text-xs">{ut.name}</SelectItem>
@@ -195,12 +195,12 @@ export function IdentityPermissions() {
                   </SelectContent>
                 </Select>
                 <Select value={policyFilterOperation} onValueChange={(v) => { if (v) setPolicyFilterOperation(v) }}>
-                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-none h-10 w-[160px] text-black dark:text-white">
+                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[160px] text-black dark:text-white">
                     <SelectValue placeholder="Filter by Operation">
                       {policyFilterOperation === 'all' ? 'All Operations' : policyFilterOperation.charAt(0).toUpperCase() + policyFilterOperation.slice(1)}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-none text-black dark:text-white">
+                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
                     <SelectItem value="all" className="text-xs">All Operations</SelectItem>
                     <SelectItem value="select" className="text-xs">Select</SelectItem>
                     <SelectItem value="insert" className="text-xs">Insert</SelectItem>
@@ -211,25 +211,14 @@ export function IdentityPermissions() {
               </div>
               <Button
                 onClick={() => setIsPolicyModalOpen(true)}
-                className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-none gap-2"
+                className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-md gap-2"
               >
                 <Plus className="size-3.5" /> Define Policy
               </Button>
             </div>
           </div>
 
-          {/* Sandbox */}
-          <AnimatePresence>
-            {sandboxPolicy && (
-              <PolicySandbox
-                policy={sandboxPolicy}
-                variables={variables}
-                onClose={() => setSandboxPolicy(null)}
-              />
-            )}
-          </AnimatePresence>
-
-          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/40 overflow-hidden divide-y divide-zinc-150 dark:divide-zinc-900">
+          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/40 overflow-hidden divide-y divide-x divide-zinc-150 dark:divide-zinc-900">
             {filteredPolicies.map(pol => (
               <PolicyRow
                 key={pol.id}
@@ -241,6 +230,7 @@ export function IdentityPermissions() {
                 isActive={sandboxPolicy?.id === pol.id}
                 onOpenSandbox={() => setSandboxPolicy(sandboxPolicy?.id === pol.id ? null : pol)}
                 onDelete={() => deletePolicy(projectId as string, pol.id)}
+                onEdit={() => setEditingPolicy(pol)}
               />
             ))}
           </div>
@@ -270,11 +260,18 @@ export function IdentityPermissions() {
         />
 
         <PolicyFormModal
-          isOpen={isPolicyModalOpen}
+          isOpen={isPolicyModalOpen || !!editingPolicy}
+          editingPolicy={editingPolicy}
           tables={tables}
           userTypes={userTypes}
-          onClose={() => setIsPolicyModalOpen(false)}
-          onSave={async (payload) => addPolicy(projectId as string, payload)}
+          onClose={() => { setIsPolicyModalOpen(false); setEditingPolicy(null) }}
+          onSave={async (payload) => {
+            if (editingPolicy) {
+              await updatePolicy(projectId as string, editingPolicy.id, payload)
+            } else {
+              await addPolicy(projectId as string, payload)
+            }
+          }}
         />
 
         <PersonaManagerModal
@@ -287,6 +284,17 @@ export function IdentityPermissions() {
           }}
         />
       </div>
+
+      {/* Sandbox Drawer */}
+      <AnimatePresence>
+        {sandboxPolicy && (
+          <PolicySandbox
+            policy={sandboxPolicy}
+            variables={variables}
+            onClose={() => setSandboxPolicy(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isOpen && <IdentityBot />}

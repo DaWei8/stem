@@ -41,7 +41,7 @@ export default function ProjectEditorLayout({
           <button
             onClick={toggleSidebar}
             className={cn(
-              "absolute right-2 flex items-center justify-center size-8 text-zinc-600 hover:text-white hover:bg-black transition-all duration-300 group rounded-none border border-transparent hover:border-zinc-800",
+              "absolute right-2 flex items-center justify-center size-8 text-zinc-600 hover:text-white hover:bg-black transition-all duration-300 group rounded-md border border-transparent hover:border-zinc-800",
               !sidebarVisible && "right-1/2 translate-x-1/2"
             )}
             title={sidebarVisible ? "Collapse Sidebar" : "Expand Sidebar"}

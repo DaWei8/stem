@@ -355,7 +355,7 @@ export default function SettingsPage() {
       <header className="flex items-center justify-between px-8 py-6 border-b border-zinc-800 bg-black/50 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Link href="/projects">
-            <Button size="icon" className="bg-white/10 border border-zinc-800 hover:bg-zinc-800 rounded-none size-8">
+            <Button size="icon" className="bg-white/10 border border-zinc-800 hover:bg-zinc-800 rounded-md size-8">
               <ChevronLeft className="size-4 text-white" />
             </Button>
           </Link>
@@ -364,7 +364,7 @@ export default function SettingsPage() {
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="bg-white text-black hover:bg-zinc-200 rounded-none h-10 px-6 text-xs font-bold gap-2"
+          className="bg-white text-black hover:bg-zinc-200 rounded-md h-10 px-6 text-xs font-bold gap-2"
         >
           {isLoading ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
           Save Preferences
@@ -385,7 +385,7 @@ export default function SettingsPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Full Name"
-                className="bg-black border-zinc-800 rounded-none h-11 text-xs focus-visible:ring-1 focus-visible:ring-zinc-700"
+                className="bg-black border-zinc-800 rounded-md h-11 text-xs focus-visible:ring-1 focus-visible:ring-zinc-700"
               />
             </div>
             <div className="space-y-2">
@@ -393,7 +393,7 @@ export default function SettingsPage() {
               <Input
                 value={email}
                 disabled
-                className="bg-black/50 border-zinc-900 rounded-none h-11 text-xs text-zinc-600 cursor-not-allowed"
+                className="bg-black/50 border-zinc-900 rounded-md h-11 text-xs text-zinc-600 cursor-not-allowed"
               />
             </div>
           </div>
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
                 placeholder="Organization / Company"
-                className="bg-black border-zinc-800 rounded-none h-11 text-xs focus-visible:ring-1 focus-visible:ring-zinc-700 max-w-md"
+                className="bg-black border-zinc-800 rounded-md h-11 text-xs focus-visible:ring-1 focus-visible:ring-zinc-700 max-w-md"
               />
             </div>
           </div>
@@ -430,7 +430,7 @@ export default function SettingsPage() {
                 <h4 className="text-xs font-bold">Two-Factor Authentication</h4>
                 <p className="text-[10px] text-zinc-500 font-medium mt-1">Secure your account with multi-factor auth.</p>
               </div>
-              <Button variant="outline" className="rounded-none border-zinc-800 h-9 px-4 text-[10px] font-bold hover:bg-white hover:text-black transition-all">Enable 2FA</Button>
+              <Button variant="outline" className="rounded-md border-zinc-800 h-9 px-4 text-[10px] font-bold hover:bg-white hover:text-black transition-all">Enable 2FA</Button>
             </div>
             <div className="h-px bg-black" />
             <div className="flex justify-between items-center">
@@ -438,7 +438,7 @@ export default function SettingsPage() {
                 <h4 className="text-xs font-bold">API Access Tokens</h4>
                 <p className="text-[10px] text-zinc-500 font-medium mt-1">Manage keys for programmatic system access.</p>
               </div>
-              <Button onClick={() => setIsApiModalOpen(true)} variant="outline" className="rounded-none border-zinc-800 h-9 px-4 text-[10px] font-bold hover:bg-white hover:text-black transition-all">Manage Keys</Button>
+              <Button onClick={() => setIsApiModalOpen(true)} variant="outline" className="rounded-md border-zinc-800 h-9 px-4 text-[10px] font-bold hover:bg-white hover:text-black transition-all">Manage Keys</Button>
             </div>
           </div>
         </section>
@@ -539,7 +539,7 @@ export default function SettingsPage() {
               <Button
                 onClick={clearLogs}
                 variant="ghost"
-                className="h-8 text-[10px] font-black text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-none border border-red-500/20 px-3 uppercase tracking-wider"
+                className="h-8 text-[10px] font-black text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-md border border-red-500/20 px-3 uppercase tracking-wider"
               >
                 <Trash2 className="size-3 mr-1.5" /> Clear Audit Log
               </Button>
@@ -633,7 +633,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setDeterministicMode(!deterministicMode)}
                 className={cn(
-                  "w-11 h-6 rounded-none relative transition-colors duration-200",
+                  "w-11 h-6 rounded-md relative transition-colors duration-200",
                   deterministicMode ? "bg-white" : "bg-black"
                 )}
               >
@@ -678,14 +678,14 @@ export default function SettingsPage() {
                 <p className="text-xs text-zinc-400">Your new API key. Please copy it now, you will not be able to see it again.</p>
                 <div className="flex items-center gap-2">
                   <Input value={generatedKey} readOnly className="bg-black border-zinc-700 text-emerald-400 font-mono text-xs h-10" />
-                  <Button onClick={() => { navigator.clipboard.writeText(generatedKey); toast.success('Key copied to clipboard!') }} className="bg-white text-black h-10 px-4 text-xs font-bold rounded-none hover:bg-zinc-200">Copy</Button>
+                  <Button onClick={() => { navigator.clipboard.writeText(generatedKey); toast.success('Key copied to clipboard!') }} className="bg-white text-black h-10 px-4 text-xs font-bold rounded-md hover:bg-zinc-200">Copy</Button>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-6">
                 <Shield className="size-8 text-zinc-600 mb-4" />
                 <p className="text-xs text-zinc-500 mb-6 text-center">You currently have no active API keys.</p>
-                <Button onClick={() => setGeneratedKey(`stm_live_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`)} className="bg-white text-black hover:bg-zinc-200 rounded-none h-10 px-6 text-xs font-bold">Generate New Key</Button>
+                <Button onClick={() => setGeneratedKey(`stm_live_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`)} className="bg-white text-black hover:bg-zinc-200 rounded-md h-10 px-6 text-xs font-bold">Generate New Key</Button>
               </div>
             )}
           </div>

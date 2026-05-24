@@ -196,7 +196,7 @@ export function DocumentationView() {
             {viewMode === 'edit' && (
               <Button
                 onClick={() => saveContent()}
-                className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-wider h-7 px-3 rounded-none gap-1.5 transition-colors"
+                className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-wider h-7 px-3 rounded-md gap-1.5 transition-colors"
               >
                 <Save className="size-3" /> Save Changes
               </Button>
@@ -241,7 +241,7 @@ export function DocumentationView() {
               <Textarea
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full min-h-[600px] bg-zinc-50 dark:bg-zinc-950/20 border-zinc-200 dark:border-zinc-800 rounded-none p-6 font-mono text-xs leading-relaxed focus:ring-0 focus:outline-none transition-all text-black dark:text-white"
+                className="w-full min-h-[600px] bg-zinc-50 dark:bg-zinc-950/20 border-zinc-200 dark:border-zinc-800 rounded-md p-6 font-mono text-xs leading-relaxed focus:ring-0 focus:outline-none transition-all text-black dark:text-white"
                 placeholder="Describe your system architecture in detail..."
               />
             ) : (

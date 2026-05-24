@@ -91,7 +91,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
         </div>
 
         {/* Safety Warning */}
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-3">
+        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-start gap-3">
           <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review & Safety Active</p>
@@ -108,7 +108,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
               placeholder="e.g. jsonwebtoken"
             />
           </div>
@@ -120,7 +120,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
               type="text"
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
               placeholder="e.g. ^9.0.0 or latest"
             />
           </div>
@@ -131,7 +131,7 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-md focus:outline-none focus:border-zinc-400"
             >
               <option value="npm">npm (Node.js)</option>
               <option value="pip">pip (Python)</option>
@@ -148,13 +148,13 @@ export function DependencyDrawer({ dependency, onClose }: Props) {
         <div className="flex gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-850">
           <button
             onClick={handleSave}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-widest transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-widest transition-all rounded-md"
           >
             <Save className="size-3.5" /> Save Changes
           </button>
           <button
             onClick={onClose}
-            className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-black"
+            className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-black rounded-md"
           >
             <RotateCcw className="size-3.5" /> Cancel
           </button>

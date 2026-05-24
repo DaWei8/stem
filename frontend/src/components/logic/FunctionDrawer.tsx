@@ -110,7 +110,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
         </div>
 
         {/* Safety Shield Header */}
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none flex items-start gap-3">
+        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-start gap-3">
           <ShieldAlert className="size-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wide">Review & Safety Shield Active</p>
@@ -127,7 +127,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-12 px-2.5 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
               placeholder="e.g. calculateOrderTotal"
             />
           </div>
@@ -139,7 +139,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs p-2.5 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400 resize-none"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs p-2.5 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400 resize-none"
               placeholder="Describe what the function does, its logic goals, etc."
             />
           </div>
@@ -150,7 +150,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
             <select
               value={returnType}
               onChange={(e) => setReturnType(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-none focus:outline-none focus:border-zinc-400"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-12 px-2 rounded-md focus:outline-none focus:border-zinc-400"
             >
               <option value="void">void (no output)</option>
               <option value="string">string (text)</option>
@@ -168,13 +168,13 @@ export function FunctionDrawer({ func, onClose }: Props) {
               <button
                 type="button"
                 onClick={handleAddParam}
-                className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 bg-white dark:bg-black uppercase tracking-wider transition-all"
+                className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 hover:text-black dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 bg-white dark:bg-black uppercase tracking-wider rounded-md transition-all"
               >
                 <Plus className="size-2.5" /> Add Input
               </button>
             </div>
             {parameters.length === 0 ? (
-              <div className="p-3 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-[9px] text-zinc-400 uppercase font-mono">
+              <div className="p-3 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-[9px] text-zinc-400 uppercase font-mono rounded-md">
                 No parameters defined.
               </div>
             ) : (
@@ -186,12 +186,12 @@ export function FunctionDrawer({ func, onClose }: Props) {
                       value={param.name}
                       onChange={(e) => handleParamChange(index, 'name', e.target.value)}
                       placeholder="Param name (e.g. userId)"
-                      className="flex-1 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-8 px-2 text-black dark:text-white rounded-none focus:outline-none focus:border-zinc-400"
+                      className="flex-1 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono h-8 px-2 text-black dark:text-white rounded-md focus:outline-none focus:border-zinc-400"
                     />
                     <select
                       value={param.type}
                       onChange={(e) => handleParamChange(index, 'type', e.target.value)}
-                      className="w-24 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs h-8 px-1 text-black dark:text-white rounded-none focus:outline-none"
+                      className="w-24 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs h-8 px-1 text-black dark:text-white rounded-md focus:outline-none"
                     >
                       <option value="string">string</option>
                       <option value="number">number</option>
@@ -202,7 +202,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
                     <button
                       type="button"
                       onClick={() => handleRemoveParam(index)}
-                      className="size-8 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 transition-colors"
+                      className="size-8 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-md transition-colors"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -219,7 +219,7 @@ export function FunctionDrawer({ func, onClose }: Props) {
               value={implementationCode}
               onChange={(e) => setImplementationCode(e.target.value)}
               rows={6}
-              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] p-3 text-black dark:text-zinc-300 rounded-none focus:outline-none focus:border-zinc-400 resize-none"
+              className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] p-3 text-black dark:text-zinc-300 rounded-md focus:outline-none focus:border-zinc-400 resize-none"
               placeholder={`// Write pseudo-code logic\nif (order.total > 100) {\n  applyDiscount(order, 10);\n}`}
             />
           </div>
@@ -229,13 +229,13 @@ export function FunctionDrawer({ func, onClose }: Props) {
         <div className="flex gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-850">
           <button
             onClick={handleSave}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-widest transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-black dark:bg-white text-white dark:text-black h-10 text-[10px] font-black uppercase tracking-widest rounded-md transition-all"
           >
             <Save className="size-3.5" /> Save Changes
           </button>
           <button
             onClick={onClose}
-            className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-black"
+            className="px-4 flex items-center justify-center gap-1.5 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:hover:text-white h-10 text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-black rounded-md"
           >
             <RotateCcw className="size-3.5" /> Cancel
           </button>

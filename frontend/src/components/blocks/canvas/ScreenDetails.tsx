@@ -153,7 +153,7 @@ export function ScreenDetails({
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <TabsList className="grid grid-cols-2 w-full bg-zinc-100 dark:bg-zinc-950 p-1 h-12 rounded-none border-b border-zinc-200 dark:border-zinc-800">
+        <TabsList className="grid grid-cols-2 w-full bg-zinc-100 dark:bg-zinc-950 p-1 h-12 rounded-md border-b border-zinc-200 dark:border-zinc-800">
           <TabsTrigger value="overview">Properties</TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-2">
             <Zap className="size-3" />
@@ -162,7 +162,7 @@ export function ScreenDetails({
         </TabsList>
 
         <div className="flex-1 overflow-hidden relative">
-          <Button onClick={handleSave} disabled={isSaving} className="w-full absolute bottom-0 left-0 z-10 bg-black dark:bg-white text-white dark:text-black rounded-none h-12 text-[10px] font-black  shadow-lg hover:scale-[1.02] transition-all">
+          <Button onClick={handleSave} disabled={isSaving} className="w-full absolute bottom-0 left-0 z-10 bg-black dark:bg-white text-white dark:text-black rounded-md h-12 text-[10px] font-black  shadow-lg hover:scale-[1.02] transition-all">
             <Save className="size-3.5 mr-2" /> {isSaving ? 'Synchronizing...' : 'Save Architecture'}
           </Button>
           <AnimatePresence mode="wait">
@@ -179,20 +179,20 @@ export function ScreenDetails({
                   <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Title</label>
-                      <Input value={title} onChange={e => setTitle(e.target.value)} className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs font-bold shadow-sm" />
+                      <Input value={title} onChange={e => setTitle(e.target.value)} className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold shadow-sm" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Architectural Folder</label>
                       <div className="relative group">
                         <Folder className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
-                        <Input value={folder} onChange={e => setFolder(e.target.value)} placeholder="Auth Flow, Dashboard..." className="pl-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs font-bold shadow-sm" />
+                        <Input value={folder} onChange={e => setFolder(e.target.value)} placeholder="Auth Flow, Dashboard..." className="pl-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold shadow-sm" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Live URL</label>
                       <div className="relative group">
                         <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-emerald-500 transition-colors" />
-                        <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} placeholder="www.example.com/page" className="pl-10 pr-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-12 text-xs font-bold font-mono shadow-sm" />
+                        <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} placeholder="www.example.com/page" className="pl-10 pr-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold font-mono shadow-sm" />
                         {liveUrl && (
                           <button
                             onClick={() => {
@@ -289,7 +289,7 @@ export function ScreenDetails({
                         <div
                           key={c.id}
                           onClick={() => setEditingConstraint(c)}
-                          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-2 group shadow-sm hover:border-red-500/50 cursor-pointer transition-colors"
+                          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-2 group shadow-sm hover:border-red-500/50 cursor-pointer transition-colors"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-black text-black dark:text-white font-mono tracking-tight">
@@ -336,7 +336,7 @@ export function ScreenDetails({
                       const tablePolicies = table ? policies.filter(p => p.table_id === table.id) : []
 
                       return (
-                        <div key={i.id} onClick={() => setEditingInput(i)} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none space-y-4 group shadow-sm hover:border-blue-500/50 cursor-pointer transition-colors">
+                        <div key={i.id} onClick={() => setEditingInput(i)} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-4 group shadow-sm hover:border-blue-500/50 cursor-pointer transition-colors">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-black text-black dark:text-white  font-mono tracking-tight">
                               {i.name} {i.is_required && <span className="text-red-500 text-[8px] font-black uppercase ml-1">Required</span>}
@@ -379,7 +379,7 @@ export function ScreenDetails({
                     onAdd={() => addOutput(page.id, { name: `output_${(page.outputs || []).length + 1}`, output_type: 'state_update' })}
                     items={page.outputs || []}
                     renderItem={(o) => (
-                      <div key={o.id} onClick={() => setEditingOutput(o)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-emerald-500/50 cursor-pointer">
+                      <div key={o.id} onClick={() => setEditingOutput(o)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors hover:border-emerald-500/50 cursor-pointer">
                         <div className="flex flex-col gap-1.5">
                           <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400  font-mono">{o.name}</span>
                           {o.variable_id && (
@@ -401,7 +401,7 @@ export function ScreenDetails({
                     renderItem={(a) => {
                       const linkedFunc = availableFunctions.find(f => f.id === a.function_id)
                       return (
-                        <div key={a.id} onClick={() => setEditingAction(a)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none group shadow-sm transition-colors hover:border-amber-500/50 cursor-pointer">
+                        <div key={a.id} onClick={() => setEditingAction(a)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors hover:border-amber-500/50 cursor-pointer">
                           <div className="flex flex-col gap-1.5">
                             <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400 font-mono">{a.name}</span>
                             {linkedFunc ? (
@@ -467,12 +467,12 @@ export function ScreenDetails({
                       value={chatInput}
                       onChange={e => setChatInput(e.target.value)}
                       placeholder={`Describe changes to ${page.title}...`}
-                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
+                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
                     />
                     <Button
                       type="submit"
                       disabled={isArchitecting || !chatInput.trim()}
-                      className="absolute right-2 top-2 size-10 rounded-none bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
+                      className="absolute right-2 top-2 size-10 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
                     >
                       <Send className="size-4" />
                     </Button>
@@ -584,7 +584,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
 
       {msg.script && (
         msg.is_rejected ? (
-          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+          <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-md">
             <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
               <X className="size-3 text-red-500" />
               Architecture proposal rejected
@@ -669,7 +669,7 @@ function FlowSection({ icon, title, screens, onSelect }: { icon: any; title: str
               key={s.id}
               onClick={() => onSelect?.(s.id)}
               whileHover={{ x: 4 }}
-              className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-none hover:border-black dark:hover:border-zinc-600 cursor-pointer group transition-all shadow-sm"
+              className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md hover:border-black dark:hover:border-zinc-600 cursor-pointer group transition-all shadow-sm"
             >
               <span className="text-[11px] font-black text-zinc-500 group-hover:text-black dark:group-hover:text-white transition-colors  tracking-tight">{s.title}</span>
               <ChevronRight className="size-3 text-zinc-300 group-hover:text-zinc-500 transition-transform group-hover:translate-x-1" />

@@ -85,7 +85,7 @@ export function HistoryView() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search updates, actions, users..."
-                className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 h-10 w-full pl-9 pr-4 text-xs font-bold rounded-none focus:outline-none focus:border-zinc-400 text-black dark:text-white"
+                className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 h-10 w-full pl-9 pr-4 text-xs font-bold rounded-md focus:outline-none focus:border-zinc-400 text-black dark:text-white"
               />
             </div>
 

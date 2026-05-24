@@ -34,7 +34,7 @@ export function NewProjectModal({ onCreate }: NewProjectModalProps) {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="bg-white text-black hover:bg-zinc-200 rounded-none h-11 px-6 text-xs font-black transition-all flex items-center gap-2 group"
+        className="bg-white text-black hover:bg-zinc-200 rounded-md h-11 px-6 text-xs font-black transition-all flex items-center gap-2 group"
       >
         <Plus className="size-4 group-hover:rotate-90 transition-transform duration-300" />
         New Project
@@ -59,7 +59,7 @@ export function NewProjectModal({ onCreate }: NewProjectModalProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Neural Nexus Core"
-              className="bg-black border-zinc-800 rounded-none h-12 text-sm focus-visible:ring-1 focus-visible:ring-zinc-600 transition-all text-white"
+              className="bg-black border-zinc-800 rounded-md h-12 text-sm focus-visible:ring-1 focus-visible:ring-zinc-600 transition-all text-white"
               required
             />
           </div>
@@ -72,7 +72,7 @@ export function NewProjectModal({ onCreate }: NewProjectModalProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="High-level description of the system architecture..."
-              className="bg-black w-full min-h-[120px] p-4 border border-zinc-800 rounded-none text-sm focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white"
+              className="bg-black w-full min-h-[120px] p-4 border border-zinc-800 rounded-md text-sm focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white"
             />
           </div>
         </div>

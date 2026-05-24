@@ -24,13 +24,13 @@ export function FunctionCard({ func, onDelete, onClick, isSelected }: FunctionCa
       <Card
         onClick={onClick}
         className={cn(
-          "bg-black border border-zinc-800 rounded-none shadow-none group h-full w-full hover:border-zinc-500 transition-all relative overflow-hidden cursor-pointer",
+          "bg-black border border-zinc-800 shadow-none group h-full w-full hover:border-zinc-500 transition-all relative overflow-hidden cursor-pointer",
           isSelected && "border-zinc-400"
         )}
       >
         <CardHeader className="p-5 flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-3">
-            <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center">
+            <div className="size-8 bg-black border border-zinc-800 flex items-center justify-center rounded-md">
               <Code2 className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
             </div>
             <div>
@@ -45,22 +45,22 @@ export function FunctionCard({ func, onDelete, onClick, isSelected }: FunctionCa
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 rounded-none hover:bg-black"
+                className="size-8 rounded-md hover:bg-black"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="size-4 text-zinc-600" />
               </Button>
             } />
-            <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-none min-w-[140px]">
+            <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-lg min-w-[140px]">
               <DropdownMenuItem
                 onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-                className="hover:bg-zinc-900 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
+                className="hover:bg-zinc-900 rounded-md text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
               >
                 <Edit3 className="size-3 text-purple-400" /> Edit Logic
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => { e.stopPropagation(); onDelete(func.id); }}
-                className="text-red-400 hover:bg-red-950 rounded-none text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
+                className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 flex items-center gap-2 cursor-pointer"
               >
                 <Trash2 className="size-3" /> Delete
               </DropdownMenuItem>

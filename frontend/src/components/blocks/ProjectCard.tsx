@@ -73,7 +73,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
       <motion.div
         whileHover={{ y: -4 }}
         className={cn(
-          "group relative flex bg-black/10 border border-zinc-800/50 hover:border-zinc-500/50 transition-all duration-300",
+          "group relative flex bg-black/10 border border-zinc-800/50 hover:border-zinc-500/50 rounded-xl overflow-hidden transition-all duration-300",
           viewMode === 'grid' ? "flex-col h-full" : "flex-row items-center w-full"
         )}
       >
@@ -81,7 +81,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
 
         {/* Header / Icon */}
         <div className={cn("p-6 flex items-start justify-between shrink-0", viewMode === 'grid' ? "pb-0" : "pr-4")}>
-          <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 transition-colors shrink-0">
+          <div className="size-10 bg-black border border-zinc-800 flex items-center justify-center rounded-md group-hover:border-zinc-600 transition-colors shrink-0">
             <Fingerprint className="size-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
           </div>
 
@@ -92,21 +92,21 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   <Button
                     variant="ghost"
                     onClick={(e) => e.stopPropagation()}
-                    className="size-8 p-0 hover:bg-zinc-800 rounded-none text-zinc-500 hover:text-white transition-all"
+                    className="size-8 p-0 hover:bg-zinc-800 rounded-md text-zinc-500 hover:text-white transition-all"
                   >
                     <MoreVertical className="size-4" />
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-none shadow-2xl min-w-[160px]">
-                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-none transition-colors">
+              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-lg shadow-2xl min-w-[160px]">
+                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-md transition-colors">
                   <Pencil className="size-3.5 text-blue-400" />
                   Rename Project
                 </DropdownMenuItem>
                 {isOwner && (
                   <>
                     <div className="h-px bg-zinc-800 my-1" />
-                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-md transition-colors">
                       <Trash2 className="size-3.5" />
                       Delete Project
                     </DropdownMenuItem>
@@ -198,21 +198,21 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   <Button
                     variant="ghost"
                     onClick={(e) => e.stopPropagation()}
-                    className="size-8 p-0 hover:bg-zinc-800 rounded-none text-zinc-500 hover:text-white transition-all"
+                    className="size-8 p-0 hover:bg-zinc-800 rounded-md text-zinc-500 hover:text-white transition-all"
                   >
                     <MoreVertical className="size-4" />
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-none shadow-2xl min-w-[160px]">
-                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-none transition-colors">
+              <DropdownMenuContent align="end" className="p-1 bg-black border-zinc-800 text-white rounded-lg shadow-2xl min-w-[160px]">
+                <DropdownMenuItem onClick={handleRename} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-black focus:bg-black rounded-md transition-colors">
                   <Pencil className="size-3.5 text-blue-400" />
                   Rename Project
                 </DropdownMenuItem>
                 {isOwner && (
                   <>
                     <div className="h-px bg-zinc-800 my-1" />
-                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-none transition-colors">
+                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-xs font-bold cursor-pointer hover:bg-red-950/30 text-red-400 focus:bg-red-950/30 rounded-md transition-colors">
                       <Trash2 className="size-3.5" />
                       Delete Project
                     </DropdownMenuItem>
@@ -228,7 +228,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
       </motion.div>
 
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-        <DialogContent className="bg-black border-zinc-800 text-white rounded-none sm:max-w-[450px] p-0 overflow-hidden shadow-2xl">
+        <DialogContent className="bg-black border-zinc-800 text-white rounded-xl sm:max-w-[450px] p-0 overflow-hidden shadow-2xl">
           <div className="h-1 bg-white" />
           <form onSubmit={saveRename} className="p-8">
             <DialogHeader className="mb-8">
@@ -241,7 +241,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   id="newName"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="bg-black border-zinc-800 rounded-none h-12 text-sm focus-visible:ring-1 focus-visible:ring-zinc-600 transition-all text-white"
+                  className="bg-black border-zinc-800 rounded-md h-12 text-sm focus-visible:ring-1 focus-visible:ring-zinc-600 transition-all text-white"
                   required
                 />
               </div>
@@ -251,7 +251,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   id="newDesc"
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  className="bg-black w-full min-h-[120px] p-4 border border-zinc-800 rounded-none text-sm focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white"
+                  className="bg-black w-full min-h-[120px] p-4 border border-zinc-800 rounded-md text-sm focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white"
                 />
               </div>
             </div>
@@ -260,13 +260,13 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                 type="button"
                 variant="ghost"
                 onClick={() => setIsRenameOpen(false)}
-                className="rounded-none hover:bg-black text-zinc-500 hover:text-white transition-all text-xs font-bold"
+                className="rounded-md hover:bg-black text-zinc-500 hover:text-white transition-all text-xs font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="bg-white text-black hover:bg-zinc-200 rounded-none px-8 h-11 text-xs font-black transition-all"
+                className="bg-white text-black hover:bg-zinc-200 rounded-md px-8 h-11 text-xs font-black transition-all"
               >
                 Save Changes
               </Button>

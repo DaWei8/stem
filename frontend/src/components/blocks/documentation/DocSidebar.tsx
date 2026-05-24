@@ -57,7 +57,7 @@ export function DocSidebar({
         <Button
           onClick={onExportBlueprint}
           disabled={isExporting}
-          className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 border border-zinc-800 dark:border-zinc-200 rounded-none h-10 text-[10px] font-black uppercase tracking-wider transition-colors"
+          className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 border border-zinc-800 dark:border-zinc-200 rounded-md h-10 text-[10px] font-black uppercase tracking-wider transition-colors"
         >
           {isExporting ? 'Packaging...' : 'Download Blueprint'}
         </Button>
@@ -75,7 +75,7 @@ export function DocSidebar({
         <Button
           onClick={onSyncDocumentation}
           variant="outline"
-          className="w-full border-zinc-200 dark:border-zinc-800 rounded-none h-9 text-[10px] font-black uppercase tracking-wider hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+          className="w-full border-zinc-200 dark:border-zinc-800 rounded-md h-9 text-[10px] font-black uppercase tracking-wider hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
         >
           Sync Documentation
         </Button>

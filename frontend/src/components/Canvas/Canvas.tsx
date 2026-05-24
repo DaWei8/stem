@@ -182,8 +182,8 @@ export function Canvas() {
           nodeTypes={nodeTypes} colorMode={isDark ? 'dark' : 'light'} fitView
           minZoom={0.1} maxZoom={1.5}
         >
-          <Controls className="bg-white/10 dark:bg-black border-zinc-200 dark:border-zinc-800 fill-black dark:fill-white shadow-sm! rounded-none!" />
-          <MiniMap className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none!" nodeColor="#a1a1aa" maskColor="rgba(0,0,0,0.1)" />
+          <Controls className="bg-white/10 dark:bg-black border-zinc-200 dark:border-zinc-800 fill-black dark:fill-white shadow-sm! rounded-md!" />
+          <MiniMap className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md!" nodeColor="#a1a1aa" maskColor="rgba(0,0,0,0.1)" />
           <Background variant={BackgroundVariant.Dots} gap={32} size={1} color={isDark ? '#ffffff' : '#000000'} />
         </ReactFlow>
       </div>

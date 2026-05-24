@@ -175,7 +175,7 @@ export function LogicBot() {
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder="Filter system elements..."
-                  className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-none pl-10 h-11 text-[11px] font-mono focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-all text-black dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                  className="bg-zinc-50 dark:bg-black/50 border-zinc-200 dark:border-zinc-800 rounded-md pl-10 h-11 text-[11px] font-mono focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-all text-black dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
                 />
               </div>
 
@@ -267,7 +267,7 @@ export function LogicBot() {
 
                     {msg.script && (
                       msg.is_rejected ? (
-                        <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-none">
+                        <div className="w-full mt-1 p-3 bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs rounded-md">
                           <span className="text-zinc-500 font-semibold italic flex items-center gap-1.5 text-[10px]">
                             <X className="size-3 text-red-500" />
                             Architecture proposal rejected
@@ -329,7 +329,7 @@ export function LogicBot() {
                   <div className="flex flex-col items-start gap-3">
                     <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-4 flex items-center gap-3 backdrop-blur-sm transition-colors">
                       <Loader2 className="size-3.5 animate-spin text-black dark:text-white" />
-                      <span className="text-[10px] font-black  text-zinc-400 dark:text-zinc-500 tracking-widest animate-pulse">Synthesizing Logic...</span>
+                      <span className="text-[10px] font-black  text-zinc-400 dark:text-zinc-500 tracking-widest animate-pulse">Stem is cooking...</span>
                     </div>
                   </div>
                 )}
@@ -343,12 +343,12 @@ export function LogicBot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Define architectural intent..."
-                    className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-none h-12 pr-14 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-all text-black dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-medium"
+                    className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-12 pr-14 text-xs focus:ring-1 focus:ring-black/10 dark:focus:ring-white/10 transition-all text-black dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-medium"
                   />
                   <Button
                     type="submit"
                     disabled={isArchitecting || !input.trim()}
-                    className="absolute right-1 top-1 size-10 rounded-none bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 p-0 transition-all active:scale-95"
+                    className="absolute right-1 top-1 size-10 rounded-md bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 p-0 transition-all active:scale-95"
                   >
                     <Send className="size-4" />
                   </Button>

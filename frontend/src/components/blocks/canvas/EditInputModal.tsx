@@ -81,7 +81,7 @@ export function EditInputModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. email_input"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-bold shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-bold shadow-sm"
           />
         </div>
 
@@ -93,7 +93,7 @@ export function EditInputModal({
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="e.g. Enter email address"
-            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-none h-11 text-xs font-bold shadow-sm"
+            className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-11 text-xs font-bold shadow-sm"
           />
         </div>
 
@@ -105,7 +105,7 @@ export function EditInputModal({
             <select
               value={inputType}
               onChange={(e) => setInputType(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-bold"
             >
               <option value="form_field">Form Field</option>
               <option value="query_param">Query Param</option>
@@ -122,7 +122,7 @@ export function EditInputModal({
             <select
               value={variableId}
               onChange={(e) => setVariableId(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-none focus:outline-none focus:border-zinc-400 font-mono font-bold"
+              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-black dark:text-white h-11 px-3 rounded-md focus:outline-none focus:border-zinc-400 font-mono font-bold"
             >
               <option value="">(None - Transient)</option>
               {availableVariables.map((v) => (
@@ -151,7 +151,7 @@ export function EditInputModal({
             type="button"
             variant="ghost"
             onClick={handleRemove}
-            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-none text-[11px] font-black gap-2 h-11 px-4"
+            className="text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-md text-[11px] font-black gap-2 h-11 px-4"
           >
             <Trash2 className="size-4" /> Delete Input
           </Button>
