@@ -36,7 +36,7 @@ export function DesignPreview({ tokens, onClose }: DesignPreviewProps) {
 
       {/* Modal */}
       <div
-        className="relative z-10 flex flex-col w-[92vw] max-w-5xl h-[88vh] bg-zinc-100 dark:bg-zinc-900 shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800"
+        className="relative z-10 flex flex-col w-[92vw] max-w-5xl h-[88vh] bg-zinc-100 dark:bg-zinc-900 shadow-2xl overflow-y-scroll border border-zinc-200 dark:border-zinc-800"
         style={{ borderRadius: '12px' }}
         onClick={e => e.stopPropagation()}
       >
@@ -89,7 +89,7 @@ export function DesignPreview({ tokens, onClose }: DesignPreviewProps) {
 
         {/* ─── Canvas ───────────────────────────────────── */}
         <div
-          className="flex-1 overflow-y-auto p-6 flex items-center justify-center custom-scrollbar transition-colors duration-300"
+          className="overflow-y-scroll p-6 flex flex-col h-full items-center justify-center custom-scrollbar transition-colors duration-300"
           style={{ backgroundColor: isDark ? '#111118' : '#f0f0f4' }}
         >
           {mode === 'desktop' && <DesktopView t={t} />}

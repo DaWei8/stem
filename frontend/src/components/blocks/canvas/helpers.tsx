@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function SidebarSection({ title, icon, onAdd, items, renderItem }: {
-  title: string; icon: React.ReactNode; onAdd: () => void; items: any[]; renderItem: (item: any) => React.ReactNode
+  title: string; icon: React.ReactNode; onAdd?: () => void; items: any[]; renderItem: (item: any) => React.ReactNode
 }) {
   return (
     <div className="space-y-4">
@@ -14,9 +14,11 @@ export function SidebarSection({ title, icon, onAdd, items, renderItem }: {
           {icon}
           <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">{title}</span>
         </div>
-        <button onClick={onAdd} className="size-5 rounded-md border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/20 transition-all">
-          <Plus className="size-3" />
-        </button>
+        {onAdd && (
+          <button onClick={onAdd} className="size-5 rounded-md border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/20 transition-all">
+            <Plus className="size-3" />
+          </button>
+        )}
       </div>
       <div className="space-y-2">
         {items.length === 0 ? (

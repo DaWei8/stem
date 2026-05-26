@@ -1,5 +1,6 @@
 'use client'
 
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -59,6 +60,7 @@ import { EngineBot } from './EngineBot'
 export function SystemEngine() {
   const params = useParams()
   const projectId = params?.id as string
+  const { isViewer } = useProjectRole()
   const [activeTab, setActiveTab] = useState('state')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVarId, setSelectedVarId] = useState<string | null>(null)
@@ -284,7 +286,8 @@ export function SystemEngine() {
             </Button>
             <Button
               onClick={() => setIsNewEntryOpen(true)}
-              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2 group"
+              disabled={isViewer}
+              className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2 group disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Plus className="size-3" /> New Entry <ArrowRight className="size-0 group-hover:size-3 transition-all" />
             </Button>
@@ -361,6 +364,7 @@ export function SystemEngine() {
                         setVarDrawerEditing(true);
                       }}
                       onDelete={id => deleteVariable(projectId, id)}
+                      isViewer={isViewer}
                     />
                   </div>
                   <div className="space-y-4">
@@ -372,7 +376,7 @@ export function SystemEngine() {
                         <ConstantCard
                           key={c.id}
                           constant={c}
-                          onDelete={id => deleteConstant(projectId, id)}
+                          onDelete={isViewer ? undefined : id => deleteConstant(projectId, id)}
                           onClick={() => { setSelectedConstantId(selectedConstantId === c.id ? null : c.id); setSelectedVarId(null); setSelectedTableId(null); }}
                           isSelected={selectedConstantId === c.id}
                         />
@@ -400,6 +404,7 @@ export function SystemEngine() {
                   selectedTableId={selectedTableId}
                   onSelectTable={(id) => { setSelectedTableId(id); setSelectedVarId(null); setSelectedConstantId(null); setTableDrawerEditing(false); }}
                   onEditTable={(table) => { setSelectedTableId(table.id); setSelectedVarId(null); setSelectedConstantId(null); setTableDrawerEditing(true); }}
+                  isViewer={isViewer}
                 />
               )}
 
@@ -409,7 +414,7 @@ export function SystemEngine() {
                     <FunctionCard
                       key={f.id}
                       func={f}
-                      onDelete={id => deleteFunction(projectId, id)}
+                      onDelete={isViewer ? undefined : id => deleteFunction(projectId, id)}
                       onClick={() => {
                         setSelectedFunctionId(selectedFunctionId === f.id ? null : f.id)
                         setSelectedVarId(null)
@@ -468,26 +473,28 @@ export function SystemEngine() {
                             <p className="text-[10px] font-mono text-zinc-400">{d.type} v{d.version}</p>
                           </div>
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger render={
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 rounded-md hover:bg-zinc-800 p-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="size-4 text-zinc-600" />
-                            </Button>
-                          } />
-                          <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-md">
-                            <DropdownMenuItem
-                              onClick={(e) => { e.stopPropagation(); deleteDependency(projectId, d.id); }}
-                              className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 cursor-pointer"
-                            >
-                              <Trash2 className="size-3 mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {!isViewer && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger render={
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 rounded-md hover:bg-zinc-800 p-0"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="size-4 text-zinc-600" />
+                              </Button>
+                            } />
+                            <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-md">
+                              <DropdownMenuItem
+                                onClick={(e) => { e.stopPropagation(); deleteDependency(projectId, d.id); }}
+                                className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 cursor-pointer"
+                              >
+                                <Trash2 className="size-3 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     )
                   })}
@@ -553,6 +560,7 @@ export function SystemEngine() {
             onAddColumn={async (tableId, columnData) => {
               await addColumn(projectId, tableId, columnData)
             }}
+            isViewer={isViewer}
           />
         )}
         {selectedFunction && (

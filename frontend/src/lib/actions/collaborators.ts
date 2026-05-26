@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 // --- Collaborators CRUD ---
@@ -8,11 +8,11 @@ import { revalidatePath } from 'next/cache'
 export async function addCollaboratorAction(projectId: string, email: string, role: string = 'viewer') {
   const supabase = await createClient()
   
-  // 1. Find user by email
+  // 1. Find user by email (case-insensitive)
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('id')
-    .eq('email', email)
+    .ilike('email', email.trim())
     .single()
 
   if (userError || !userData) {
@@ -174,18 +174,20 @@ export async function updateProjectInvitationStatusAction(projectId: string, ema
     throw new Error('Invitation not found')
   }
 
+  const adminDb = createAdminClient()
+
   // 3. If accepted, check user account & add to collaborators
   if (status === 'accepted') {
-    // Try to find the user in public.users
-    const { data: userData, error: userError } = await supabase
+    // Try to find the user in public.users (case-insensitive)
+    const { data: userData, error: userError } = await adminDb
       .from('users')
       .select('id')
-      .eq('email', email.trim().toLowerCase())
+      .ilike('email', email.trim())
       .single()
 
     if (!userError && userData) {
-      // Create collaborator row
-      const { error: collError } = await supabase
+      // Create collaborator row using adminDb to bypass RLS write policies
+      const { error: collError } = await adminDb
         .from('collaborators')
         .insert([{
           project_id: projectId,
@@ -199,8 +201,8 @@ export async function updateProjectInvitationStatusAction(projectId: string, ema
     }
   }
 
-  // 4. Update the invitation record status
-  const { data, error: updateError } = await supabase
+  // 4. Update the invitation record status using adminDb to bypass RLS update policies
+  const { data, error: updateError } = await adminDb
     .from('project_invitations')
     .update({
       status,
@@ -256,7 +258,6 @@ export async function getPendingUserInvitationsAction() {
   if (!data || data.length === 0) return []
 
   const projectIds = data.map((inv: any) => inv.project_id)
-  const { createAdminClient } = await import('@/lib/supabase/server')
   const adminDb = createAdminClient()
 
   const { data: projects, error: projError } = await adminDb

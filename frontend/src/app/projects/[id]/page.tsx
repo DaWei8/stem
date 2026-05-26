@@ -21,7 +21,8 @@ import { useIdentity } from '@/hooks/useIdentity'
 import { useLogic } from '@/hooks/useLogic'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
-import { AlertCircle, ChevronLeft, Loader2, Sparkles, Share2, Save, Download, Terminal } from 'lucide-react'
+import { useProjectRole } from '@/hooks/useProjectRole'
+import { AlertCircle, ChevronLeft, Loader2, Sparkles, Share2, Save, Download, Terminal, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useProjects } from '@/hooks/useProjects'
@@ -47,6 +48,7 @@ export default function ProjectEditorPage() {
   const { fetchMessages } = useSystemArchitect()
   const { fetchLogs } = useActivityLogs()
   const { fetchCollaborators, fetchInvitations } = useCollaborators()
+  const { isViewer } = useProjectRole()
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -297,13 +299,23 @@ export default function ProjectEditorPage() {
             <Download className="size-3.5" />
             Export
           </Button>
-          <Button
-            className="bg-black dark:bg-white border-black dark:border-white text-[10px] font-black text-white dark:text-black hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-md h-10 px-4 gap-2 transition-colors"
-            onClick={() => toast.info('Auto-save enabled. Registry state is persistent.')}
-          >
-            <Save className="size-3.5 text-zinc-400 dark:text-zinc-500" />
-            Save changes
-          </Button>
+          {isViewer ? (
+            <Button
+              disabled
+              className="bg-zinc-200 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-800 text-[10px] font-black text-zinc-400 dark:text-zinc-500 rounded-md h-10 px-4 gap-2 transition-colors cursor-not-allowed"
+            >
+              <Lock className="size-3.5 text-zinc-400 dark:text-zinc-500" />
+              View Only
+            </Button>
+          ) : (
+            <Button
+              className="bg-black dark:bg-white border-black dark:border-white text-[10px] font-black text-white dark:text-black hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-md h-10 px-4 gap-2 transition-colors"
+              onClick={() => toast.info('Auto-save enabled. Registry state is persistent.')}
+            >
+              <Save className="size-3.5 text-zinc-400 dark:text-zinc-500" />
+              Save changes
+            </Button>
+          )}
 
         </div>
       </motion.div>

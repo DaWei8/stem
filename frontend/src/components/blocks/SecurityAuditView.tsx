@@ -15,8 +15,10 @@ import {
   Shield,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Lock
 } from 'lucide-react'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { cn } from '@/lib/utils'
 import { useUI } from '@/hooks/useUI'
 import { useProjects } from '@/hooks/useProjects'
@@ -31,6 +33,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export function SecurityAuditView() {
   const { currentProject } = useProjects()
+  const { isViewer } = useProjectRole()
   const { pages, transitions, inputs, actions, outputs } = usePages()
   const { tables, columns } = useDatabase()
   const { userTypes, policies } = useIdentity()
@@ -139,7 +142,7 @@ export function SecurityAuditView() {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/60 p-4 rounded-xl">
               <div className="space-y-1">
-                <h2 className="text-sm font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
+                <h2 className="text-lg font-black text-black dark:text-white flex items-center gap-2">
                   <Bug className="size-4 text-red-500" /> Flaw Registry & Local Scanner
                 </h2>
                 <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
@@ -296,21 +299,21 @@ export function SecurityAuditView() {
               <div className="absolute -top-10 -right-10 size-28 bg-purple-500/10 dark:bg-purple-500/5 blur-2xl rounded-full" />
               
               <div className="flex items-center gap-2 relative z-10">
-                <Sparkles className="size-4 text-purple-500 dark:text-purple-400 animate-pulse" />
                 <h3 className="text-base font-black text-purple-600 dark:text-purple-400 uppercase tracking-tighter">AI Threat Audit</h3>
               </div>
 
-              <p className="text-[10.5px] text-zinc-400 dark:text-zinc-500 font-medium leading-relaxed">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium leading-relaxed">
                 Compile and export your full deterministic blueprint to evaluate access bypass vectors, logic flaws, and database leakage risks.
               </p>
 
               {/* Model selection */}
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Select AI Model</label>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-black text-zinc-400 dark:text-zinc-500">Select AI Model</label>
                 <select
                   value={selectedModel}
+                  disabled={isViewer}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md p-2 text-[10.5px] font-bold text-black dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full bg-white dark:bg-black border h-12 border-zinc-200 dark:border-zinc-800 rounded-md p-2 text-xs font-bold text-black dark:text-white focus:outline-none focus:border-purple-500 transition-colors disabled:opacity-50"
                 >
                   <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                   <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
@@ -320,13 +323,17 @@ export function SecurityAuditView() {
               </div>
 
               <Button
-                disabled={isGenerating}
+                disabled={isGenerating || isViewer}
                 onClick={handleRunAIAudit}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white text-[10.5px] font-black uppercase tracking-wider h-10 px-4 rounded-md gap-2 transition-colors relative z-10"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm h-12 px-4 rounded-md gap-2 transition-colors relative z-10"
               >
                 {isGenerating ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" /> Analyzing blueprints...
+                  </>
+                ) : isViewer ? (
+                  <>
+                    <Lock className="size-3.5" /> View Only Mode
                   </>
                 ) : (
                   <>
@@ -341,7 +348,7 @@ export function SecurityAuditView() {
               <div className="space-y-2 select-none">
                 <div className="flex items-center justify-between">
                   <label className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider">Reports Log ({audits.length})</label>
-                  {activeAuditId && (
+                  {activeAuditId && !isViewer && (
                     <button
                       onClick={() => deleteAudit(activeAuditId)}
                       className="text-[9px] font-black text-red-500 hover:text-red-600 uppercase tracking-wider flex items-center gap-1 transition-colors"
@@ -376,8 +383,8 @@ export function SecurityAuditView() {
                 <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl p-12 text-center flex flex-col items-center justify-center space-y-3 bg-zinc-50/10 dark:bg-zinc-950/5 select-none">
                   <Info className="size-6 text-zinc-400 dark:text-zinc-600" />
                   <div>
-                    <h3 className="text-xs font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-wider">No AI reports generated</h3>
-                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium mt-1 leading-relaxed">
+                    <h3 className="text-sm font-black text-zinc-400 dark:text-zinc-300">No AI reports generated</h3>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium mt-1 leading-relaxed">
                       Click the purple button above to initiate a deep security audit report.
                     </p>
                   </div>

@@ -178,7 +178,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
       "bg-white dark:bg-black custom-scrollbar transition-colors duration-300 w-full",
       isModal ? "p-0 h-auto" : "h-full p-8 overflow-y-auto"
     )}>
-      <div className={cn("mx-auto w-full", isModal ? "space-y-6 pb-2" : "space-y-10 pb-20 max-w-5xl")}>
+      <div className={cn("mx-auto w-full", isModal ? "space-y-6 pb-2" : "space-y-10 pb-20")}>
         {!isModal && (
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-100 dark:border-zinc-900">
             <div className="space-y-2">
@@ -386,7 +386,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
           <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
             {invites.length === 0 && (
               <div className="p-10 text-center flex flex-col items-center justify-center gap-1">
-                <p className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">No pending or archived invites.</p>
+                <p className="text-sm font-black text-zinc-400 dark:text-zinc-500">No pending or archived invites.</p>
               </div>
             )}
 

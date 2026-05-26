@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Check, X, Briefcase, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 import {
   getPendingUserInvitationsAction,
   updateProjectInvitationStatusAction
 } from '@/lib/actions/collaborators'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Fingerprint, Mail } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface PendingInvitation {
   id: string
@@ -98,7 +98,7 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
     return (
       <div className="flex flex-col items-center justify-center py-20 border border-dashed border-zinc-800 bg-zinc-950/10 text-center select-none">
         <Mail className="size-6 text-zinc-700 mb-3" />
-        <h3 className="text-[10px] font-black tracking-wider text-zinc-400 uppercase mb-1">No Pending Invitations</h3>
+        <h3 className="text-sm font-black tracking-wider text-zinc-400 mb-1">No Pending Invitations</h3>
         <p className="text-[10px] text-zinc-600 max-w-xs leading-relaxed">
           You don't have any active invites to join other projects at the moment.
         </p>
@@ -110,12 +110,12 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
     <div className="mb-10 space-y-4">
       <div className="flex items-center gap-2 pb-2 border-b border-zinc-800/50">
         <Mail className="size-4 text-zinc-400" />
-        <h2 className="text-xs font-black text-zinc-400 uppercase tracking-wider">
+        <h2 className="text-sm font-black text-zinc-400">
           Pending Invitations ({invitations.length})
         </h2>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AnimatePresence mode="popLayout">
           {invitations.map((inv) => {
             const actionKey = `${inv.project_id}-${inv.email}`
@@ -128,7 +128,7 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="relative bg-zinc-950/40 border border-zinc-800 p-5 flex flex-col justify-between group overflow-hidden"
+                className="relative bg-zinc-950/40 border rounded-lg border-zinc-800 p-5 flex flex-col justify-between group overflow-hidden"
               >
                 {/* Visual Accent */}
                 <div className="absolute inset-0 bg-linear-to-b from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -136,16 +136,16 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
 
                 <div className="space-y-3 mb-5">
                   <div className="flex items-start justify-between">
-                    <div className="size-8 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                      <Briefcase className="size-4 text-zinc-400" />
+                    <div className="size-10 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                      <Fingerprint className="size-6 text-zinc-400" />
                     </div>
-                    <span className="px-2 py-0.5 border border-zinc-800 text-zinc-400 text-[8px] font-black uppercase tracking-wider">
+                    <span className="px-2 py-0.5 border border-zinc-800 text-zinc-400 text-[10px] rounded-sm font-bold uppercase tracking-wider">
                       {inv.role}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-black tracking-tight text-white line-clamp-1">
+                    <h3 className="text-lg font-black tracking-tight text-white line-clamp-1">
                       {inv.project?.name || 'Project System'}
                     </h3>
                     <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
@@ -207,7 +207,7 @@ export function PendingInvitations({ onActionComplete, hideIfEmpty = true }: Pen
                     disabled={!!currentLoading}
                     isLoading={currentLoading === 'decline'}
                     onClick={() => handleAction(inv, 'rejected')}
-                    className="h-9 px-3 text-[10px] uppercase font-black border border-zinc-800 hover:border-zinc-700 hover:text-white"
+                    className="h-9 px-3 text-[10px] uppercase font-black border border-red-800 hover:border-red-700 hover:text-red-500"
                   >
                     Decline
                   </Button>

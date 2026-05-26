@@ -92,7 +92,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   <Button
                     variant="ghost"
                     onClick={(e) => e.stopPropagation()}
-                    className="size-8 p-0 hover:bg-zinc-800 rounded-md text-zinc-500 hover:text-white transition-all"
+                    className="size-8 -mr-2 p-0 hover:bg-zinc-800 rounded-md text-zinc-500 hover:text-white transition-all"
                   >
                     <MoreVertical className="size-4" />
                   </Button>
@@ -144,7 +144,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
 
           <div className={cn("flex items-center", viewMode === 'grid' ? "mt-auto justify-between pt-6 border-t border-zinc-800/30" : "gap-8 shrink-0")}>
             <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 group-hover:text-zinc-500 transition-colors w-[100px]">
-              <Calendar className="size-3 shrink-0" />
+              <Calendar className="size-4 shrink-0" />
               {formattedDate}
             </div>
 
@@ -161,7 +161,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                   return (
                     <div
                       key={collab.id}
-                      className="size-5 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[8px] font-black text-zinc-400"
+                      className="size-7 rounded-full ring-2 ring-black bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[10px] font-black text-zinc-400"
                       title={`${name} (${collab.role})`}
                     >
                       {initials}
@@ -170,7 +170,7 @@ export function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
                 })}
                 {otherCollaborators.length > 3 && (
                   <div
-                    className="size-5 rounded-full ring-2 ring-black bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-zinc-500"
+                    className="size-7 rounded-full ring-2 ring-black bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[10px] font-black text-zinc-500"
                     title={`${otherCollaborators.length - 3} more collaborators`}
                   >
                     +{otherCollaborators.length - 3}

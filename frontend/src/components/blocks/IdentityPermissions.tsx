@@ -1,5 +1,6 @@
 'use client'
 
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { PillarHeader } from '@/components/layout/PillarHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,6 +26,7 @@ import { IdentityBot } from './IdentityBot'
 
 export function IdentityPermissions() {
   const { id: projectId } = useParams()
+  const { isViewer } = useProjectRole()
   const { userTypes, policies, fetchIdentityData, addUserType, deleteUserType, updateUserType, addPolicy, deletePolicy, updatePolicy } = useIdentity()
   const { tables, fetchProjectData } = useDatabase()
   const { pages } = usePages()
@@ -128,7 +130,8 @@ export function IdentityPermissions() {
               </Button>
               <Button
                 onClick={() => setIsRoleModalOpen(true)}
-                className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-md gap-2"
+                disabled={isViewer}
+                className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus className="size-3.5" /> New User Type
               </Button>
@@ -150,6 +153,7 @@ export function IdentityPermissions() {
                     onDelete={() => deleteUserType(projectId as string, ut.id)}
                     onImpersonate={() => handleImpersonate(ut.id)}
                     onManagePersonas={() => setManagingPersonaRole(ut)}
+                    isViewer={isViewer}
                   />
                 ))}
               </motion.div>
@@ -211,7 +215,8 @@ export function IdentityPermissions() {
               </div>
               <Button
                 onClick={() => setIsPolicyModalOpen(true)}
-                className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-md gap-2"
+                disabled={isViewer}
+                className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus className="size-3.5" /> Define Policy
               </Button>
@@ -231,6 +236,7 @@ export function IdentityPermissions() {
                 onOpenSandbox={() => setSandboxPolicy(sandboxPolicy?.id === pol.id ? null : pol)}
                 onDelete={() => deletePolicy(projectId as string, pol.id)}
                 onEdit={() => setEditingPolicy(pol)}
+                isViewer={isViewer}
               />
             ))}
           </div>

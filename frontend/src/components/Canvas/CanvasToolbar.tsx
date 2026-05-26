@@ -12,7 +12,8 @@ export function CanvasToolbar({
   onCreateSnapshot,
   toggleSimulation,
   isSimulating,
-  isLoaded
+  isLoaded,
+  isViewer = false
 }: {
   onAddScreen: () => void
   onValidate: () => void
@@ -21,6 +22,7 @@ export function CanvasToolbar({
   toggleSimulation: () => void
   isSimulating: boolean
   isLoaded: boolean
+  isViewer?: boolean
 }) {
   const { userTypes } = useIdentity()
   const { viewAsUserTypeId, setViewAsUserTypeId } = useUI()
@@ -30,7 +32,8 @@ export function CanvasToolbar({
       <div className="flex items-center gap-1">
         <Button
           onClick={onAddScreen}
-          className="bg-white dark:bg-black text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm"
+          disabled={isViewer}
+          className={`bg-white dark:bg-black text-black dark:text-white rounded-md transition-all h-8 px-4 text-xs font-bold border border-zinc-200 dark:border-zinc-800 shadow-sm ${isViewer ? 'opacity-40 cursor-not-allowed' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
         >
           Add Screen<Plus className="w-3 h-3" />
         </Button>
@@ -43,21 +46,25 @@ export function CanvasToolbar({
           </Button>
         </Tooltip>
 
-        <Tooltip content="Auto-Arrange Nodes: Deterministically organize the architecture to resolve overlaps and maintain spacing.">
+        <Tooltip content={isViewer ? "Viewers cannot modify canvas layout" : "Auto-Arrange Nodes: Deterministically organize the architecture to resolve overlaps and maintain spacing."}>
           <Button
             onClick={onAutoLayout}
-            className="h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm"
+            disabled={isViewer}
+            className={`h-8 rounded-md px-4 text-xs font-bold transition-all border bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 shadow-sm ${isViewer ? 'opacity-40 cursor-not-allowed' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
           >
             Auto layout<LayoutGrid className="w-3 h-3" />
           </Button>
         </Tooltip>
 
-        <Tooltip content={isSimulating ? "Terminate Simulation" : "Run Flow Simulation: Deterministically test the path between two screens"}>
+        <Tooltip content={isViewer ? "Viewers cannot simulate flows" : isSimulating ? "Terminate Simulation" : "Run Flow Simulation: Deterministically test the path between two screens"}>
           <Button
             onClick={toggleSimulation}
-            className={`h-8 rounded-md px-4 text-xs font-bold transition-all border ${isSimulating
-              ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-lg'
-              : 'bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm'
+            disabled={isViewer}
+            className={`h-8 rounded-md px-4 text-xs font-bold transition-all border ${isViewer
+              ? 'bg-white dark:bg-black text-zinc-300 dark:text-zinc-600 border-zinc-200 dark:border-zinc-800 opacity-40 cursor-not-allowed'
+              : isSimulating
+                ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-lg'
+                : 'bg-white dark:bg-black text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800 shadow-sm'
               }`}
           >
             {isSimulating ? (

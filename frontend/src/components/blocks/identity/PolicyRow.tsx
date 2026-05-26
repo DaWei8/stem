@@ -38,9 +38,10 @@ interface Props {
   onOpenSandbox: () => void
   onDelete: () => void
   onEdit: () => void
+  isViewer?: boolean
 }
 
-export function PolicyRow({ policy, tables, userTypes, variables, pages, isActive, onOpenSandbox, onDelete, onEdit }: Props) {
+export function PolicyRow({ policy, tables, userTypes, variables, pages, isActive, onOpenSandbox, onDelete, onEdit, isViewer = false }: Props) {
   const table = tables.find(t => t.id === policy.table_id)
   const userType = userTypes.find(ut => ut.id === policy.user_type_id)
 
@@ -63,13 +64,15 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
       <div className="grid grid-cols-2 w-full gap-10 p-4">
         {/* Left Section: Name & Target Info */}
         <div 
-          onClick={onEdit}
-          className="flex flex-col gap-2 cursor-pointer group/row-title hover:opacity-90 select-none"
+          onClick={isViewer ? undefined : onEdit}
+          className={cn("flex flex-col gap-2 select-none", isViewer ? "cursor-default" : "cursor-pointer group/row-title hover:opacity-90")}
         >
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-black text-black dark:text-white group-hover/row-title:text-violet-500 transition-colors flex items-center gap-1.5">
+            <span className="font-mono text-xs font-black text-black dark:text-white transition-colors flex items-center gap-1.5">
               {policy.name}
-              <Pencil className="size-3 text-zinc-450 dark:text-zinc-500 opacity-0 group-hover/row-title:opacity-100 transition-opacity" />
+              {!isViewer && (
+                <Pencil className="size-3 text-zinc-400 dark:text-zinc-500 opacity-0 group-hover/row-title:opacity-100 transition-opacity" />
+              )}
             </span>
             {referencedVars.length > 0 && (
               <span className="inline-flex items-center text-nowrap gap-1 text-[9px] font-bold text-violet-500 bg-violet-500/10 border border-violet-500/20 px-1.5 py-0.5" title="Constraint Lineage">
@@ -116,14 +119,16 @@ export function PolicyRow({ policy, tables, userTypes, variables, pages, isActiv
               <Play className="size-3" />
               <span>{isActive ? 'Sandbox Active' : 'Test Sandbox'}</span>
             </Button>
-            <Button
-              onClick={onDelete}
-              size="icon"
-              variant="ghost"
-              className="size-8 rounded-md border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all"
-            >
-              <Trash2 className="size-3.5" />
-            </Button>
+            {!isViewer && (
+              <Button
+                onClick={onDelete}
+                size="icon"
+                variant="ghost"
+                className="size-8 rounded-md border border-zinc-200 dark:border-zinc-800 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-950 transition-all"
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

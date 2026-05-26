@@ -30,79 +30,67 @@ ALTER TABLE public.project_invitations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_revoked_logs ENABLE ROW LEVEL SECURITY;
 
 -- 4. RLS Policies for project_invitations
+
+-- Helper function to check if the user has project invitation/modification rights (SECURITY DEFINER to avoid RLS recursion)
+CREATE OR REPLACE FUNCTION public.has_project_invite_permission(p_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    u_id UUID := auth.uid();
+    v_role TEXT;
+    v_invite BOOLEAN;
+BEGIN
+    IF u_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Owner check (fast index lookup)
+    IF EXISTS (SELECT 1 FROM public.projects WHERE id = p_id AND owner_id = u_id) THEN
+        RETURN TRUE;
+    END IF;
+
+    -- Collaborator check
+    SELECT role, can_invite_others INTO v_role, v_invite
+    FROM public.collaborators
+    WHERE project_id = p_id AND user_id = u_id;
+
+    IF v_role = 'editor' OR v_invite = TRUE THEN
+        RETURN TRUE;
+    END IF;
+
+    RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+
 CREATE POLICY "Users can view project invitations" ON public.project_invitations
     FOR SELECT
     TO authenticated
     USING (
-        (auth.jwt() ->> 'email' = email)
+        LOWER(auth.jwt() ->> 'email') = LOWER(email)
         OR
-        EXISTS (
-            SELECT 1 FROM public.collaborators
-            WHERE collaborators.project_id = project_invitations.project_id
-            AND collaborators.user_id = auth.uid()
-        )
-        OR
-        EXISTS (
-            SELECT 1 FROM public.projects
-            WHERE projects.id = project_invitations.project_id
-            AND projects.owner_id = auth.uid()
-        )
+        public.get_project_role(project_id) IS NOT NULL
     );
 
 CREATE POLICY "Users can insert project invitations" ON public.project_invitations
     FOR INSERT
     TO authenticated
     WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.projects
-            WHERE projects.id = project_id
-            AND projects.owner_id = auth.uid()
-        )
-        OR
-        EXISTS (
-            SELECT 1 FROM public.collaborators
-            WHERE collaborators.project_id = project_id
-            AND collaborators.user_id = auth.uid()
-            AND (collaborators.role IN ('owner', 'editor') OR collaborators.can_invite_others = true)
-        )
+        public.has_project_invite_permission(project_id)
     );
 
 CREATE POLICY "Users can update project invitations" ON public.project_invitations
     FOR UPDATE
     TO authenticated
     USING (
-        (auth.jwt() ->> 'email' = email)
+        LOWER(auth.jwt() ->> 'email') = LOWER(email)
         OR
-        EXISTS (
-            SELECT 1 FROM public.projects
-            WHERE projects.id = project_id
-            AND projects.owner_id = auth.uid()
-        )
-        OR
-        EXISTS (
-            SELECT 1 FROM public.collaborators
-            WHERE collaborators.project_id = project_id
-            AND collaborators.user_id = auth.uid()
-            AND (collaborators.role IN ('owner', 'editor') OR collaborators.can_invite_others = true)
-        )
+        public.has_project_invite_permission(project_id)
     );
 
 CREATE POLICY "Users can delete project invitations" ON public.project_invitations
     FOR DELETE
     TO authenticated
     USING (
-        EXISTS (
-            SELECT 1 FROM public.projects
-            WHERE projects.id = project_id
-            AND projects.owner_id = auth.uid()
-        )
-        OR
-        EXISTS (
-            SELECT 1 FROM public.collaborators
-            WHERE collaborators.project_id = project_id
-            AND collaborators.user_id = auth.uid()
-            AND (collaborators.role IN ('owner', 'editor') OR collaborators.can_invite_others = true)
-        )
+        public.has_project_invite_permission(project_id)
     );
 
 -- 5. RLS Policies for project_revoked_logs

@@ -36,9 +36,10 @@ interface Props {
   onSelect: (id: string) => void
   onEdit: (v: any) => void
   onDelete: (id: string) => void
+  isViewer?: boolean
 }
 
-export function DataStateTable({ variables, searchQuery, orphanIds, varSourceMap, selectedVarId, onSelect, onEdit, onDelete }: Props) {
+export function DataStateTable({ variables, searchQuery, orphanIds, varSourceMap, selectedVarId, onSelect, onEdit, onDelete, isViewer = false }: Props) {
   const filtered = useMemo(() =>
     variables.filter(v =>
       v.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,21 +127,23 @@ export function DataStateTable({ variables, searchQuery, orphanIds, varSourceMap
                     )}
                   </TableCell>
                   <TableCell className="py-3.5 pr-6 text-right" onClick={e => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger render={
-                        <Button variant="ghost" className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md shadow-none opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreVertical className="size-3.5 text-zinc-400" />
-                        </Button>
-                      } />
-                      <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
-                        <DropdownMenuItem onClick={() => onEdit(v)} className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-md">
-                          <Pencil className="size-3" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onDelete(v.id)} className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-md">
-                          <Trash2 className="size-3" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {!isViewer && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger render={
+                          <Button variant="ghost" className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md shadow-none opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreVertical className="size-3.5 text-zinc-400" />
+                          </Button>
+                        } />
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
+                          <DropdownMenuItem onClick={() => onEdit(v)} className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-md">
+                            <Pencil className="size-3" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onDelete(v.id)} className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-md">
+                            <Trash2 className="size-3" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </motion.tr>
               )

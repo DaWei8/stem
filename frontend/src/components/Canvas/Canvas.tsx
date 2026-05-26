@@ -18,6 +18,8 @@ import { ValidationModal } from './ValidationModal'
 import { CanvasToolbar } from './CanvasToolbar'
 import { CommandPalette } from './CommandPalette'
 
+import { useProjectRole } from '@/hooks/useProjectRole'
+
 const nodeTypes = {
   screen: PageNode,
 }
@@ -27,6 +29,7 @@ export function Canvas() {
   const projectId = params?.id as string
   const [selectedNode, setSelectedNode] = useState<any>(null)
   const [selectedNodes, setSelectedNodes] = useState<any[]>([])
+  const { isViewer } = useProjectRole()
 
   const {
     nodes, edges, onNodesChange, onEdgesChange, onConnect,
@@ -59,15 +62,17 @@ export function Canvas() {
   }, [setSelectedNodeId])
 
   const handleDeletePage = useCallback(async () => {
+    if (isViewer) return
     if (pageToDelete) {
       await removePage(pageToDelete)
       setPageToDelete(null)
       setSelectedNode(null)
     }
-  }, [pageToDelete, removePage])
+  }, [pageToDelete, removePage, isViewer])
 
   // Keyboard listener for Delete key
   useEffect(() => {
+    if (isViewer) return
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode) {
         if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
@@ -77,7 +82,7 @@ export function Canvas() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedNode])
+  }, [selectedNode, isViewer])
 
   const handleSelectScreen = useCallback((pageId: string) => {
     setNodes((nds) =>
@@ -151,6 +156,7 @@ export function Canvas() {
           toggleSimulation={toggleSimulation}
           isSimulating={isSimulating}
           isLoaded={isLoaded}
+          isViewer={isViewer}
         />
 
         {isSimulating && (
@@ -177,10 +183,18 @@ export function Canvas() {
 
         <ReactFlow
           nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
-          onConnect={onConnect} onReconnect={onReconnect} onReconnectEnd={onReconnectEnd}
-          onEdgeClick={onEdgeClick} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop} onSelectionChange={onSelectionChange}
+          onConnect={isViewer ? undefined : onConnect}
+          onReconnect={isViewer ? undefined : onReconnect}
+          onReconnectEnd={isViewer ? undefined : onReconnectEnd}
+          onEdgeClick={onEdgeClick}
+          onNodeDrag={isViewer ? undefined : onNodeDrag}
+          onNodeDragStop={isViewer ? undefined : onNodeDragStop}
+          onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes} colorMode={isDark ? 'dark' : 'light'} fitView
           minZoom={0.1} maxZoom={1.5}
+          nodesDraggable={!isViewer}
+          nodesConnectable={!isViewer}
+          edgesFocusable={!isViewer}
         >
           <Controls className="bg-white/10 dark:bg-black border-zinc-200 dark:border-zinc-800 fill-black dark:fill-white shadow-sm! rounded-md!" />
           <MiniMap className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md!" nodeColor="#a1a1aa" maskColor="rgba(0,0,0,0.1)" />
@@ -193,10 +207,11 @@ export function Canvas() {
         selectedNodes={selectedNodes}
         projectId={projectId}
         onSelectScreen={handleSelectScreen}
-        onTriggerDelete={(id) => setPageToDelete(id)}
+        onTriggerDelete={isViewer ? undefined : ((id) => setPageToDelete(id))}
+        isViewer={isViewer}
       />
 
-      <StandardModal isOpen={!!pageToDelete} onClose={() => setPageToDelete(null)} title="Delete Screen">
+      <StandardModal isOpen={!isViewer && !!pageToDelete} onClose={() => setPageToDelete(null)} title="Delete Screen">
         <div className="space-y-6">
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
             <p className="text-xs text-red-400 font-medium leading-relaxed">

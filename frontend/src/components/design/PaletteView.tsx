@@ -141,7 +141,7 @@ export function PaletteView({ t }: { t: T }) {
   ]
 
   return (
-    <div className="w-full max-w-4xl transition-all duration-300" style={{
+    <div className="w-full flex flex-col h-fit transition-all duration-300 overflow-scroll" style={{
       backgroundColor: t.bg,
       borderRadius: t.radiusLg,
       padding: t.spaceLg,
@@ -151,7 +151,7 @@ export function PaletteView({ t }: { t: T }) {
     }}>
 
       {/* ─── Header Section ───────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b pb-8" style={{ borderColor: `${t.text}08` }}>
+      <div className="flex flex-col justify-between items-start gap-6 border-b pb-8" style={{ borderColor: `${t.text}08` }}>
         <div className="flex items-start gap-4">
           <div className="flex flex-col items-center mt-1 select-none font-mono text-[11px] leading-none tracking-tight shrink-0" style={{ color: `${t.text}40` }}>
             <span>04</span>

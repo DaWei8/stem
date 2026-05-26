@@ -33,6 +33,7 @@ interface Props {
   onDelete: () => void
   onImpersonate: () => void
   onManagePersonas: () => void
+  isViewer?: boolean
 }
 
 export function RoleCard({
@@ -43,7 +44,8 @@ export function RoleCard({
   onDuplicate,
   onDelete,
   onImpersonate,
-  onManagePersonas
+  onManagePersonas,
+  isViewer = false
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const colors = COLOR_MAP[role.color || 'zinc'] ?? COLOR_MAP.zinc
@@ -83,26 +85,28 @@ export function RoleCard({
         <div className={cn('absolute top-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5', colors.accentLine)} />
 
         {/* Action dropdown */}
-        <div className="absolute top-4.5 right-3.5 z-10">
-          <DropdownMenu onOpenChange={setMenuOpen}>
-            <DropdownMenuTrigger render={
-              <Button variant="ghost" size="icon" className="size-8 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-md">
-                <MoreVertical className="size-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200" />
-              </Button>
-            } />
-            <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
-              <DropdownMenuItem onClick={onEdit} className="text-xs font-bold py-2 gap-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-md">
-                <Edit3 className="size-3 text-zinc-400" /> Edit Role
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onDuplicate} className="text-xs font-bold py-2 gap-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-md">
-                <Copy className="size-3 text-zinc-400" /> Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onDelete} className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-md">
-                <Trash2 className="size-3" /> Purge Role
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {!isViewer && (
+          <div className="absolute top-4.5 right-3.5 z-10">
+            <DropdownMenu onOpenChange={setMenuOpen}>
+              <DropdownMenuTrigger render={
+                <Button variant="ghost" size="icon" className="size-8 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-md">
+                  <MoreVertical className="size-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200" />
+                </Button>
+              } />
+              <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
+                <DropdownMenuItem onClick={onEdit} className="text-xs font-bold py-2 gap-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-md">
+                  <Edit3 className="size-3 text-zinc-400" /> Edit Role
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDuplicate} className="text-xs font-bold py-2 gap-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-md">
+                  <Copy className="size-3 text-zinc-400" /> Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDelete} className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-md">
+                  <Trash2 className="size-3" /> Purge Role
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
 
         <CardHeader className="px-5 pt-2">
           <div className={cn(
@@ -160,18 +164,20 @@ export function RoleCard({
           )}
 
           {/* Stats indicators & quick action buttons */}
-          <div className="grid grid-cols-2 gap-2 mt-auto pt-3 border-t border-zinc-100 dark:border-zinc-900/60">
-            <button
-              onClick={(e) => { e.stopPropagation(); onManagePersonas(); }}
-              className="text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-700 transition-all duration-200 bg-white/50 dark:bg-zinc-950/50 flex items-center gap-1 shadow-sm"
-            >
-              <Users className="size-3 text-zinc-400 dark:text-zinc-500" />
-              Add Personas
-            </button>
+          <div className={cn("grid gap-2 mt-auto pt-3 border-t border-zinc-100 dark:border-zinc-900/60", isViewer ? "grid-cols-1" : "grid-cols-2")}>
+            {!isViewer && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onManagePersonas(); }}
+                className="text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-700 transition-all duration-200 bg-white/50 dark:bg-zinc-950/50 flex items-center gap-1 shadow-sm"
+              >
+                <Users className="size-3 text-zinc-400 dark:text-zinc-500" />
+                Add Personas
+              </button>
+            )}
             <button
               onClick={(e) => { e.stopPropagation(); onImpersonate(); }}
               className={cn(
-                'text-[10px] font-bold px-2.5 py-1.5 rounded-md border transition-all duration-200 flex items-center gap-1 shadow-sm',
+                'text-[10px] font-bold px-2.5 py-1.5 rounded-md border transition-all duration-200 flex items-center gap-1 shadow-sm justify-center',
                 isImpersonating
                   ? 'border-amber-500/50 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20'
                   : 'border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-700 bg-white/50 dark:bg-zinc-950/50'

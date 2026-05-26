@@ -12,9 +12,10 @@ interface TokenSectionProps {
   onEdit: (token: any) => void
   onDelete: (id: string) => void
   onPreset?: () => void
+  isViewer?: boolean
 }
 
-export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onPreset }: TokenSectionProps) {
+export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onPreset, isViewer }: TokenSectionProps) {
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { type: 'spring' as const, stiffness: 100, damping: 15 } }
@@ -29,22 +30,24 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
           </div>
           <h3 className="text-xl font-bold tracking-tight">{title}</h3>
         </div>
-        <div className="flex items-center gap-2">
-          {onPreset && (
+        {!isViewer && (
+          <div className="flex items-center gap-2">
+            {onPreset && (
+              <Button
+                onClick={onPreset}
+                className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-3 rounded-md transition-all text-xs"
+              >
+                Presets
+              </Button>
+            )}
             <Button
-              onClick={onPreset}
-              className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-3 rounded-md transition-all text-xs"
+              onClick={onAdd}
+              className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-md transition-all"
             >
-              Presets
+              <Plus className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            onClick={onAdd}
-            className="bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 size-8 p-0 rounded-md transition-all"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -52,8 +55,8 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
           {tokens.map(token => (
             <div
               key={token.id}
-              className="group relative flex items-center justify-between p-3 bg-black/40 border border-zinc-800 hover:border-zinc-500 rounded-lg transition-all cursor-pointer"
-              onClick={() => onEdit(token)}
+              className={`group relative flex items-center justify-between p-3 bg-black/40 border border-zinc-800 rounded-lg transition-all ${isViewer ? 'cursor-default' : 'hover:border-zinc-500 cursor-pointer'}`}
+              onClick={() => !isViewer && onEdit(token)}
             >
               <div className="flex items-center gap-4 overflow-hidden">
                 {title === 'Colors' ? (
@@ -70,26 +73,28 @@ export function TokenSection({ title, icon, tokens, onAdd, onEdit, onDelete, onP
                   <p className="text-[10px] font-mono text-zinc-600 truncate">{token.value}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(token);
-                  }}
-                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-white transition-all rounded-md"
-                >
-                  <Edit2 className="size-4" />
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(token.id);
-                  }}
-                  variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all rounded-md"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
+              {!isViewer && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(token);
+                    }}
+                    variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-white transition-all rounded-md"
+                  >
+                    <Edit2 className="size-4" />
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(token.id);
+                    }}
+                    variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all rounded-md"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           ))}
         </div>

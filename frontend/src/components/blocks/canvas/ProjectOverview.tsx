@@ -1,8 +1,10 @@
 'use client'
 
+import { useProjectRole } from '@/hooks/useProjectRole'
+
 import { useState, useRef, useEffect, useMemo } from 'react'
 import {
-  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap, X, Play, Folder
+  Laptop, Fingerprint, Search, Trash2, ChevronRight, Terminal, Copy, Check, Send, Loader2, Database, Zap, X, Play, Folder, Lock
 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FolderSelect } from './FolderSelect'
@@ -36,6 +38,7 @@ interface Props {
 export function ProjectOverview({
   pages, variables, inputs, actions, outputs, projectId, onSelectScreen, selectedNodeId
 }: Props) {
+  const { isViewer } = useProjectRole()
   const [search, setSearch] = useState('')
   const [checkedPageIds, setCheckedPageIds] = useState<string[]>([])
   const [bulkFolder, setBulkFolder] = useState('')
@@ -184,7 +187,7 @@ export function ProjectOverview({
                   )}
                 </div>
 
-                {checkedPageIds.length > 0 && (
+                {checkedPageIds.length > 0 && !isViewer && (
                   <div className="p-3 bg-zinc-100/50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-3 shadow-sm animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] font-black text-black dark:text-white uppercase tracking-wider">Group {checkedPageIds.length} Screens</span>
@@ -206,18 +209,20 @@ export function ProjectOverview({
                     const isChecked = checkedPageIds.includes(page.id)
                     return (
                       <div key={page.id} className="flex items-center gap-2 w-full group/item">
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setCheckedPageIds(prev => [...prev, page.id])
-                            } else {
-                              setCheckedPageIds(prev => prev.filter(id => id !== page.id))
-                            }
-                          }}
-                          onClick={e => e.stopPropagation()}
-                          className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
-                        />
+                        {!isViewer && (
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setCheckedPageIds(prev => [...prev, page.id])
+                              } else {
+                                setCheckedPageIds(prev => prev.filter(id => id !== page.id))
+                              }
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
+                          />
+                        )}
                         <motion.div
                           onClick={() => onSelectScreen?.(page.id)}
                           whileHover={{ scale: 1.01 }}
@@ -262,6 +267,7 @@ export function ProjectOverview({
                     rejectScript={rejectScript}
                     restoreScript={restoreScript}
                     projectId={projectId}
+                    isViewer={isViewer}
                   />
                 ))}
                 {isArchitecting && (
@@ -282,13 +288,14 @@ export function ProjectOverview({
                   <Input
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
-                    placeholder="Ask, describe, request ..."
-                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
+                    disabled={isViewer || isArchitecting}
+                    placeholder={isViewer ? "Viewers cannot propose architectural changes..." : "Ask, describe, request ..."}
+                    className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                   <Button
                     type="submit"
-                    disabled={isArchitecting || !chatInput.trim()}
-                    className="absolute right-2 top-2 max-w-7 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
+                    disabled={isViewer || isArchitecting || !chatInput.trim()}
+                    className="absolute right-2 top-2 max-w-7 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Send className="size-4" />
                   </Button>
@@ -302,11 +309,12 @@ export function ProjectOverview({
   )
 }
 
-function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId }: any) {
+function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId, isViewer }: any) {
   const [showReview, setShowReview] = useState(false)
   const [isCommitting, setIsCommitting] = useState(false)
 
   const handleConfirmCommit = async () => {
+    if (isViewer) return
     setShowReview(false)
     setIsCommitting(true)
     try {
@@ -319,7 +327,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
   return (
     <div className={cn("flex flex-col gap-3", msg.role === 'user' ? "items-end" : "items-start")}>
       <StandardModal
-        isOpen={showReview}
+        isOpen={!isViewer && showReview}
         onClose={() => setShowReview(false)}
         title="Review Architecture Commit"
         confirmText={isCommitting ? "Committing..." : "Confirm Commit"}
@@ -355,12 +363,14 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
               <X className="size-3 text-red-500" />
               Architecture proposal rejected
             </span>
-            <button
-              onClick={() => restoreScript(msg.id)}
-              className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
-            >
-              Restore
-            </button>
+            {!isViewer && (
+              <button
+                onClick={() => restoreScript(msg.id)}
+                className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
+              >
+                Restore
+              </button>
+            )}
           </div>
         ) : (
           <motion.div
@@ -383,34 +393,42 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
             <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
               <code>{msg.script}</code>
             </pre>
-            <div className="flex border-t border-zinc-850">
-              <button
-                onClick={() => {
-                  if (msg.is_committed) return;
-                  setShowReview(true);
-                }}
-                disabled={isCommitting || msg.is_committed}
-                className={cn(
-                  "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
-                  msg.is_committed
-                    ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
-                    : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
-                )}
-              >
-                {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
-                {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
-              </button>
-              {!msg.is_committed && (
+            {!isViewer ? (
+              <div className="flex border-t border-zinc-850">
                 <button
-                  type="button"
-                  onClick={() => rejectScript(msg.id)}
-                  className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  onClick={() => {
+                    if (msg.is_committed) return;
+                    setShowReview(true);
+                  }}
+                  disabled={isCommitting || msg.is_committed}
+                  className={cn(
+                    "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
+                    msg.is_committed
+                      ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
+                      : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
+                  )}
                 >
-                  <X className="size-3.5" />
-                  Reject
+                  {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
+                  {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
                 </button>
-              )}
-            </div>
+                {!msg.is_committed && (
+                  <button
+                    type="button"
+                    onClick={() => rejectScript(msg.id)}
+                    className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  >
+                    <X className="size-3.5" />
+                    Reject
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="h-10 bg-zinc-900/30 flex items-center justify-center px-4 border-t border-zinc-800/50">
+                <span className="text-[9px] font-bold text-zinc-500 flex items-center gap-1">
+                  <Lock className="size-3" /> View Only Proposal
+                </span>
+              </div>
+            )}
           </motion.div>
         )
       )}

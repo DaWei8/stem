@@ -15,6 +15,7 @@ import { BoxSelect, Eye, Layers, Move, Palette, Type } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 interface DesignToken {
   id: string
@@ -219,6 +220,7 @@ const DESIGN_PRESETS = [
 
 export function DesignSystem() {
   const { id: projectId } = useParams()
+  const { isViewer } = useProjectRole()
   const {
     tokens,
     components,
@@ -485,12 +487,14 @@ export function DesignSystem() {
           >
             <Eye className="size-3.5" /> {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
           </Button>
-          <Button
-            onClick={() => setPresetModal('all')}
-            className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2"
-          >
-            <Layers className="size-3.5" /> Use Preset Pack
-          </Button>
+          {!isViewer && (
+            <Button
+              onClick={() => setPresetModal('all')}
+              className="bg-black dark:bg-white text-white dark:text-black border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-10 text-xs font-bold gap-2"
+            >
+              <Layers className="size-3.5" /> Use Preset Pack
+            </Button>
+          )}
         </div>
       </PillarHeader>
 
@@ -504,6 +508,7 @@ export function DesignSystem() {
             onPreset={() => setPresetModal('color')}
             onEdit={openEditTokenModal}
             onDelete={(id) => deleteToken(projectId as string, id)}
+            isViewer={isViewer}
           />
           <TokenSection
             title="Typography"
@@ -513,6 +518,7 @@ export function DesignSystem() {
             onPreset={() => setPresetModal('typography')}
             onEdit={openEditTokenModal}
             onDelete={(id) => deleteToken(projectId as string, id)}
+            isViewer={isViewer}
           />
           <TokenSection
             title="Spacing"
@@ -522,6 +528,7 @@ export function DesignSystem() {
             onPreset={() => setPresetModal('spacing')}
             onEdit={openEditTokenModal}
             onDelete={(id) => deleteToken(projectId as string, id)}
+            isViewer={isViewer}
           />
           <TokenSection
             title="Shadows"
@@ -531,6 +538,7 @@ export function DesignSystem() {
             onPreset={() => setPresetModal('shadow')}
             onEdit={openEditTokenModal}
             onDelete={(id) => deleteToken(projectId as string, id)}
+            isViewer={isViewer}
           />
           <TokenSection
             title="Radius"
@@ -540,6 +548,7 @@ export function DesignSystem() {
             onPreset={() => setPresetModal('border-radius')}
             onEdit={openEditTokenModal}
             onDelete={(id) => deleteToken(projectId as string, id)}
+            isViewer={isViewer}
           />
         </div>
 
@@ -867,7 +876,6 @@ export function DesignSystem() {
           <DesignPreview tokens={tokens} onClose={() => setIsPreviewOpen(false)} />
         )}
       </div>
-
     </div>
   )
 }

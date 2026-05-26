@@ -1,5 +1,7 @@
 'use client'
 
+import { useProjectRole } from '@/hooks/useProjectRole'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Markdown } from '@/components/ui/Markdown'
@@ -68,6 +70,7 @@ export function ScreenDetails({
 }: Props) {
   const { columns, tables } = useDatabase()
   const { policies, userTypes } = useIdentity()
+  const { isViewer } = useProjectRole()
 
   const [title, setTitle] = useState(page.title)
   const [folder, setFolder] = useState(page.folder || '')
@@ -165,9 +168,11 @@ export function ScreenDetails({
           <h2 className="text-xl font-black text-black dark:text-white tracking-tighter truncate max-w-[200px]">{page.title}</h2>
           <span className="text-[10px] font-black text-zinc-400 ">Screen Context</span>
         </div>
-        <Button variant="ghost" onClick={onDelete} className="size-9 p-0 text-zinc-400 hover:text-red-500 hover:bg-red-500/5 transition-all">
-          <Trash2 className="size-4" />
-        </Button>
+        {!isViewer && (
+          <Button variant="ghost" onClick={onDelete} className="size-9 p-0 text-zinc-400 hover:text-red-500 hover:bg-red-500/5 transition-all">
+            <Trash2 className="size-4" />
+          </Button>
+        )}
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -180,9 +185,11 @@ export function ScreenDetails({
         </TabsList>
 
         <div className="flex-1 overflow-hidden relative">
-          <Button onClick={handleSave} disabled={isSaving} className="w-full absolute bottom-0 left-0 z-10 bg-black dark:bg-white text-white dark:text-black rounded-md h-12 text-[10px] font-black  shadow-lg hover:scale-[1.02] transition-all">
-            <Save className="size-3.5 mr-2" /> {isSaving ? 'Synchronizing...' : 'Save Architecture'}
-          </Button>
+          {!isViewer && (
+            <Button onClick={handleSave} disabled={isSaving} className="w-full absolute bottom-0 left-0 z-10 bg-black dark:bg-white text-white dark:text-black rounded-md h-12 text-[10px] font-black  shadow-lg hover:scale-[1.02] transition-all">
+              <Save className="size-3.5 mr-2" /> {isSaving ? 'Synchronizing...' : 'Save Architecture'}
+            </Button>
+          )}
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
               <motion.div
@@ -197,17 +204,17 @@ export function ScreenDetails({
                   <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Title</label>
-                      <Input value={title} onChange={e => setTitle(e.target.value)} className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold shadow-sm" />
+                      <Input value={title} onChange={e => setTitle(e.target.value)} disabled={isViewer} className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Architectural Folder</label>
-                      <FolderSelect value={folder} onChange={setFolder} placeholder="Auth Flow, Dashboard..." inputClassName="h-12" />
+                      <FolderSelect value={folder} onChange={setFolder} disabled={isViewer} placeholder="Auth Flow, Dashboard..." inputClassName="h-12" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-zinc-400  ml-1">Live URL</label>
                       <div className="relative group">
                         <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 group-focus-within:text-emerald-500 transition-colors" />
-                        <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} placeholder="www.example.com/page" className="pl-10 pr-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold font-mono shadow-sm" />
+                        <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} disabled={isViewer} placeholder="www.example.com/page" className="pl-10 pr-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md h-12 text-xs font-bold font-mono shadow-sm disabled:opacity-60 disabled:cursor-not-allowed" />
                         {liveUrl && (
                           <button
                             onClick={() => {
@@ -256,7 +263,9 @@ export function ScreenDetails({
                         return (
                           <button
                             key={ut.id}
+                            disabled={isViewer}
                             onClick={() => {
+                              if (isViewer) return
                               if (isSelected) {
                                 setAllowedRoles(allowedRoles.filter(r => r !== ut.id))
                               } else {
@@ -267,7 +276,8 @@ export function ScreenDetails({
                               "flex items-center rounded-md justify-between truncate text-nowrap lowercase py-3 px-2 border transition-all text-left group",
                               isSelected
                                 ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
-                                : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-400"
+                                : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-400",
+                              isViewer && "opacity-60 cursor-not-allowed"
                             )}
                           >
                             <div className="flex items-center gap-3">
@@ -295,7 +305,7 @@ export function ScreenDetails({
                   <SidebarSection
                     title="Logic Constraints"
                     icon={<Shield className="size-3.5 text-red-500" />}
-                    onAdd={() => setEditingConstraint({})}
+                    onAdd={isViewer ? undefined : () => setEditingConstraint({})}
                     items={pageConstraints}
                     renderItem={(c) => {
                       const variable = availableVariables.find(v => v.id === c.variable_id)
@@ -303,24 +313,29 @@ export function ScreenDetails({
                       return (
                         <div
                           key={c.id}
-                          onClick={() => setEditingConstraint(c)}
-                          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-2 group shadow-sm hover:border-red-500/50 cursor-pointer transition-colors"
+                          onClick={() => { if (!isViewer) setEditingConstraint(c) }}
+                          className={cn(
+                            "p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-2 group shadow-sm transition-colors",
+                            isViewer ? "cursor-default" : "hover:border-red-500/50 cursor-pointer"
+                          )}
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-black text-black dark:text-white font-mono tracking-tight">
                               {variable?.label || 'Unknown'} {c.operator} {c.expected_value !== undefined ? (typeof c.expected_value === 'object' ? JSON.stringify(c.expected_value) : String(c.expected_value)) : ''}
                             </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                if (confirm('Delete this logical constraint?')) {
-                                  removeConstraint(c.id)
-                                }
-                              }}
-                              className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
+                            {!isViewer && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (confirm('Delete this logical constraint?')) {
+                                    removeConstraint(c.id)
+                                  }
+                                }}
+                                className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            )}
                           </div>
                           {c.error_message && (
                             <p className="text-[9px] text-zinc-400 italic">"{c.error_message}"</p>
@@ -342,7 +357,7 @@ export function ScreenDetails({
                   <SidebarSection
                     title="Input Interfaces"
                     icon={<Fingerprint className="size-3.5 text-blue-500" />}
-                    onAdd={() => addInput(page.id, { name: `input_${(page.inputs || []).length + 1}`, input_type: 'form_field', variable_id: filteredVariables[0]?.id })}
+                    onAdd={isViewer ? undefined : () => addInput(page.id, { name: `input_${(page.inputs || []).length + 1}`, input_type: 'form_field', variable_id: filteredVariables[0]?.id })}
                     items={page.inputs || []}
                     renderItem={(i) => {
                       const variable = availableVariables.find(v => v.id === i.variable_id)
@@ -351,12 +366,14 @@ export function ScreenDetails({
                       const tablePolicies = table ? policies.filter(p => p.table_id === table.id) : []
 
                       return (
-                        <div key={i.id} onClick={() => setEditingInput(i)} className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-4 group shadow-sm hover:border-blue-500/50 cursor-pointer transition-colors">
+                        <div key={i.id} onClick={() => { if (!isViewer) setEditingInput(i) }} className={cn("p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-4 group shadow-sm transition-colors", isViewer ? "cursor-default" : "hover:border-blue-500/50 cursor-pointer")}>
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-black text-black dark:text-white  font-mono tracking-tight">
                               {i.name} {i.is_required && <span className="text-red-500 text-[8px] font-black uppercase ml-1">Required</span>}
                             </span>
-                            <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete input "${i.name}"?`)) removeInput(i.id) }} className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="size-3.5" /></button>
+                            {!isViewer && (
+                              <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete input "${i.name}"?`)) removeInput(i.id) }} className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="size-3.5" /></button>
+                            )}
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <span className="text-[9px] font-black px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
@@ -391,10 +408,10 @@ export function ScreenDetails({
                   <SidebarSection
                     title="State Mutations"
                     icon={<Database className="size-3.5 text-emerald-500" />}
-                    onAdd={() => addOutput(page.id, { name: `output_${(page.outputs || []).length + 1}`, output_type: 'state_update' })}
+                    onAdd={isViewer ? undefined : () => addOutput(page.id, { name: `output_${(page.outputs || []).length + 1}`, output_type: 'state_update' })}
                     items={page.outputs || []}
                     renderItem={(o) => (
-                      <div key={o.id} onClick={() => setEditingOutput(o)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors hover:border-emerald-500/50 cursor-pointer">
+                      <div key={o.id} onClick={() => { if (!isViewer) setEditingOutput(o) }} className={cn("flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors", isViewer ? "cursor-default" : "hover:border-emerald-500/50 cursor-pointer")}>
                         <div className="flex flex-col gap-1.5">
                           <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400  font-mono">{o.name}</span>
                           {o.variable_id && (
@@ -403,7 +420,9 @@ export function ScreenDetails({
                             </span>
                           )}
                         </div>
-                        <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete output "${o.name}"?`)) removeOutput(o.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                        {!isViewer && (
+                          <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete output "${o.name}"?`)) removeOutput(o.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                        )}
                       </div>
                     )}
                   />
@@ -411,12 +430,12 @@ export function ScreenDetails({
                   <SidebarSection
                     title="Active Triggers"
                     icon={<Zap className="size-3.5 text-purple-500" />}
-                    onAdd={() => addAction(page.id, { name: `trigger_${(page.actions || []).length + 1}`, action_type: 'function_call' })}
+                    onAdd={isViewer ? undefined : () => addAction(page.id, { name: `trigger_${(page.actions || []).length + 1}`, action_type: 'function_call' })}
                     items={page.actions || []}
                     renderItem={(a) => {
                       const linkedFunc = availableFunctions.find(f => f.id === a.function_id)
                       return (
-                        <div key={a.id} onClick={() => setEditingAction(a)} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors hover:border-amber-500/50 cursor-pointer">
+                        <div key={a.id} onClick={() => { if (!isViewer) setEditingAction(a) }} className={cn("flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md group shadow-sm transition-colors", isViewer ? "cursor-default" : "hover:border-amber-500/50 cursor-pointer")}>
                           <div className="flex flex-col gap-1.5">
                             <span className="text-[11px] font-black text-zinc-600 dark:text-zinc-400 font-mono">{a.name}</span>
                             {linkedFunc ? (
@@ -429,7 +448,9 @@ export function ScreenDetails({
                               </span>
                             )}
                           </div>
-                          <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete trigger "${a.name}"?`)) removeAction(a.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                          {!isViewer && (
+                            <button onClick={(e) => { e.stopPropagation(); if (confirm(`Delete trigger "${a.name}"?`)) removeAction(a.id) }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"><Trash2 className="size-3.5" /></button>
+                          )}
                         </div>
                       )
                     }}
@@ -463,6 +484,7 @@ export function ScreenDetails({
                       rejectScript={rejectScript}
                       restoreScript={restoreScript}
                       projectId={projectId}
+                      isViewer={isViewer}
                     />
                   ))}
                   {isArchitecting && (
@@ -481,13 +503,14 @@ export function ScreenDetails({
                     <Input
                       value={chatInput}
                       onChange={e => setChatInput(e.target.value)}
-                      placeholder={`Describe changes to ${page.title}...`}
-                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner"
+                      disabled={isViewer || isArchitecting}
+                      placeholder={isViewer ? "Viewers cannot propose architectural changes..." : `Describe changes to ${page.title}...`}
+                      className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-14 pr-14 text-xs font-bold rounded-md focus:ring-2 focus:ring-black dark:focus:ring-white transition-all shadow-inner disabled:opacity-60 disabled:cursor-not-allowed"
                     />
                     <Button
                       type="submit"
-                      disabled={isArchitecting || !chatInput.trim()}
-                      className="absolute right-2 top-2 size-10 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg"
+                      disabled={isViewer || isArchitecting || !chatInput.trim()}
+                      className="absolute right-2 top-2 size-10 rounded-md bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Send className="size-4" />
                     </Button>
@@ -551,11 +574,12 @@ export function ScreenDetails({
   )
 }
 
-function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId }: any) {
+function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, restoreScript, projectId, isViewer }: any) {
   const [showReview, setShowReview] = useState(false)
   const [isCommitting, setIsCommitting] = useState(false)
 
   const handleConfirmCommit = async () => {
+    if (isViewer) return
     setShowReview(false)
     setIsCommitting(true)
     try {
@@ -568,7 +592,7 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
   return (
     <div className={cn("flex flex-col gap-3", msg.role === 'user' ? "items-end" : "items-start")}>
       <StandardModal
-        isOpen={showReview}
+        isOpen={!isViewer && showReview}
         onClose={() => setShowReview(false)}
         title="Review Architecture Commit"
         confirmText={isCommitting ? "Committing..." : "Confirm Commit"}
@@ -604,12 +628,14 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
               <X className="size-3 text-red-500" />
               Architecture proposal rejected
             </span>
-            <button
-              onClick={() => restoreScript(msg.id)}
-              className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
-            >
-              Restore
-            </button>
+            {!isViewer && (
+              <button
+                onClick={() => restoreScript(msg.id)}
+                className="text-[9px] font-black text-white hover:underline uppercase tracking-wider"
+              >
+                Restore
+              </button>
+            )}
           </div>
         ) : (
           <motion.div
@@ -632,34 +658,42 @@ function MessageBubble({ msg, copiedId, handleCopy, commitScript, rejectScript, 
             <pre className="p-5 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-[300px] leading-relaxed custom-scrollbar bg-black/50">
               <code>{msg.script}</code>
             </pre>
-            <div className="flex border-t border-zinc-850">
-              <button
-                onClick={() => {
-                  if (msg.is_committed) return;
-                  setShowReview(true);
-                }}
-                disabled={isCommitting || msg.is_committed}
-                className={cn(
-                  "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
-                  msg.is_committed
-                    ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
-                    : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
-                )}
-              >
-                {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
-                {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
-              </button>
-              {!msg.is_committed && (
+            {!isViewer ? (
+              <div className="flex border-t border-zinc-850">
                 <button
-                  type="button"
-                  onClick={() => rejectScript(msg.id)}
-                  className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  onClick={() => {
+                    if (msg.is_committed) return;
+                    setShowReview(true);
+                  }}
+                  disabled={isCommitting || msg.is_committed}
+                  className={cn(
+                    "flex-1 h-12 text-[11px] font-black flex items-center justify-center gap-2 transition-all border-r border-zinc-850",
+                    msg.is_committed
+                      ? "bg-zinc-900 text-zinc-500 cursor-not-allowed"
+                      : "bg-white text-black hover:bg-emerald-500 hover:text-white active:scale-[0.98] disabled:opacity-55"
+                  )}
                 >
-                  <X className="size-3.5" />
-                  Reject
+                  {msg.is_committed ? <Check className="size-3.5 text-emerald-500" /> : <Play className="size-3.5" />}
+                  {msg.is_committed ? 'Architecture Committed' : (isCommitting ? 'Committing...' : 'Commit Architecture')}
                 </button>
-              )}
-            </div>
+                {!msg.is_committed && (
+                  <button
+                    type="button"
+                    onClick={() => rejectScript(msg.id)}
+                    className="px-6 h-12 bg-zinc-900 hover:bg-zinc-800 text-red-500 text-[11px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  >
+                    <X className="size-3.5" />
+                    Reject
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="h-10 bg-zinc-900/30 flex items-center justify-center px-4 border-t border-zinc-800/50">
+                <span className="text-[9px] font-bold text-zinc-500 flex items-center gap-1">
+                  <Lock className="size-3" /> View Only Proposal
+                </span>
+              </div>
+            )}
           </motion.div>
         )
       )}

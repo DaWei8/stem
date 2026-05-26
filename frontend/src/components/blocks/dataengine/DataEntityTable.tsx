@@ -24,11 +24,13 @@ interface Props {
   onSelectTable?: (id: string | null) => void
   onEditTable?: (table: any) => void
   onAddTable?: (name: string) => Promise<void>
+  isViewer?: boolean
 }
 
 export function DataEntityTable({
   tables, columns, variables, searchQuery, projectId,
-  onDeleteTable, selectedTableId = null, onSelectTable, onEditTable, onAddTable
+  onDeleteTable, selectedTableId = null, onSelectTable, onEditTable, onAddTable,
+  isViewer = false
 }: Props) {
   const [isAddingTable, setIsAddingTable] = useState(false)
   const [newTableName, setNewTableName] = useState('')
@@ -55,7 +57,7 @@ export function DataEntityTable({
 
   return (
     <div className="space-y-4">
-      {onAddTable && (
+      {onAddTable && !isViewer && (
         <div className="flex items-center justify-between px-1">
           <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest uppercase">Schema Tables</h3>
           {!isAddingTable ? (
@@ -155,31 +157,33 @@ export function DataEntityTable({
                       </span>
                     </TableCell>
                     <TableCell className="py-3.5 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger render={
-                          <Button
-                            variant="ghost"
-                            onClick={(e) => e.stopPropagation()}
-                            className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md shadow-none opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <MoreVertical className="size-3.5 text-zinc-400" />
-                          </Button>
-                        } />
-                        <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
-                          <DropdownMenuItem
-                            onClick={() => onEditTable?.(table)}
-                            className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-md"
-                          >
-                            <Edit3 className="size-3" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onDeleteTable(table.id)}
-                            className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-md"
-                          >
-                            <Trash2 className="size-3" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {!isViewer && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger render={
+                            <Button
+                              variant="ghost"
+                              onClick={(e) => e.stopPropagation()}
+                              className="size-7 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md shadow-none opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreVertical className="size-3.5 text-zinc-400" />
+                            </Button>
+                          } />
+                          <DropdownMenuContent align="end" className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl text-black dark:text-white">
+                            <DropdownMenuItem
+                              onClick={() => onEditTable?.(table)}
+                              className="text-xs font-bold py-2 gap-2 cursor-pointer rounded-md"
+                            >
+                              <Edit3 className="size-3" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => onDeleteTable(table.id)}
+                              className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 rounded-md"
+                            >
+                              <Trash2 className="size-3" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </motion.tr>
                 )
@@ -191,7 +195,7 @@ export function DataEntityTable({
                   <p className="text-[10px] font-bold text-zinc-400 italic mb-3">
                     {searchQuery ? 'No tables match your search.' : 'No tables defined. Add your first entity to begin.'}
                   </p>
-                  {onAddTable && !isAddingTable && (
+                  {onAddTable && !isAddingTable && !isViewer && (
                     <Button
                       onClick={() => setIsAddingTable(true)}
                       className="h-8 px-4 text-[10px] font-black rounded-md bg-black dark:bg-white text-white dark:text-black mx-auto"

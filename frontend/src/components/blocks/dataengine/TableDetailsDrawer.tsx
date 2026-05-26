@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 import { ArrowRight, Database, HelpCircle, Key, Layers, Plus, X, Edit3 } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
 import { AddColumnForm } from './AddColumnForm'
@@ -15,6 +16,7 @@ interface Props {
   onAddColumn?: (tableId: string, column: any) => Promise<void>
   isEditingInitial?: boolean
   onEditModeChange?: (editing: boolean) => void
+  isViewer?: boolean
 }
 
 export function TableDetailsDrawer({
@@ -25,7 +27,8 @@ export function TableDetailsDrawer({
   onClose,
   onAddColumn,
   isEditingInitial = false,
-  onEditModeChange
+  onEditModeChange,
+  isViewer = false
 }: Props) {
   const [isAddingField, setIsAddingField] = useState(false)
   const [isEditing, setIsEditing] = useState(isEditingInitial)
@@ -35,6 +38,7 @@ export function TableDetailsDrawer({
   }, [isEditingInitial])
 
   const handleSetEditing = (val: boolean) => {
+    if (isViewer) return
     setIsEditing(val)
     onEditModeChange?.(val)
   }
@@ -65,7 +69,7 @@ export function TableDetailsDrawer({
             <span className="text-sm font-black text-black dark:text-white">Table Schema</span>
           </div>
           <div className="flex items-center gap-2">
-            {!isEditing && (
+            {!isEditing && !isViewer && (
               <button
                 type="button"
                 onClick={() => handleSetEditing(true)}
@@ -85,7 +89,7 @@ export function TableDetailsDrawer({
           </div>
         </div>
 
-        {isEditing ? (
+        {isEditing && !isViewer ? (
           <InlineTableEditForm
             table={table}
             columns={columns}
@@ -130,7 +134,7 @@ export function TableDetailsDrawer({
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest uppercase">Schema Fields</p>
-                {onAddColumn && !isAddingField && (
+                {onAddColumn && !isAddingField && !isViewer && (
                   <button
                     type="button"
                     onClick={() => setIsAddingField(true)}
@@ -141,7 +145,7 @@ export function TableDetailsDrawer({
                 )}
               </div>
               <div className="space-y-1.5">
-                {isAddingField && onAddColumn && (
+                {isAddingField && onAddColumn && !isViewer && (
                   <AddColumnForm
                     variables={variables}
                     onCancel={() => setIsAddingField(false)}
@@ -200,12 +204,15 @@ export function TableDetailsDrawer({
                 {fields.length === 0 && !isAddingField && (
                   <button
                     type="button"
-                    onClick={() => setIsAddingField(true)}
-                    className="w-full py-8 text-center border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-zinc-450 dark:hover:border-zinc-650 transition-colors flex flex-col items-center justify-center gap-1.5"
+                    onClick={() => { if (!isViewer) setIsAddingField(true) }}
+                    className={cn(
+                      "w-full py-8 text-center border border-dashed border-zinc-200 dark:border-zinc-800 transition-colors flex flex-col items-center justify-center gap-1.5",
+                      isViewer ? "cursor-default animate-none" : "hover:border-zinc-450 dark:hover:border-zinc-650 cursor-pointer"
+                    )}
                   >
                     <HelpCircle className="size-5 text-zinc-400 mx-auto mb-1" />
                     <p className="text-[10px] font-bold text-zinc-400 uppercase">No fields defined</p>
-                    {onAddColumn && (
+                    {onAddColumn && !isViewer && (
                       <span className="text-[9px] font-black cursor-pointer text-emerald-500 uppercase mt-1">+ Click to Add Field</span>
                     )}
                   </button>

@@ -17,10 +17,11 @@ interface ProjectSidebarProps {
   projectId: string
   onSelectScreen?: (pageId: string) => void
   onTriggerDelete?: (pageId: string) => void
+  isViewer?: boolean
 }
 
 export function ProjectSidebar({ 
-  selectedNode, selectedNodes = [], projectId, onSelectScreen, onTriggerDelete 
+  selectedNode, selectedNodes = [], projectId, onSelectScreen, onTriggerDelete, isViewer 
 }: ProjectSidebarProps) {
   const {
     pages, inputs, actions, outputs, transitions, updatePage, addInput, addAction, addOutput,

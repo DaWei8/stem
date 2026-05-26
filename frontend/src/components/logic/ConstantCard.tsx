@@ -14,7 +14,7 @@ import { Hash, MoreVertical, Trash2 } from 'lucide-react'
 
 interface ConstantCardProps {
   constant: any
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
   onClick?: () => void
   isSelected?: boolean
 }
@@ -34,21 +34,23 @@ export function ConstantCard({ constant, onDelete, onClick, isSelected }: Consta
             <Hash className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
             <CardTitle className="text-[11px] lowercase font-bold tracking-tight text-zinc-300 truncate">{constant.name}</CardTitle>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger render={
-              <Button variant="ghost" size="icon" className="size-6 rounded-md hover:bg-zinc-800 p-0" onClick={(e) => e.stopPropagation()}>
-                <MoreVertical className="size-3 text-zinc-600" />
-              </Button>
-            } />
-            <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-lg">
-              <DropdownMenuItem
-                onClick={(e) => { e.stopPropagation(); onDelete(constant.id); }}
-                className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 cursor-pointer"
-              >
-                <Trash2 className="size-3 mr-2" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {onDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger render={
+                <Button variant="ghost" size="icon" className="size-6 rounded-md hover:bg-zinc-800 p-0" onClick={(e) => e.stopPropagation()}>
+                  <MoreVertical className="size-3 text-zinc-600" />
+                </Button>
+              } />
+              <DropdownMenuContent align="end" className="bg-black border-zinc-800 text-white rounded-lg">
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); onDelete(constant.id); }}
+                  className="text-red-400 hover:bg-red-950 rounded-md text-xs font-bold py-2 cursor-pointer"
+                >
+                  <Trash2 className="size-3 mr-2" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </CardHeader>
         <CardContent className="p-4 bg-black/30">
           <code className="text-xs font-mono text-white truncate block">

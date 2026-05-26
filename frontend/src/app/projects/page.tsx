@@ -187,25 +187,25 @@ export default function ProjectsPage() {
       <main className="max-w-[1600px] mx-auto w-full p-8 flex-1">
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="border-b border-zinc-800/50 pb-px mb-8 w-full max-w-2xl">
-            <TabsTrigger value="all">
+            <TabsTrigger value="all" className="text-xs">
               All Blueprints
               <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
                 {filteredProjects.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="mine">
+            <TabsTrigger value="mine" className="text-xs">
               My Systems
               <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
                 {myProjects.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="shared">
+            <TabsTrigger value="shared" className="text-xs">
               Collaborations
               <span className="ml-1.5 px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-mono rounded-sm">
                 {sharedProjects.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="invitations" className="relative">
+            <TabsTrigger value="invitations" className="relative text-xs">
               Pending Invites
               {invitations.length > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-black animate-pulse">

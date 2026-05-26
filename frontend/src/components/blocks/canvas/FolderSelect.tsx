@@ -11,9 +11,10 @@ interface FolderSelectProps {
   onChange: (val: string) => void
   placeholder?: string
   inputClassName?: string
+  disabled?: boolean
 }
 
-export function FolderSelect({ value, onChange, placeholder, inputClassName }: FolderSelectProps) {
+export function FolderSelect({ value, onChange, placeholder, inputClassName, disabled = false }: FolderSelectProps) {
   const pages = usePages(s => s.pages)
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -65,15 +66,20 @@ export function FolderSelect({ value, onChange, placeholder, inputClassName }: F
       <Input
         value={value}
         onChange={e => {
+          if (disabled) return
           onChange(e.target.value)
           setIsOpen(true)
         }}
-        onFocus={() => setIsOpen(true)}
+        onFocus={() => {
+          if (disabled) return
+          setIsOpen(true)
+        }}
+        disabled={disabled}
         placeholder={placeholder}
         className={cn("pl-10 pr-9 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-md text-xs shadow-sm font-bold", inputClassName)}
       />
 
-      {existingFolders.length > 0 && (
+      {existingFolders.length > 0 && !disabled && (
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -84,7 +90,7 @@ export function FolderSelect({ value, onChange, placeholder, inputClassName }: F
       )}
 
       {/* Dropdown list */}
-      {isOpen && filteredFolders.length > 0 && (
+      {isOpen && !disabled && filteredFolders.length > 0 && (
         <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl z-999 py-1 custom-scrollbar">
           <div className="px-2.5 py-1 text-[8px] font-black uppercase text-zinc-400 tracking-wider border-b border-zinc-100 dark:border-zinc-900/50 mb-1">
             Select Existing Folder

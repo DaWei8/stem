@@ -16,7 +16,7 @@ interface T {
 // ─── Desktop Landing Hero ─────────────────────────────────────
 export function DesktopView({ t }: { t: T }) {
   return (
-    <div className="w-full max-w-3xl overflow-hidden" style={{ backgroundColor: t.bg, borderRadius: t.radiusLg, fontFamily: t.body.family, color: t.text, boxShadow: `0 25px 60px -12px ${t.text}15, 0 0 0 1px ${t.text}06` }}>
+    <div className="w-full max-w-3xl h-[500px] overflow-hidden" style={{ backgroundColor: t.bg, borderRadius: t.radiusLg, fontFamily: t.body.family, color: t.text, boxShadow: `0 25px 60px -12px ${t.text}15, 0 0 0 1px ${t.text}06` }}>
 
       {/* ── Navbar ── */}
       <header className="flex items-center justify-between" style={{ padding: `12px ${t.spaceLg}`, borderBottom: `1px solid ${t.text}08` }}>
@@ -160,7 +160,7 @@ export function MobileView({ t }: { t: T }) {
   ]
 
   return (
-    <div className="relative" style={{ width: '320px' }}>
+    <div className="relative" style={{ width: '360px' }}>
       {/* ── Phone Bezel Frame ── */}
       <div
         className="relative overflow-hidden"
@@ -174,17 +174,18 @@ export function MobileView({ t }: { t: T }) {
         }}
       >
         {/* ── Dynamic Island ── */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
           <div
             className="flex items-center justify-center"
             style={{
               width: '100px',
-              height: '28px',
+              height: '26px',
               borderRadius: '20px',
               backgroundColor: '#000',
             }}
           >
-            <div className="size-[6px] rounded-full bg-zinc-700" style={{ marginRight: '6px' }} />
+            <div className="size-3 rounded-full bg-zinc-700" style={{ marginRight: '6px' }} />
+            <div className="size-3 rounded-full bg-zinc-700" style={{ marginRight: '6px' }} />
           </div>
         </div>
 
@@ -444,7 +445,7 @@ export function DashboardView({ t }: { t: T }) {
   ]
 
   return (
-    <div className="w-full max-w-4xl overflow-hidden flex" style={{ backgroundColor: t.bg, borderRadius: t.radiusLg, fontFamily: t.body.family, color: t.text, height: '520px', boxShadow: `0 25px 60px -12px ${t.text}15, 0 0 0 1px ${t.text}06` }}>
+    <div className="w-full max-w-4xl overflow-hidden flex" style={{ backgroundColor: t.bg, borderRadius: t.radiusLg, fontFamily: t.body.family, color: t.text, height: '590px', boxShadow: `0 25px 60px -12px ${t.text}15, 0 0 0 1px ${t.text}06` }}>
 
       {/* ── Sidebar ── */}
       <aside className="flex flex-col shrink-0" style={{ width: '56px', backgroundColor: t.secondary, borderRight: `1px solid ${t.text}06` }}>
@@ -565,7 +566,7 @@ export function DashboardView({ t }: { t: T }) {
           {/* ── Middle Row: Chart + Spending ── */}
           <div className="grid grid-cols-5 gap-3" style={{ marginBottom: '20px' }}>
             {/* Profit & Loss Chart */}
-            <div className="col-span-3" style={{ padding: '16px', backgroundColor: t.secondary, borderRadius: t.radiusMd, border: `1px solid ${t.text}06` }}>
+            <div className="col-span-3 h-full" style={{ padding: '16px', backgroundColor: t.secondary, borderRadius: t.radiusMd, border: `1px solid ${t.text}06` }}>
               <div className="flex items-center justify-between" style={{ marginBottom: '14px' }}>
                 <p style={{ fontSize: '13px', fontWeight: 700, fontFamily: t.heading.family }}>Profit and Loss</p>
                 <div className="flex items-center gap-3">
@@ -574,7 +575,7 @@ export function DashboardView({ t }: { t: T }) {
                 </div>
               </div>
               {/* Bar Chart */}
-              <div className="flex items-end justify-between" style={{ height: '100px', gap: '6px' }}>
+              <div className="flex items-end justify-between" style={{ height: '250px', gap: '6px' }}>
                 {chartMonths.map((month, i) => (
                   <div key={month} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex items-end gap-[2px]" style={{ height: '80px' }}>
@@ -1401,7 +1402,7 @@ export function TypographyView({ t }: { t: T }) {
   ]
 
   return (
-    <div className="w-full max-w-4xl p-8 md:p-14 shadow-2xl transition-all duration-300" style={{
+    <div className="w-full max-w-5xl overflow-y-scroll p-8 md:p-14 shadow-2xl transition-all duration-300" style={{
       backgroundColor: t.bg,
       borderRadius: t.radiusLg,
       color: t.text,
@@ -1429,7 +1430,7 @@ export function TypographyView({ t }: { t: T }) {
 
       {/* Typography Table */}
       <div className="w-full overflow-x-auto mt-8 custom-scrollbar">
-        <div className="min-w-[700px] w-full">
+        <div className="w-full">
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 items-center pb-4 border-b text-[11px] tracking-wider font-semibold uppercase" style={{ borderColor: `${t.text}12`, color: `${t.text}40` }}>
             <div className="col-span-6">Hierarchy</div>
