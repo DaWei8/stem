@@ -7,6 +7,7 @@ import { SystemEngine } from '@/components/blocks/SystemEngine'
 import { CollaboratorsView } from '@/components/blocks/CollaboratorsView'
 import { DocumentationView } from '@/components/blocks/DocumentationView'
 import { OverviewView } from '@/components/blocks/OverviewView'
+import { SecurityAuditView } from '@/components/blocks/SecurityAuditView'
 import { HistoryView } from '@/components/blocks/HistoryView'
 import { useActivityLogs } from '@/hooks/useActivityLogs'
 import { useCollaborators } from '@/hooks/useCollaborators'
@@ -218,6 +219,8 @@ export default function ProjectEditorPage() {
       case 'export':
       case 'documentation':
         return <DocumentationView />
+      case 'audit':
+        return <SecurityAuditView />
       case 'collaborators':
         return <CollaboratorsView />
       case 'flows':

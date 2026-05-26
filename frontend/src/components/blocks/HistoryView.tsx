@@ -123,7 +123,7 @@ export function HistoryView() {
           {isLoading ? (
             <div className="p-20 text-center flex flex-col items-center justify-center gap-3 text-zinc-400 dark:text-zinc-600">
               <div className="size-8 rounded-full border-2 border-zinc-300 dark:border-zinc-700 border-t-zinc-600 animate-spin" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider">Syncing project audit vault...</span>
+              <span className="text-sm font-mono font-bold">Syncing project audit...</span>
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="p-20 text-center flex flex-col items-center justify-center gap-2">

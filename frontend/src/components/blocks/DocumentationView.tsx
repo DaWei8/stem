@@ -31,6 +31,7 @@ export function DocumentationView() {
     activeVersionId,
     isEditing,
     editedContent,
+    fetchVersions,
     setActiveVersionId,
     setIsEditing,
     setEditedContent,
@@ -40,14 +41,25 @@ export function DocumentationView() {
     toggleStatus,
     duplicateVersion,
     generateAutoSpecs,
-    exportVersionAsMarkdown
+    exportVersionAsMarkdown,
+    aiRefineContent
   } = useDocVersions()
 
   const [isExporting, setIsExporting] = useState(false)
   const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview')
 
+  useEffect(() => {
+    if (currentProject?.id) {
+      fetchVersions(currentProject.id)
+    }
+  }, [currentProject?.id, fetchVersions])
+
   const activeVersion = useMemo(() => {
-    return versions.find(v => v.id === activeVersionId) || versions[0]
+    return versions.find(v => v.id === activeVersionId) || versions[0] || {
+      content: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
   }, [versions, activeVersionId])
 
   useEffect(() => {
@@ -270,6 +282,7 @@ export function DocumentationView() {
               onExportBlueprint={handleExportBlueprint}
               onSyncDocumentation={handleSyncDocumentation}
               onDownloadFormat={handleDownloadFormat}
+              onAIRefine={(format) => aiRefineContent(format)}
               metrics={{
                 pages: pages.length,
                 tables: tables.length,

@@ -20,9 +20,18 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "STEM | System Technical Engine Manager",
   description: "Deterministic System Design Tool for Elite Engineers",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "STEM",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 import { ResponsiveGuard } from "@/components/layout/ResponsiveGuard";
+import { PWARegister } from "@/components/PWARegister";
 
 export default function RootLayout({
   children,
@@ -42,6 +51,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PWARegister />
           <ResponsiveGuard>
             {children}
           </ResponsiveGuard>

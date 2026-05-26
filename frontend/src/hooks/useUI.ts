@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { ProjectState } from '@/types'
 
-export type PillarView = 'identity' | 'dataengine' | 'logic' | 'design' | 'flows' | 'export' | 'collaborators' | 'documentation' | 'observability' | 'lifecycle' | 'overview' | 'history'
+export type PillarView = 'identity' | 'dataengine' | 'logic' | 'design' | 'flows' | 'export' | 'collaborators' | 'documentation' | 'observability' | 'lifecycle' | 'overview' | 'history' | 'audit'
 export type ProjectMode = 'design' | 'dev' | 'architect'
 export type CanvasFilterType = 'none' | 'inputs' | 'outputs' | 'triggers' | 'variables' | 'screens'
 

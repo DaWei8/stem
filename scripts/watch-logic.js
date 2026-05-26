@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const logicDir = path.join(__dirname, '../logic-engine/src');
-const buildScript = path.join(__dirname, '../build-logic.bat');
+const buildScript = path.join(__dirname, 'build-wasm.js');
 
 console.log(`Watching ${logicDir} for changes...`);
 
@@ -14,11 +14,14 @@ function build() {
   if (isBuilding) return;
   isBuilding = true;
   console.log('--- Rebuilding logic engine ---');
-  
-  const child = spawn(buildScript, [], { 
-    shell: true, 
+  const child = spawn('node', [buildScript], { 
     stdio: 'inherit',
     cwd: path.join(__dirname, '..')
+  });
+
+  child.on('error', (err) => {
+    console.error('Failed to start logic engine rebuild process:', err.message);
+    isBuilding = false;
   });
 
   child.on('close', (code) => {

@@ -1,22 +1,22 @@
 'use client'
 
-import React from 'react'
+import { Button } from '@/components/ui/button'
 import {
-  Package,
-  Layout,
-  Database,
   Code2,
-  ShieldCheck,
+  Database,
+  Layout,
+  Package,
   Palette,
+  ShieldCheck,
   Terminal
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface DocSidebarProps {
   isExporting: boolean
   onExportBlueprint: () => void
   onSyncDocumentation: () => void
   onDownloadFormat: (type: 'logic' | 'flow') => void
+  onAIRefine?: (format: string) => void
   metrics: {
     pages: number
     tables: number
@@ -31,6 +31,7 @@ export function DocSidebar({
   onExportBlueprint,
   onSyncDocumentation,
   onDownloadFormat,
+  onAIRefine,
   metrics
 }: DocSidebarProps) {
   const stats = [
@@ -81,6 +82,37 @@ export function DocSidebar({
         </Button>
       </div>
 
+      {/* AI Spec Refiner */}
+      <div className="p-6 rounded-lg border border-purple-500/20 dark:border-purple-500/10 space-y-4 bg-purple-50/5 dark:bg-purple-950/5 shadow-lg shadow-purple-500/5 relative overflow-hidden group">
+        <div className="absolute -top-10 -right-10 size-28 bg-purple-500/10 dark:bg-purple-500/5 blur-2xl rounded-full" />
+        <div className="flex items-center gap-2 relative z-10">
+          <h3 className="text-lg font-black text-purple-600 dark:text-purple-400">AI Spec Refiner</h3>
+        </div>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium leading-relaxed">
+          Compile and format your raw project summary into a polished spec.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            onClick={() => onAIRefine?.('prd')}
+            className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-black dark:text-white border border-zinc-200 dark:border-zinc-800 text-[9px] font-bold py-1.5 h-auto rounded-md uppercase transition-all"
+          >
+            PRD
+          </Button>
+          <Button
+            onClick={() => onAIRefine?.('mvp')}
+            className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-black dark:text-white border border-zinc-200 dark:border-zinc-800 text-[9px] font-bold py-1.5 h-auto rounded-md uppercase transition-all"
+          >
+            MVP
+          </Button>
+          <Button
+            onClick={() => onAIRefine?.('tech')}
+            className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-black dark:text-white border border-zinc-200 dark:border-zinc-800 text-[9px] font-bold py-1.5 h-auto rounded-md uppercase transition-all"
+          >
+            Tech
+          </Button>
+        </div>
+      </div>
+
       {/* Asset Formats */}
       <div className="space-y-3">
         <h3 className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
@@ -105,29 +137,6 @@ export function DocSidebar({
             </span>
             <span className="text-[9px] font-mono text-zinc-300 dark:text-zinc-700">.JSON</span>
           </button>
-        </div>
-      </div>
-
-      {/* System Metrics */}
-      <div className="space-y-3">
-        <h3 className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
-          System Metrics
-        </h3>
-        <div className="space-y-2">
-          {stats.map((stat, i) => (
-            <div
-              key={i}
-              className="flex rounded-md items-center justify-between p-3 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/20 group hover:border-zinc-300 dark:hover:border-zinc-750 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <stat.icon className="size-3.5 text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                <span className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 tracking-tighter uppercase">
-                  {stat.label}
-                </span>
-              </div>
-              <span className="text-xs font-black text-black dark:text-white font-mono">{stat.count}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>

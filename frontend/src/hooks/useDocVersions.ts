@@ -3,6 +3,12 @@
 import { create } from 'zustand'
 import { toast } from 'sonner'
 import { Screen, ScreenAction, Variable, Transition } from '@/types'
+import {
+  getDocVersionsAction,
+  createDocVersionAction,
+  updateDocVersionAction,
+  deleteDocVersionAction
+} from '@/lib/actions/documentation'
 
 export interface DocVersion {
   id: string
@@ -32,38 +38,31 @@ interface DocVersionsState {
   activeVersionId: string
   isEditing: boolean
   editedContent: string
+  isLoading: boolean
+  projectId: string | null
+  fetchVersions: (projectId: string) => Promise<void>
   setActiveVersionId: (id: string) => void
   setIsEditing: (editing: boolean) => void
   setEditedContent: (content: string) => void
-  saveContent: () => void
-  createVersion: (name: string) => void
-  deleteVersion: (id: string) => void
-  toggleStatus: (id: string) => void
-  duplicateVersion: (id: string) => void
-  generateAutoSpecs: (snapshot: SystemSnapshot, projectName?: string) => void
+  saveContent: () => Promise<void>
+  createVersion: (name: string) => Promise<void>
+  deleteVersion: (id: string) => Promise<void>
+  toggleStatus: (id: string) => Promise<void>
+  duplicateVersion: (id: string) => Promise<void>
+  generateAutoSpecs: (snapshot: SystemSnapshot, projectName?: string) => Promise<void>
   exportVersionAsMarkdown: (id: string, projectName?: string) => void
+  aiRefineContent: (format: string, selectedModel?: string) => Promise<void>
 }
 
-const DEFAULT_VERSIONS: DocVersion[] = [
-  {
-    id: 'v-mvp',
-    name: 'MVP',
-    description: 'Core deterministic flows for initial release.',
-    createdAt: '2026-05-01T10:00:00Z',
-    updatedAt: '2026-05-01T10:00:00Z',
-    status: 'archived',
-    content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Sync Documentation" to populate this document with your current system state.'
-  },
-  {
-    id: 'v-1.0',
-    name: 'v1.0',
-    description: 'Full system technical engine management.',
-    createdAt: '2026-05-10T09:00:00Z',
-    updatedAt: '2026-05-10T09:00:00Z',
-    status: 'active',
-    content: ''
-  }
-]
+const mapDbToVersion = (db: any): DocVersion => ({
+  id: db.id,
+  name: db.name,
+  description: db.description || '',
+  createdAt: db.created_at || db.createdAt || new Date().toISOString(),
+  updatedAt: db.updated_at || db.updatedAt || new Date().toISOString(),
+  status: db.status as 'active' | 'archived' | 'draft',
+  content: db.content || ''
+})
 
 function buildSpecsFromSnapshot(snapshot: SystemSnapshot, projectName?: string): string {
   const now = new Date().toLocaleString()
@@ -219,10 +218,48 @@ ${snapshot.actions.length > 0 ? snapshot.actions.map(a => `  - ${a.name} (${a.ac
 }
 
 export const useDocVersions = create<DocVersionsState>((set, get) => ({
-  versions: DEFAULT_VERSIONS,
-  activeVersionId: 'v-1.0',
+  versions: [],
+  activeVersionId: '',
   isEditing: false,
   editedContent: '',
+  isLoading: false,
+  projectId: null,
+
+  fetchVersions: async (projectId) => {
+    set({ isLoading: true, projectId })
+    try {
+      let data = await getDocVersionsAction(projectId)
+
+      if (data.length === 0) {
+        // Create initial default versions in the database
+        const mvp = await createDocVersionAction(projectId, 'MVP', 'Core deterministic flows for initial release.')
+        await updateDocVersionAction(projectId, mvp.id, {
+          content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Sync Documentation" to populate this document with your current system state.',
+          status: 'archived'
+        })
+
+        await createDocVersionAction(projectId, 'v1.0', 'Full system technical engine management.')
+        
+        // Refetch to get populated defaults
+        data = await getDocVersionsAction(projectId)
+      }
+
+      const mapped = data.map(mapDbToVersion)
+      const activeId = mapped.find(v => v.status === 'active')?.id || mapped[0]?.id || ''
+
+      set({
+        versions: mapped,
+        activeVersionId: activeId,
+        editedContent: mapped.find(v => v.id === activeId)?.content || '',
+        isEditing: false
+      })
+    } catch (err: any) {
+      console.error('Error fetching doc versions:', err)
+      toast.error(`Failed to load documentation versions: ${err.message}`)
+    } finally {
+      set({ isLoading: false })
+    }
+  },
 
   setActiveVersionId: (id) => {
     const version = get().versions.find(v => v.id === id)
@@ -244,99 +281,139 @@ export const useDocVersions = create<DocVersionsState>((set, get) => ({
 
   setEditedContent: (content) => set({ editedContent: content }),
 
-  saveContent: () => {
-    const { activeVersionId, editedContent } = get()
-    set(state => ({
-      versions: state.versions.map(v =>
-        v.id === activeVersionId
-          ? { ...v, content: editedContent, updatedAt: new Date().toISOString() }
-          : v
-      ),
-      isEditing: false
-    }))
-    toast.success('Documentation saved')
-  },
+  saveContent: async () => {
+    const { activeVersionId, editedContent, projectId } = get()
+    if (!projectId || !activeVersionId) return
 
-  createVersion: (name) => {
-    const id = `v-${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
-    const newVersion: DocVersion = {
-      id,
-      name,
-      description: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'draft',
-      content: ''
+    try {
+      await updateDocVersionAction(projectId, activeVersionId, {
+        content: editedContent
+      })
+      set(state => ({
+        versions: state.versions.map(v =>
+          v.id === activeVersionId
+            ? { ...v, content: editedContent, updatedAt: new Date().toISOString() }
+            : v
+        ),
+        isEditing: false
+      }))
+      toast.success('Documentation saved to cloud')
+    } catch (err: any) {
+      toast.error(`Save failed: ${err.message}`)
     }
-    set(state => ({
-      versions: [...state.versions, newVersion],
-      activeVersionId: id,
-      isEditing: false,
-      editedContent: ''
-    }))
-    toast.success(`Version "${name}" created`)
   },
 
-  deleteVersion: (id) => {
-    const { versions, activeVersionId } = get()
+  createVersion: async (name) => {
+    const { projectId } = get()
+    if (!projectId) return
+
+    try {
+      const dbVersion = await createDocVersionAction(projectId, name)
+      const newVersion = mapDbToVersion(dbVersion)
+      set(state => ({
+        versions: [...state.versions, newVersion],
+        activeVersionId: newVersion.id,
+        isEditing: false,
+        editedContent: ''
+      }))
+      toast.success(`Version "${name}" created`)
+    } catch (err: any) {
+      toast.error(`Failed to create version: ${err.message}`)
+    }
+  },
+
+  deleteVersion: async (id) => {
+    const { versions, activeVersionId, projectId } = get()
+    if (!projectId) return
     if (versions.length <= 1) {
       toast.error('Cannot delete the last version')
       return
     }
-    const remaining = versions.filter(v => v.id !== id)
-    const newActiveId = activeVersionId === id ? remaining[0].id : activeVersionId
-    set({
-      versions: remaining,
-      activeVersionId: newActiveId,
-      editedContent: remaining.find(v => v.id === newActiveId)?.content || ''
-    })
-    toast.success('Version deleted')
-  },
 
-  toggleStatus: (id) => {
-    set(state => ({
-      versions: state.versions.map(v =>
-        v.id === id
-          ? { ...v, status: v.status === 'active' ? 'archived' : v.status === 'archived' ? 'draft' : 'active' }
-          : v
-      )
-    }))
-    toast.success('Status updated')
-  },
-
-  duplicateVersion: (id) => {
-    const source = get().versions.find(v => v.id === id)
-    if (!source) return
-    const newId = `${source.id}-copy-${Date.now().toString(36)}`
-    const duplicate: DocVersion = {
-      ...source,
-      id: newId,
-      name: `${source.name} (Copy)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'draft'
+    try {
+      await deleteDocVersionAction(projectId, id)
+      const remaining = versions.filter(v => v.id !== id)
+      const newActiveId = activeVersionId === id ? remaining[0].id : activeVersionId
+      set({
+        versions: remaining,
+        activeVersionId: newActiveId,
+        editedContent: remaining.find(v => v.id === newActiveId)?.content || ''
+      })
+      toast.success('Version deleted')
+    } catch (err: any) {
+      toast.error(`Delete failed: ${err.message}`)
     }
-    set(state => ({
-      versions: [...state.versions, duplicate],
-      activeVersionId: newId,
-      editedContent: duplicate.content
-    }))
-    toast.success('Version duplicated')
   },
 
-  generateAutoSpecs: (snapshot, projectName) => {
+  toggleStatus: async (id) => {
+    const { versions, projectId } = get()
+    if (!projectId) return
+    const version = versions.find(v => v.id === id)
+    if (!version) return
+
+    const newStatus = version.status === 'active' ? 'archived' : version.status === 'archived' ? 'draft' : 'active'
+
+    try {
+      await updateDocVersionAction(projectId, id, { status: newStatus })
+      set(state => ({
+        versions: state.versions.map(v =>
+          v.id === id
+            ? { ...v, status: newStatus, updatedAt: new Date().toISOString() }
+            : v
+        )
+      }))
+      toast.success('Status updated')
+    } catch (err: any) {
+      toast.error(`Failed to update status: ${err.message}`)
+    }
+  },
+
+  duplicateVersion: async (id) => {
+    const { versions, projectId } = get()
+    if (!projectId) return
+    const source = versions.find(v => v.id === id)
+    if (!source) return
+
+    try {
+      const dbVersion = await createDocVersionAction(projectId, `${source.name} (Copy)`, source.description)
+      await updateDocVersionAction(projectId, dbVersion.id, {
+        content: source.content,
+        status: 'draft'
+      })
+      const finalDb = await getDocVersionsAction(projectId)
+      const mapped = finalDb.map(mapDbToVersion)
+      set({
+        versions: mapped,
+        activeVersionId: dbVersion.id,
+        editedContent: source.content
+      })
+      toast.success('Version duplicated')
+    } catch (err: any) {
+      toast.error(`Failed to duplicate version: ${err.message}`)
+    }
+  },
+
+  generateAutoSpecs: async (snapshot, projectName) => {
+    const { projectId, activeVersionId } = get()
+    if (!projectId || !activeVersionId) return
+
     const specs = buildSpecsFromSnapshot(snapshot, projectName)
 
-    set(state => ({
-      editedContent: specs,
-      isEditing: false,
-      versions: state.versions.map(v =>
-        v.id === state.activeVersionId
-          ? { ...v, content: specs, updatedAt: new Date().toISOString() }
-          : v
-      )
-    }))
-    toast.success('Full system specifications generated')
+    try {
+      await updateDocVersionAction(projectId, activeVersionId, { content: specs })
+      set(state => ({
+        editedContent: specs,
+        isEditing: false,
+        versions: state.versions.map(v =>
+          v.id === activeVersionId
+            ? { ...v, content: specs, updatedAt: new Date().toISOString() }
+            : v
+        )
+      }))
+      toast.success('Full system specifications generated')
+    } catch (err: any) {
+      toast.error(`Generation failed: ${err.message}`)
+    }
   },
 
   exportVersionAsMarkdown: (id, projectName) => {
@@ -356,5 +433,58 @@ export const useDocVersions = create<DocVersionsState>((set, get) => ({
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     toast.success('Documentation exported as Markdown')
+  },
+
+  aiRefineContent: async (format, selectedModel) => {
+    const { activeVersionId, editedContent, projectId } = get()
+    if (!projectId || !activeVersionId) {
+      toast.error('No active version loaded')
+      return
+    }
+    if (!editedContent) {
+      toast.error('Generate or add some content first to refine.')
+      return
+    }
+
+    const promise = async () => {
+      const response = await fetch('/api/architect/documentation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: editedContent,
+          format,
+          selectedModel
+        })
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.error || 'AI Refinement failed')
+      }
+
+      const data = await response.json()
+      
+      // Save refined content in DB
+      await updateDocVersionAction(projectId, activeVersionId, {
+        content: data.content
+      })
+
+      set(state => ({
+        editedContent: data.content,
+        versions: state.versions.map(v =>
+          v.id === activeVersionId
+            ? { ...v, content: data.content, updatedAt: new Date().toISOString() }
+            : v
+        )
+      }))
+
+      return data.content
+    }
+
+    toast.promise(promise(), {
+      loading: `Refining documentation as ${format.toUpperCase()}...`,
+      success: 'Refined successfully!',
+      error: (err) => `Refinement failed: ${err.message}`
+    })
   }
 }))

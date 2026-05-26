@@ -20,7 +20,6 @@ import { SchemaContent } from '@/components/docs/SchemaContent'
 import { DesignContent } from '@/components/docs/DesignContent'
 import { FlowsContent } from '@/components/docs/FlowsContent'
 import { ConceptsContent } from '@/components/docs/ConceptsContent'
-import { InstallContent } from '@/components/docs/InstallContent'
 import { AuditContent } from '@/components/docs/AuditContent'
 import { WasmRuntimeContent } from '@/components/docs/WasmRuntimeContent'
 import { PathsContent } from '@/components/docs/PathsContent'
@@ -41,7 +40,6 @@ export default function DocsPage() {
         { name: 'Introduction', slug: 'intro' },
         { name: 'Architecture', slug: 'architecture' },
         { name: 'Core Concepts', slug: 'concepts' },
-        { name: 'Installation', slug: 'install' },
       ],
     },
     {
@@ -214,8 +212,6 @@ function DocContent({ slug, handleCopy, copied }: { slug: string; handleCopy: (t
       return <ArchitectureContent />
     case 'concepts':
       return <ConceptsContent />
-    case 'install':
-      return <InstallContent />
     case 'identity':
       return <IdentityContent />
     case 'schema':
@@ -248,7 +244,6 @@ function TOCLinks({ slug }: { slug: string }) {
     intro: ['Foundation', 'The Five Pillars'],
     architecture: ['The Stack', 'Execution Flow'],
     concepts: ['Determinism', 'Formal Verification', 'The Blueprint Model'],
-    install: ['Prerequisites', 'CLI Setup', 'Initialization'],
     identity: ['Actors and Roles', 'Permission Modeling'],
     schema: ['Entity Modeling', 'Schema Visualization'],
     logic: ['WASM Compilation'],

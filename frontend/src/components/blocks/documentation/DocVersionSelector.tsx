@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
+import { DocVersion } from '@/hooks/useDocVersions'
+import { cn } from '@/lib/utils'
 import {
-  MoreVertical,
   Copy,
   Download,
-  Trash2,
+  MoreVertical,
   Plus,
+  Trash2,
   X
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { DocVersion } from '@/hooks/useDocVersions'
+import { useState } from 'react'
 
 interface DocVersionSelectorProps {
   versions: DocVersion[]

@@ -14,7 +14,8 @@ import {
   Activity,
   GitBranch,
   LayoutGrid,
-  History
+  History,
+  ShieldAlert
 } from 'lucide-react'
 import { useUI, PillarView } from '@/hooks/useUI'
 import { cn } from '@/lib/utils'
@@ -32,6 +33,7 @@ const allPillars = [
 
 const secondaryActions = [
   { id: 'documentation', name: 'Docs & Assets', icon: FileText, description: 'Specs & Blueprints' },
+  { id: 'audit', name: 'Security Audit', icon: ShieldAlert, description: 'Threat model & flaws' },
   { id: 'collaborators', name: 'Collaborators', icon: Users, description: 'Manage collaborators' },
   { id: 'history', name: 'Activity Log', icon: History, description: 'Audit trail & logs' }
 ]
@@ -56,9 +58,9 @@ export function Sidebar() {
         {
           sidebarVisible && <ModeSwitcher />
         }
-        <div className="space-y-8">
+        <div className="space-y-5">
           {/* Main Pillars */}
-          <nav className="px-3 pt-3 space-y-1">
+          <nav className="px-3 space-y-1">
             {pillars.map((item) => {
               const Icon = item.icon
               const isActive = activeView === item.id
@@ -154,26 +156,6 @@ export function Sidebar() {
             })}
           </nav>
         </div>
-      </div>
-
-      <div className={cn(
-        "p-4 border-t border-zinc-200 dark:border-zinc-800/50 space-y-1 bg-zinc-100/50 dark:bg-black/40 backdrop-blur-md",
-        !sidebarVisible && "flex flex-col items-center"
-      )}>
-        <Link
-          href="/projects/help"
-          className={cn(
-            "flex items-center w-full transition-all duration-300 group",
-            sidebarVisible ? "px-4 py-2 gap-4" : "p-2 justify-center"
-          )}
-          title="Help & Documentation"
-        >
-          <HelpCircle className={cn(
-            "size-4 transition-colors",
-            "text-zinc-500 dark:text-zinc-600 group-hover:text-black dark:group-hover:text-white"
-          )} />
-          {sidebarVisible && <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 group-hover:text-black dark:group-hover:text-white transition-colors">Support Registry</span>}
-        </Link>
       </div>
     </div>
   )
