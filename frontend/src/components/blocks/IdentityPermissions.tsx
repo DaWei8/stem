@@ -12,7 +12,7 @@ import { useUI } from '@/hooks/useUI'
 import { useVariables } from '@/hooks/useVariables'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Cpu, Filter, LayoutGrid, Plus, ShieldCheck, Table2 } from 'lucide-react'
+import { Cpu, Filter, LayoutGrid, Plus, ShieldCheck, Table2, Users } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { PermissionMatrix } from './identity/PermissionMatrix'
@@ -34,6 +34,7 @@ export function IdentityPermissions() {
   const { setViewAsUserTypeId, viewAsUserTypeId } = useUI()
   const { isOpen, setIsOpen } = useIdentityArchitect()
 
+  const [activeTab, setActiveTab] = useState<'roles' | 'policies'>('roles')
   const [viewMode, setViewMode] = useState<'cards' | 'matrix'>('cards')
   const [sandboxPolicy, setSandboxPolicy] = useState<any | null>(null)
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
@@ -63,6 +64,11 @@ export function IdentityPermissions() {
     (policyFilterOperation === 'all' || pol.policy_type === policyFilterOperation)
   )
 
+  const tabs = [
+    { id: 'roles' as const, name: 'User Roles', icon: Users, count: userTypes.length },
+    { id: 'policies' as const, name: 'RLS Policies', icon: ShieldCheck, count: policies.length },
+  ]
+
   return (
     <div className="flex h-full bg-white dark:bg-black transition-colors duration-300 overflow-hidden">
       <div className={cn("flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar text-black dark:text-white", isOpen && "pr-4")}>
@@ -73,7 +79,16 @@ export function IdentityPermissions() {
             { label: 'Active Roles', value: userTypes.length },
             { label: 'RLS Policies', value: policies.length }
           ]}
-        />
+        >
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn("px-4 h-10 text-xs font-bold rounded-md gap-2", isOpen ? "bg-violet-500 text-white hover:bg-violet-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
+            >
+              <Cpu className="size-3.5" /> AI Architect
+            </Button>
+          </div>
+        </PillarHeader>
 
         {/* Impersonation Banner */}
         <AnimatePresence>
@@ -100,157 +115,193 @@ export function IdentityPermissions() {
           )}
         </AnimatePresence>
 
-        {/* User Roles Section */}
-        <section className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold tracking-tight">User Roles</h3>
-            <div className="flex items-center gap-2">
-              {/* View toggle */}
-              <div className="flex items-center border border-zinc-200 dark:border-zinc-800">
+        {/* Custom Navigation Tab bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-850 pb-2">
+          <div className="flex bg-zinc-50 dark:bg-zinc-900/50 p-1 border border-zinc-200 dark:border-zinc-800 gap-1 overflow-x-auto select-none rounded-md">
+            {tabs.map((tab) => {
+              const active = activeTab === tab.id
+              return (
                 <button
-                  onClick={() => setViewMode('cards')}
-                  className={cn('px-3 py-2 transition-colors', viewMode === 'cards' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-zinc-400 hover:text-black dark:hover:text-white')}
-                  title="Card View"
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest border transition-all rounded-md whitespace-nowrap",
+                    active
+                      ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-sm"
+                      : "bg-transparent text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent"
+                  )}
                 >
-                  <LayoutGrid className="size-3.5" />
+                  <tab.icon className="size-3.5" />
+                  <span>{tab.name}</span>
+                  <span className={cn("font-mono text-[9px] px-1.5 py-0.5 rounded", active ? "bg-white/20 dark:bg-black/10 text-white dark:text-black" : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400")}>
+                    {tab.count}
+                  </span>
                 </button>
-                <button
-                  onClick={() => setViewMode('matrix')}
-                  className={cn('px-3 py-2 transition-colors', viewMode === 'matrix' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-zinc-400 hover:text-black dark:hover:text-white')}
-                  title="Permission Matrix"
-                >
-                  <Table2 className="size-3.5" />
-                </button>
-              </div>
-              <Button
-                onClick={() => setIsOpen(!isOpen)}
-                className={cn("px-4 h-10 text-xs font-bold rounded-md gap-2", isOpen ? "bg-violet-500 text-white hover:bg-violet-600 border-none" : "bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800")}
-              >
-                <Cpu className="size-3.5" /> AI Architect
-              </Button>
-              <Button
-                onClick={() => setIsRoleModalOpen(true)}
-                disabled={isViewer}
-                className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="size-3.5" /> New User Type
-              </Button>
-            </div>
+              )
+            })}
           </div>
+        </div>
 
+        {/* Content Tabs container */}
+        <div className="mt-4">
           <AnimatePresence mode="wait">
-            {viewMode === 'cards' ? (
-              <motion.div key="cards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-col-4 gap-4">
-                {userTypes.map(ut => (
-                  <RoleCard
-                    key={ut.id}
-                    role={ut}
-                    policies={policies}
-                    isImpersonating={viewAsUserTypeId === ut.id}
-                    onEdit={() => { setEditingRole(ut) }}
-                    onDuplicate={() => { setEditingRole(null); setIsRoleModalOpen(true) }}
-                    onDelete={() => deleteUserType(projectId as string, ut.id)}
-                    onImpersonate={() => handleImpersonate(ut.id)}
-                    onManagePersonas={() => setManagingPersonaRole(ut)}
-                    isViewer={isViewer}
-                  />
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div key="matrix" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <PermissionMatrix
-                  userTypes={userTypes}
-                  policies={policies}
-                  tables={tables}
-                  pages={pages}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeTab === 'roles' && (
+                <section className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest px-1 uppercase">User Roles</h3>
+                    <div className="flex items-center gap-2">
+                      {/* View toggle */}
+                      <div className="flex items-center border border-zinc-200 dark:border-zinc-800">
+                        <button
+                          onClick={() => setViewMode('cards')}
+                          className={cn('px-3 py-2 transition-colors', viewMode === 'cards' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-zinc-400 hover:text-black dark:hover:text-white')}
+                          title="Card View"
+                        >
+                          <LayoutGrid className="size-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setViewMode('matrix')}
+                          className={cn('px-3 py-2 transition-colors', viewMode === 'matrix' ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-zinc-400 hover:text-black dark:hover:text-white')}
+                          title="Permission Matrix"
+                        >
+                          <Table2 className="size-3.5" />
+                        </button>
+                      </div>
+                      <Button
+                        onClick={() => setIsRoleModalOpen(true)}
+                        disabled={isViewer}
+                        className="bg-black dark:bg-white px-4 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <Plus className="size-3.5" /> New User Type
+                      </Button>
+                    </div>
+                  </div>
 
-        {/* RLS Policies Section */}
-        <section className="space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h3 className="text-xl font-bold tracking-tight">RLS Policies</h3>
-              {sandboxPolicy && (
-                <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/10 border border-violet-500/20">
-                  <Cpu className="size-3 text-violet-500" />
-                  <span className="text-[9px] font-black text-violet-500 ">Sandbox Active</span>
-                </div>
+                  <AnimatePresence mode="wait">
+                    {viewMode === 'cards' ? (
+                      <motion.div key="cards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-col-4 gap-4">
+                        {userTypes.map(ut => (
+                          <RoleCard
+                            key={ut.id}
+                            role={ut}
+                            policies={policies}
+                            isImpersonating={viewAsUserTypeId === ut.id}
+                            onEdit={() => { setEditingRole(ut) }}
+                            onDuplicate={() => { setEditingRole(null); setIsRoleModalOpen(true) }}
+                            onDelete={() => deleteUserType(projectId as string, ut.id)}
+                            onImpersonate={() => handleImpersonate(ut.id)}
+                            onManagePersonas={() => setManagingPersonaRole(ut)}
+                            isViewer={isViewer}
+                          />
+                        ))}
+                      </motion.div>
+                    ) : (
+                      <motion.div key="matrix" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <PermissionMatrix
+                          userTypes={userTypes}
+                          policies={policies}
+                          tables={tables}
+                          pages={pages}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </section>
               )}
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Filter className="size-3.5 text-zinc-400" />
-                <Select value={policyFilterUserType} onValueChange={(v) => { if (v) setPolicyFilterUserType(v) }}>
-                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[200px] text-black dark:text-white">
-                    <SelectValue placeholder="Filter by User Type">
-                      {policyFilterUserType === 'all' ? 'All User Types' : userTypes.find(ut => ut.id === policyFilterUserType)?.name || 'Filter by User Type'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
-                    <SelectItem value="all" className="text-xs">All User Types</SelectItem>
-                    {userTypes.map(ut => (
-                      <SelectItem key={ut.id} value={ut.id} className="text-xs">{ut.name}</SelectItem>
+
+              {activeTab === 'policies' && (
+                <section className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 tracking-widest px-1 uppercase">RLS Policies</h3>
+                      {sandboxPolicy && (
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/10 border border-violet-500/20">
+                          <Cpu className="size-3 text-violet-500" />
+                          <span className="text-[9px] font-black text-violet-500 ">Sandbox Active</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Filter className="size-3.5 text-zinc-400" />
+                        <Select value={policyFilterUserType} onValueChange={(v) => { if (v) setPolicyFilterUserType(v) }}>
+                          <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[200px] text-black dark:text-white">
+                            <SelectValue placeholder="Filter by User Type">
+                              {policyFilterUserType === 'all' ? 'All User Types' : userTypes.find(ut => ut.id === policyFilterUserType)?.name || 'Filter by User Type'}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
+                            <SelectItem value="all" className="text-xs">All User Types</SelectItem>
+                            {userTypes.map(ut => (
+                              <SelectItem key={ut.id} value={ut.id} className="text-xs">{ut.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select value={policyFilterOperation} onValueChange={(v) => { if (v) setPolicyFilterOperation(v) }}>
+                          <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[160px] text-black dark:text-white">
+                            <SelectValue placeholder="Filter by Operation">
+                              {policyFilterOperation === 'all' ? 'All Operations' : policyFilterOperation.charAt(0).toUpperCase() + policyFilterOperation.slice(1)}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
+                            <SelectItem value="all" className="text-xs">All Operations</SelectItem>
+                            <SelectItem value="select" className="text-xs">Select</SelectItem>
+                            <SelectItem value="insert" className="text-xs">Insert</SelectItem>
+                            <SelectItem value="update" className="text-xs">Update</SelectItem>
+                            <SelectItem value="delete" className="text-xs">Delete</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        onClick={() => setIsPolicyModalOpen(true)}
+                        disabled={isViewer}
+                        className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <Plus className="size-3.5" /> Define Policy
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/40 overflow-hidden divide-y divide-x divide-zinc-150 dark:divide-zinc-900">
+                    {filteredPolicies.map(pol => (
+                      <PolicyRow
+                        key={pol.id}
+                        policy={pol}
+                        tables={tables}
+                        userTypes={userTypes}
+                        variables={variables}
+                        pages={pages}
+                        isActive={sandboxPolicy?.id === pol.id}
+                        onOpenSandbox={() => setSandboxPolicy(sandboxPolicy?.id === pol.id ? null : pol)}
+                        onDelete={() => deletePolicy(projectId as string, pol.id)}
+                        onEdit={() => setEditingPolicy(pol)}
+                        isViewer={isViewer}
+                      />
                     ))}
-                  </SelectContent>
-                </Select>
-                <Select value={policyFilterOperation} onValueChange={(v) => { if (v) setPolicyFilterOperation(v) }}>
-                  <SelectTrigger className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 text-xs font-mono rounded-md h-10 w-[160px] text-black dark:text-white">
-                    <SelectValue placeholder="Filter by Operation">
-                      {policyFilterOperation === 'all' ? 'All Operations' : policyFilterOperation.charAt(0).toUpperCase() + policyFilterOperation.slice(1)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-md text-black dark:text-white">
-                    <SelectItem value="all" className="text-xs">All Operations</SelectItem>
-                    <SelectItem value="select" className="text-xs">Select</SelectItem>
-                    <SelectItem value="insert" className="text-xs">Insert</SelectItem>
-                    <SelectItem value="update" className="text-xs">Update</SelectItem>
-                    <SelectItem value="delete" className="text-xs">Delete</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={() => setIsPolicyModalOpen(true)}
-                disabled={isViewer}
-                className="bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 px-4 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 text-xs font-bold rounded-md gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="size-3.5" /> Define Policy
-              </Button>
-            </div>
-          </div>
+                  </div>
 
-          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black/40 overflow-hidden divide-y divide-x divide-zinc-150 dark:divide-zinc-900">
-            {filteredPolicies.map(pol => (
-              <PolicyRow
-                key={pol.id}
-                policy={pol}
-                tables={tables}
-                userTypes={userTypes}
-                variables={variables}
-                pages={pages}
-                isActive={sandboxPolicy?.id === pol.id}
-                onOpenSandbox={() => setSandboxPolicy(sandboxPolicy?.id === pol.id ? null : pol)}
-                onDelete={() => deletePolicy(projectId as string, pol.id)}
-                onEdit={() => setEditingPolicy(pol)}
-                isViewer={isViewer}
-              />
-            ))}
-          </div>
-
-          {filteredPolicies.length === 0 && (
-            <div className="py-20 border border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-4">
-              <ShieldCheck className="size-12 text-zinc-200 dark:text-zinc-800" />
-              <div className="text-center">
-                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">No policies found for these filters.</p>
-                <p className="text-[10px] text-zinc-300 dark:text-zinc-700 font-medium italic mt-1">Define RLS policies to secure your data entities.</p>
-              </div>
-            </div>
-          )}
-        </section>
+                  {filteredPolicies.length === 0 && (
+                    <div className="py-20 border border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-4">
+                      <ShieldCheck className="size-12 text-zinc-200 dark:text-zinc-800" />
+                      <div className="text-center">
+                        <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 ">No policies found for these filters.</p>
+                        <p className="text-[10px] text-zinc-300 dark:text-zinc-700 font-medium italic mt-1">Define RLS policies to secure your data entities.</p>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         <RoleFormModal
           isOpen={isRoleModalOpen || !!editingRole}
