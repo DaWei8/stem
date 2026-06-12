@@ -217,6 +217,8 @@ ${snapshot.actions.length > 0 ? snapshot.actions.map(a => `  - ${a.name} (${a.ac
 `
 }
 
+const fetchPromises = new Map<string, Promise<void>>()
+
 export const useDocVersions = create<DocVersionsState>((set, get) => ({
   versions: [],
   activeVersionId: '',
@@ -226,38 +228,51 @@ export const useDocVersions = create<DocVersionsState>((set, get) => ({
   projectId: null,
 
   fetchVersions: async (projectId) => {
-    set({ isLoading: true, projectId })
-    try {
-      let data = await getDocVersionsAction(projectId)
+    if (fetchPromises.has(projectId)) {
+      return fetchPromises.get(projectId)
+    }
 
-      if (data.length === 0) {
-        // Create initial default versions in the database
-        const mvp = await createDocVersionAction(projectId, 'MVP', 'Core deterministic flows for initial release.')
-        await updateDocVersionAction(projectId, mvp.id, {
-          content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Sync Documentation" to populate this document with your current system state.',
-          status: 'archived'
+    const promise = (async () => {
+      set({ isLoading: true, projectId })
+      try {
+        let data = await getDocVersionsAction(projectId)
+
+        if (data.length === 0) {
+          // Create initial default versions in the database
+          const mvp = await createDocVersionAction(projectId, 'MVP', 'Core deterministic flows for initial release.')
+          await updateDocVersionAction(projectId, mvp.id, {
+            content: '# MVP SPECIFICATION\n\nThis document outlines the core requirements for the system MVP.\n\nUse "Sync Documentation" to populate this document with your current system state.',
+            status: 'archived'
+          })
+
+          await createDocVersionAction(projectId, 'v1.0', 'Full system technical engine management.')
+          
+          // Refetch to get populated defaults
+          data = await getDocVersionsAction(projectId)
+        }
+
+        const mapped = data.map(mapDbToVersion)
+        const activeId = mapped.find(v => v.status === 'active')?.id || mapped[0]?.id || ''
+
+        set({
+          versions: mapped,
+          activeVersionId: activeId,
+          editedContent: mapped.find(v => v.id === activeId)?.content || '',
+          isEditing: false
         })
-
-        await createDocVersionAction(projectId, 'v1.0', 'Full system technical engine management.')
-        
-        // Refetch to get populated defaults
-        data = await getDocVersionsAction(projectId)
+      } catch (err: any) {
+        console.error('Error fetching doc versions:', err)
+        toast.error(`Failed to load documentation versions: ${err.message}`)
+      } finally {
+        set({ isLoading: false })
       }
+    })()
 
-      const mapped = data.map(mapDbToVersion)
-      const activeId = mapped.find(v => v.status === 'active')?.id || mapped[0]?.id || ''
-
-      set({
-        versions: mapped,
-        activeVersionId: activeId,
-        editedContent: mapped.find(v => v.id === activeId)?.content || '',
-        isEditing: false
-      })
-    } catch (err: any) {
-      console.error('Error fetching doc versions:', err)
-      toast.error(`Failed to load documentation versions: ${err.message}`)
+    fetchPromises.set(projectId, promise)
+    try {
+      await promise
     } finally {
-      set({ isLoading: false })
+      fetchPromises.delete(projectId)
     }
   },
 

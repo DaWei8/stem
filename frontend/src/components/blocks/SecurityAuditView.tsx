@@ -335,7 +335,7 @@ export function SecurityAuditView() {
                 <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl p-12 text-center flex flex-col items-center justify-center space-y-3 bg-zinc-50/10 dark:bg-zinc-950/5 select-none">
                   <ShieldCheck className="size-8 text-green-500 animate-pulse" />
                   <div>
-                    <h3 className="text-xs font-black text-black dark:text-white uppercase tracking-wider">
+                    <h3 className="text-lg font-black text-black dark:text-white">
                       System Architecture Validated
                     </h3>
                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium mt-1">
@@ -355,7 +355,7 @@ export function SecurityAuditView() {
               <div className="absolute -top-10 -right-10 size-28 bg-purple-500/10 dark:bg-purple-500/5 blur-2xl rounded-full" />
 
               <div className="flex items-center gap-2 relative z-10">
-                <h3 className="text-base font-black text-purple-600 dark:text-purple-400 uppercase tracking-tighter">
+                <h3 className="text-lg font-black text-purple-600 dark:text-purple-400">
                   AI Threat Audit
                 </h3>
               </div>

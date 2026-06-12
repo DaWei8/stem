@@ -503,7 +503,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
           <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
             <Clock className="size-4 text-zinc-400 dark:text-zinc-600" />
             <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 transition-colors">
-              Sent Invitations Registry
+              Sent Invitations
             </h2>
           </div>
 
@@ -587,7 +587,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
           <div className="flex items-center gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-900 transition-colors">
             <ShieldAlert className="size-4 text-zinc-400 dark:text-zinc-600" />
             <h2 className="text-xs font-black text-zinc-400 dark:text-zinc-500 transition-colors">
-              Revoked Access Registry
+              Revoked Access
             </h2>
           </div>
 

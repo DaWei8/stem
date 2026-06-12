@@ -478,7 +478,7 @@ export function SystemEngine() {
                           />
                         ))}
                       {constants.length === 0 && (
-                        <div className="col-span-full py-8 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-[10px] text-zinc-400 font-bold uppercase">
+                        <div className="col-span-full py-8 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-xs text-zinc-400">
                           No constants configured. Click "New Entry" to add.
                         </div>
                       )}
