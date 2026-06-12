@@ -150,9 +150,6 @@ export function SecurityAuditView() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-zinc-100 dark:border-zinc-900 pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="size-8 bg-black dark:bg-white flex items-center justify-center">
-                <Shield className="size-4 text-white dark:text-black" />
-              </div>
               <h1 className="text-3xl font-black tracking-tighter text-black dark:text-white">
                 Security & Vulnerability Audit
               </h1>

@@ -64,15 +64,20 @@ export function ProjectOverview({
   const handleBulkGroup = async () => {
     if (!bulkFolder.trim() || checkedPageIds.length === 0) return
     setIsBulkSaving(true)
+    const toastId = toast.loading(`Moving ${checkedPageIds.length} screens to "${bulkFolder.trim()}"...`)
     try {
       await Promise.all(
         checkedPageIds.map(id => updatePage(id, { folder: bulkFolder.trim() }))
       )
-      toast.success(`Moved ${checkedPageIds.length} screens to "${bulkFolder.trim()}"`)
+      toast.success(`Moved ${checkedPageIds.length} screens to "${bulkFolder.trim()}"`, {
+        id: toastId,
+      })
       setCheckedPageIds([])
       setBulkFolder('')
     } catch (err) {
-      toast.error('Bulk grouping failed')
+      toast.error('Bulk grouping failed', {
+        id: toastId,
+      })
     } finally {
       setIsBulkSaving(false)
     }

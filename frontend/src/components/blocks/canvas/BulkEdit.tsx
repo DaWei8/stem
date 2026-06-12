@@ -18,13 +18,18 @@ export function BulkEdit({ selectedNodes, updatePage }: Props) {
 
   const handleBulkUpdate = async () => {
     setIsSaving(true)
+    const toastId = toast.loading(`Moving ${selectedNodes.length} screens to "${folder}"...`)
     try {
       await Promise.all(
         selectedNodes.map(node => updatePage(node.id, { folder }))
       )
-      toast.success(`Moved ${selectedNodes.length} screens to ${folder}`)
+      toast.success(`Moved ${selectedNodes.length} screens to "${folder}"`, {
+        id: toastId,
+      })
     } catch (err) {
-      toast.error('Bulk update failed')
+      toast.error('Bulk update failed', {
+        id: toastId,
+      })
     } finally {
       setIsSaving(false)
     }

@@ -319,7 +319,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             </h2>
           </div>
 
-          <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
+          <div className="border rounded-xl border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
             {isLoading && activeMembersList.length === 0 && (
               <div className="p-12 flex flex-col items-center justify-center gap-3 text-zinc-400 dark:text-zinc-600">
                 <Loader2 className="size-6 animate-spin" />
@@ -507,7 +507,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             </h2>
           </div>
 
-          <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
+          <div className="border rounded-xl border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
             {invites.length === 0 && (
               <div className="p-10 text-center flex flex-col items-center justify-center gap-1">
                 <p className="text-sm font-black text-zinc-400 dark:text-zinc-500">
@@ -591,7 +591,7 @@ export function CollaboratorsView({ isModal = false }: { isModal?: boolean }) {
             </h2>
           </div>
 
-          <div className="border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
+          <div className="border rounded-xl border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-black/40 overflow-hidden w-full">
             {revokedLogs.length === 0 && (
               <div className="p-10 text-center flex flex-col items-center justify-center gap-1">
                 <p className="text-sm font-black text-zinc-400 dark:text-zinc-500">
