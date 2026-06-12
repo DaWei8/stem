@@ -88,7 +88,7 @@ export const useIdentity = create<IdentityState>((set) => ({
       set((state) => ({
         userTypes: state.userTypes.map(ut => ut.id === id ? data : ut)
       }))
-      toast.success('Role orchestration updated')
+      toast.success('User role updated')
     } catch (error: any) {
       toast.error(`Update failed: ${error.message}`)
     }

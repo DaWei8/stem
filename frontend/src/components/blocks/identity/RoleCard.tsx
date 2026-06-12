@@ -126,7 +126,7 @@ export function RoleCard({
                   onClick={onEdit}
                   className="text-xs font-bold py-2 gap-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-md"
                 >
-                  <Edit3 className="size-3 text-zinc-400" /> Edit Role
+                  <Edit3 className="size-3 text-zinc-400" /> Edit User
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onDuplicate}
@@ -138,14 +138,14 @@ export function RoleCard({
                   onClick={onDelete}
                   className="text-xs font-bold py-2 gap-2 cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-md"
                 >
-                  <Trash2 className="size-3" /> Purge Role
+                  <Trash2 className="size-3" /> Delete User
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         )}
 
-        <CardHeader className="px-5 pt-2">
+        <CardHeader onClick={onEdit} className="px-5 pt-2">
           <div
             className={cn(
               "size-10 mb-1 flex items-center justify-center border rounded-xl transition-all duration-300 group-hover:scale-105 group-hover:rotate-1 shadow-sm",
@@ -197,11 +197,17 @@ export function RoleCard({
 
         <CardContent className="px-5 pb-2 pt-0 flex-1 flex flex-col justify-between gap-4">
           {role.description ? (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed font-medium">
+            <p
+              onClick={onEdit}
+              className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed font-medium"
+            >
               {role.description}
             </p>
           ) : (
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 italic leading-relaxed font-medium">
+            <p
+              onClick={onEdit}
+              className="text-xs text-zinc-400 dark:text-zinc-500 italic leading-relaxed font-medium"
+            >
               No description provided for this user type.
             </p>
           )}
