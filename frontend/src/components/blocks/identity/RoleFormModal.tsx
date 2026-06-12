@@ -189,7 +189,7 @@ export function RoleFormModal({
 
     const payload: any = {
       name: finalName,
-      description: editingRole ? editingRole.description : description,
+      description,
       is_admin: isAdmin,
       color,
     };
@@ -205,16 +205,15 @@ export function RoleFormModal({
     onClose();
   };
 
-  // Rendering fields block
+  // Rendering fields block for defining a new role
   const renderRoleFormFields = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-[10px] font-black text-zinc-400">
+        <Label className="text-xs font-bold text-zinc-400">
           Role Identifier
         </Label>
         <Input
-          value={editingRole ? editingRole.name : name}
-          disabled={!!editingRole}
+          value={name}
           onChange={(e) =>
             setName(e.target.value.replace(/\s+/g, "_").toLowerCase())
           }
@@ -223,19 +222,17 @@ export function RoleFormModal({
         />
       </div>
       <div className="space-y-2">
-        <Label className="text-[10px] font-black text-zinc-400">
+        <Label className="text-xs font-bold text-zinc-400">
           Description
         </Label>
         <Textarea
-          value={editingRole ? editingRole.description : description}
-          onChange={(e) =>
-            editingRole ? null : setDescription(e.target.value)
-          }
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="What can this user do in the system?"
           className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md min-h-[100px] text-xs resize-none text-black dark:text-white"
         />
       </div>
-      <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800">
+      <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800 rounded-lg">
         <Checkbox
           id="is_admin"
           checked={isAdmin}
@@ -244,13 +241,13 @@ export function RoleFormModal({
         />
         <Label
           htmlFor="is_admin"
-          className="text-[10px] font-black text-zinc-400 cursor-pointer"
+          className="text-xs font-bold text-zinc-400 cursor-pointer"
         >
           Grant Super-Admin Privileges
         </Label>
       </div>
       <div className="space-y-3">
-        <Label className="text-[10px] font-black text-zinc-400">
+        <Label className="text-xs font-bold text-zinc-400">
           Theme Marker
         </Label>
         <div className="flex flex-wrap gap-2">
@@ -284,127 +281,117 @@ export function RoleFormModal({
       }
       size={editingRole ? "3xl" : "md"}
       footer={
-        <Button
-          onClick={handleSave}
-          className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-md h-12 text-xs font-semibold"
-        >
-          {editingRole ? "Save Changes" : "Create Role"}
-        </Button>
+        <div className="flex items-center justify-end gap-3 w-full">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="text-zinc-400 hover:text-white hover:bg-zinc-900 text-xs font-semibold h-10 px-4 rounded-lg transition-colors"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            className="bg-white text-black hover:bg-zinc-200 text-xs font-semibold h-10 px-6 rounded-lg transition-colors"
+          >
+            {editingRole ? "Save Changes" : "Create Role"}
+          </Button>
+        </div>
       }
     >
       {editingRole ? (
-        <div className="space-y-6 pb-6">
-          {/* Top Section: Role Definition */}
-          <div className="bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 rounded-xl p-5 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-zinc-200 dark:border-zinc-900">
-              <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500">User Role Settings</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left Side: Identifiers */}
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold text-zinc-500">
-                    Role Identifier
-                  </Label>
-                  <Input
-                    value={editingRole ? editingRole.name : name}
-                    disabled={!!editingRole}
-                    className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md h-10 font-mono text-xs text-black dark:text-white"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-zinc-800 rounded-lg">
-                  <Checkbox
-                    id="is_admin"
-                    checked={isAdmin}
-                    onCheckedChange={(v) => setIsAdmin(!!v)}
-                    className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
-                  />
-                  <Label
-                    htmlFor="is_admin"
-                    className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 cursor-pointer select-none"
-                  >
-                    Grant Super-Admin Privileges
-                  </Label>
+        <div className="grid grid-cols-12 gap-8 h-[540px] min-h-[500px]">
+          {/* Left Panel: Role settings and Persona list */}
+          <div className="col-span-4 flex flex-col border-r border-zinc-200 dark:border-zinc-900 pr-6 h-full min-w-[240px]">
+            {/* Role Config Section */}
+            <div className="space-y-4 pb-5 shrink-0">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-zinc-500">
+                  Role Identifier
+                </Label>
+                <div className="flex items-center gap-2 font-mono text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 px-3 h-10 rounded-lg select-none">
+                  <span className={cn("size-2 rounded-full shrink-0", COLOR_BG[color])} />
+                  {editingRole.name}
                 </div>
               </div>
 
-              {/* Right Side: Description */}
               <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold text-zinc-500">
+                <Label className="text-xs font-bold text-zinc-500">
                   Description
                 </Label>
                 <Textarea
-                  value={editingRole ? editingRole.description : description}
-                  onChange={(e) =>
-                    editingRole ? null : setDescription(e.target.value)
-                  }
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe this user's capabilities..."
-                  className="bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-800 rounded-md min-h-[80px] text-xs resize-none text-black dark:text-white"
+                  className="bg-zinc-50 dark:bg-zinc-950/40 border-zinc-200 dark:border-zinc-900 rounded-lg min-h-[72px] text-xs resize-none text-black dark:text-white focus-visible:ring-1 focus-visible:ring-zinc-700"
                 />
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 rounded-lg">
+                <Checkbox
+                  id="is_admin"
+                  checked={isAdmin}
+                  onCheckedChange={(v) => setIsAdmin(!!v)}
+                  className="border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
+                />
+                <Label
+                  htmlFor="is_admin"
+                  className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 cursor-pointer select-none"
+                >
+                  Super-Admin Privileges
+                </Label>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-zinc-500">Theme Marker</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLORS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setColor(c)}
+                      className={cn(
+                        "size-5 rounded-full border-2 transition-all cursor-pointer",
+                        color === c
+                          ? "border-black dark:border-white scale-110 shadow-md"
+                          : "border-transparent opacity-40 hover:opacity-100",
+                        COLOR_BG[c],
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-zinc-900/50">
-              <Label className="text-[10px] font-bold text-zinc-500">Theme Marker</Label>
-              <div className="flex flex-wrap gap-2">
-                {COLORS.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setColor(c)}
-                    className={cn(
-                      "size-6 rounded-full border-2 transition-all cursor-pointer",
-                      color === c
-                        ? "border-black dark:border-white scale-110 shadow-lg"
-                        : "border-transparent opacity-40 hover:opacity-100",
-                      COLOR_BG[c],
-                    )}
-                  />
-                ))}
-              </div>
+            {/* Persona List Section */}
+            <div className="border-t border-zinc-200 dark:border-zinc-900 pt-4 flex-1 flex flex-col min-h-0">
+              <PersonaList
+                instances={instances}
+                selectedInstanceId={selectedInstanceId}
+                setSelectedInstanceId={setSelectedInstanceId}
+                isAddingInstance={isAddingInstance}
+                setIsAddingInstance={setIsAddingInstance}
+                newInstanceName={newInstanceName}
+                setNewInstanceName={setNewInstanceName}
+                handleAddInstance={handleAddInstance}
+                editingInstanceNameId={editingInstanceNameId}
+                setEditingInstanceNameId={setEditingInstanceNameId}
+                tempInstanceName={tempInstanceName}
+                setTempInstanceName={setTempInstanceName}
+                handleUpdateInstanceName={handleUpdateInstanceName}
+                handleDeleteInstance={handleDeleteInstance}
+                roleColor={color}
+              />
             </div>
           </div>
 
-          {/* Bottom Section: Persona Simulation */}
-          <div className="bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 rounded-xl p-5 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-zinc-200 dark:border-zinc-900">
-              <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500">Behavioral Simulation Personas</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 h-[380px]">
-              {/* Left Side: Persona List */}
-              <div className="col-span-1 border-r border-zinc-200 dark:border-zinc-900 pr-5 h-full overflow-y-auto custom-scrollbar">
-                <PersonaList
-                  instances={instances}
-                  selectedInstanceId={selectedInstanceId}
-                  setSelectedInstanceId={setSelectedInstanceId}
-                  isAddingInstance={isAddingInstance}
-                  setIsAddingInstance={setIsAddingInstance}
-                  newInstanceName={newInstanceName}
-                  setNewInstanceName={setNewInstanceName}
-                  handleAddInstance={handleAddInstance}
-                  editingInstanceNameId={editingInstanceNameId}
-                  setEditingInstanceNameId={setEditingInstanceNameId}
-                  tempInstanceName={tempInstanceName}
-                  setTempInstanceName={setTempInstanceName}
-                  handleUpdateInstanceName={handleUpdateInstanceName}
-                  handleDeleteInstance={handleDeleteInstance}
-                  roleColor={color}
-                />
-              </div>
-
-              {/* Right Side: Variable Mocks */}
-              <div className="col-span-2 h-full pl-2 overflow-y-auto custom-scrollbar">
-                <PersonaDetails
-                  selectedInstance={selectedInstance || null}
-                  availableVariables={availableVariables}
-                  handleAddVariableValue={handleAddVariableValue}
-                  handleUpdateVariableValue={handleUpdateVariableValue}
-                  handleRemoveVariableValue={handleRemoveVariableValue}
-                />
-              </div>
-            </div>
+          {/* Right Panel: Selected Persona Details */}
+          <div className="col-span-8 h-full flex flex-col min-h-0 pl-2">
+            <PersonaDetails
+              selectedInstance={selectedInstance || null}
+              availableVariables={availableVariables}
+              handleAddVariableValue={handleAddVariableValue}
+              handleUpdateVariableValue={handleUpdateVariableValue}
+              handleRemoveVariableValue={handleRemoveVariableValue}
+            />
           </div>
         </div>
       ) : (
