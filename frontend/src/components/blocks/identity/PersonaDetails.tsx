@@ -124,7 +124,7 @@ export function PersonaDetails({
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold font-mono text-zinc-300">{label}</span>
                   {variable && (
-                    <span className={cn("text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded border", typeColor)}>
+                    <span className={cn("text-[9px] tracking-wider font-bold px-2 py-0.5 rounded border font-mono", typeColor)}>
                       {variable.type}
                     </span>
                   )}

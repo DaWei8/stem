@@ -57,8 +57,9 @@ export function PersonaList({
   return (
     <div className="flex flex-col h-full justify-between">
       <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
-        <div className="flex items-center justify-between pb-1">
-          <span className="text-[10px] uppercase tracking-wider font-extrabold text-zinc-500">
+        <div className="flex items-center gap-1.5 pb-1">
+          <User className="size-3.5 text-zinc-500 shrink-0" />
+          <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
             Instances ({instances.length})
           </span>
         </div>

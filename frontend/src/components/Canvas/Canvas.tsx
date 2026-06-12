@@ -44,8 +44,8 @@ export function Canvas() {
   const [pageToDelete, setPageToDelete] = useState<string | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
   const [isValidationOpen, setIsValidationOpen] = useState(false)
-  const [narrative, setNarrative] = useState('')
   const { isChaosMode, toggleChaosMode, setSnapshot, snapshot } = useUI()
+
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -104,30 +104,7 @@ export function Canvas() {
     }
   }, [pages, transitions, inputs, actions, outputs])
 
-  const handleTraceNarrative = useCallback(() => {
-    if (!narrative) return
-    const mentionedScreens = pages.filter(p =>
-      narrative.toLowerCase().includes(p.title.toLowerCase())
-    ).sort((a, b) =>
-      narrative.toLowerCase().indexOf(a.title.toLowerCase()) -
-      narrative.toLowerCase().indexOf(b.title.toLowerCase())
-    )
 
-    if (mentionedScreens.length >= 2) {
-      setSimulationParams({
-        ...simulationParams,
-        startPageId: mentionedScreens[0].id,
-        endPageId: mentionedScreens[mentionedScreens.length - 1].id
-      })
-      setTimeout(() => runFlowSimulation(), 0)
-      toast.success(`Storyboarding path: ${mentionedScreens.map(s => s.title).join(' → ')}`)
-    } else if (mentionedScreens.length === 1) {
-      handleSelectScreen(mentionedScreens[0].id)
-      toast.info(`Located '${mentionedScreens[0].title}' in your narrative.`)
-    } else {
-      toast.error('No known architectural entities found in narrative.')
-    }
-  }, [narrative, pages, runFlowSimulation, handleSelectScreen, simulationParams, setSimulationParams])
 
   const handleCreateSnapshot = useCallback(() => {
     const currentState = {
@@ -169,9 +146,6 @@ export function Canvas() {
             setSimulationParams={setSimulationParams}
             pages={pages}
             userTypes={userTypes}
-            narrative={narrative}
-            setNarrative={setNarrative}
-            handleTraceNarrative={handleTraceNarrative}
             runFlowSimulation={runFlowSimulation}
             stopSimulation={stopSimulation}
             activePath={activePath}

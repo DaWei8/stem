@@ -375,9 +375,9 @@ export function useCanvasLayout(projectId: string | undefined) {
     }
 
     setSimulationLogs([
-      `Initializing stateful path analysis...`,
-      `Active Agent: "${agentName}" (Persona: "${personaName}")`,
-      `Initial Context State: ${JSON.stringify(initialState)}`
+      `TRACE: Initializing stateful path analysis...`,
+      `STORY: Active Agent "${agentName}" (Persona: "${personaName}") starts the user session.`,
+      `TRACE: Initial Context State: ${JSON.stringify(initialState)}`
     ])
 
     const evaluateConstraint = (val: any, op: string, expected: any) => {
@@ -528,15 +528,17 @@ export function useCanvasLayout(projectId: string | undefined) {
           const pageTitle = currentPage?.title || currentPage?.name || 'Screen'
           const latency = 40 + Math.floor(Math.random() * 80)
           
+          const desc = currentPage?.description ? ` — "${currentPage.description}"` : ''
           setSimulationLogs(prev => [
             ...prev,
-            `[${step * 200}ms] Resolved: "${pageTitle}" (+${latency}ms logic overhead)`
+            `STORY: User navigates to "${pageTitle}"${desc}`,
+            `TRACE: [${step * 200}ms] Resolved: "${pageTitle}" (+${latency}ms logic overhead)`
           ])
 
           // Print any logs corresponding to this step/transition
           const stepMutations = resolvedLogs.filter(log => log.includes(`[${pageTitle}]`))
           if (stepMutations.length > 0) {
-            setSimulationLogs(prev => [...prev, ...stepMutations.map(m => `  ↳ ${m}`)])
+            setSimulationLogs(prev => [...prev, ...stepMutations.map(m => `TRACE: ↳ ${m}`)])
           }
 
           // Print output mutation logs
@@ -548,7 +550,7 @@ export function useCanvasLayout(projectId: string | undefined) {
                 const val = out.output_config?.value
                 setSimulationLogs(prev => [
                   ...prev,
-                  `  ↳ Mutation: set state variable "${v.label}" = ${JSON.stringify(val)}`
+                  `TRACE: ↳ Mutation: set state variable "${v.label}" = ${JSON.stringify(val)}`
                 ])
               }
             }
@@ -560,9 +562,10 @@ export function useCanvasLayout(projectId: string | undefined) {
           setSimulationStatus('path_found')
           setSimulationLogs(prev => [
             ...prev,
-            `Simulation complete: Stateful flow baseline verified successfully.`,
-            `Final Context State: ${JSON.stringify(resolvedFinalState)}`
+            `STORY: Simulation complete: Stateful flow baseline verified successfully.`,
+            `TRACE: Final Context State: ${JSON.stringify(resolvedFinalState)}`
           ])
+
           toast.success(`Path resolved: ${resolvedPath.length} steps`)
         }
       }
@@ -598,8 +601,8 @@ export function useCanvasLayout(projectId: string | undefined) {
       setSimulationStatus('path_not_found')
       setSimulationLogs(prev => [
         ...prev,
-        'CRITICAL: No physical connection exists between these screens.',
-        'Verify transitions and flow triggers on the canvas.'
+        'VIOLATION: CRITICAL: No physical connection exists between these screens.',
+        'TRACE: Verify transitions and flow triggers on the canvas.'
       ])
       toast.error('No connection found between these screens')
       setActivePath([])
@@ -624,9 +627,9 @@ export function useCanvasLayout(projectId: string | undefined) {
         blockedIndex = i
         const requiredRoles = page.allowed_roles || []
         const requiredRoleNames = requiredRoles.map(rId => userTypes.find(u => u.id === rId)?.name || 'Unknown').join(', ')
-        blockLogs.push(`SECURITY VIOLATION: Access Denied at "${page.title || page.name}"`)
-        blockLogs.push(`↳ Page requires role(s): [${requiredRoleNames}]`)
-        blockLogs.push(`↳ Current agent identity has role: "${agentName}"`)
+        blockLogs.push(`VIOLATION: SECURITY VIOLATION: Access Denied at "${page.title || page.name}"`)
+        blockLogs.push(`TRACE: ↳ Page requires role(s): [${requiredRoleNames}]`)
+        blockLogs.push(`TRACE: ↳ Current agent identity has role: "${agentName}"`)
         break
       }
 
@@ -641,8 +644,8 @@ export function useCanvasLayout(projectId: string | undefined) {
           if (val === undefined || val === null) {
             blockedIndex = i
             inputBlocked = true
-            blockLogs.push(`STATE VIOLATION: Required input "${label}" is missing at "${page.title || page.name}"`)
-            blockLogs.push(`↳ Simulation context state: ${JSON.stringify(tempState)}`)
+            blockLogs.push(`VIOLATION: STATE VIOLATION: Required input "${label}" is missing at "${page.title || page.name}"`)
+            blockLogs.push(`TRACE: ↳ Simulation context state: ${JSON.stringify(tempState)}`)
             break
           }
         }
@@ -661,14 +664,14 @@ export function useCanvasLayout(projectId: string | undefined) {
         if (!passed) {
           if (c.fallback_page_id) {
             const fallback = pages.find(p => p.id === c.fallback_page_id)
-            blockLogs.push(`REDIRECT: Constraint on "${label}" failed. Rediverting flow to fallback screen "${fallback?.title || fallback?.name}".`)
+            blockLogs.push(`TRACE: REDIRECT: Constraint on "${label}" failed. Rediverting flow to fallback screen "${fallback?.title || fallback?.name}".`)
             rawPath[i + 1] = c.fallback_page_id
           } else {
             blockedIndex = i
             constraintBlocked = true
-            blockLogs.push(`CONSTRAINT VIOLATION: Page guardrail failed at "${page.title || page.name}"`)
-            blockLogs.push(`↳ Constraint: ${label} ${c.operator} ${JSON.stringify(c.expected_value)}`)
-            blockLogs.push(`↳ Current value: ${JSON.stringify(val)}`)
+            blockLogs.push(`VIOLATION: CONSTRAINT VIOLATION: Page guardrail failed at "${page.title || page.name}"`)
+            blockLogs.push(`TRACE: ↳ Constraint: ${label} ${c.operator} ${JSON.stringify(c.expected_value)}`)
+            blockLogs.push(`TRACE: ↳ Current value: ${JSON.stringify(val)}`)
             break
           }
         }
@@ -683,7 +686,7 @@ export function useCanvasLayout(projectId: string | undefined) {
           if (v) {
             const val = out.output_config?.value
             tempState[v.label] = val
-            blockLogs.push(`Mutated state at "${page.title || page.name}": set "${v.label}" = ${JSON.stringify(val)}`)
+            blockLogs.push(`TRACE: Mutated state at "${page.title || page.name}": set "${v.label}" = ${JSON.stringify(val)}`)
           }
         }
       }
@@ -702,14 +705,16 @@ export function useCanvasLayout(projectId: string | undefined) {
           setSimulationLogs(prev => [
             ...prev,
             ...blockLogs,
-            `CRITICAL: Simulation failed due to policy or state restriction.`
+            `VIOLATION: CRITICAL: Simulation failed due to policy or state restriction.`
           ])
           setSimulationStatus('path_not_found')
           toast.error(`Simulation blocked at "${pageTitle}"`)
         } else {
+          const desc = currentPage?.description ? ` — "${currentPage.description}"` : ''
           setSimulationLogs(prev => [
             ...prev,
-            `[${step * 200}ms] Resolved: "${pageTitle}"`
+            `STORY: User navigates to "${pageTitle}"${desc}`,
+            `TRACE: [${step * 200}ms] Resolved: "${pageTitle}"`
           ])
           step++
           simulationTimerRef.current = setTimeout(animate, 500)
@@ -717,6 +722,7 @@ export function useCanvasLayout(projectId: string | undefined) {
       }
     }
     animate()
+
 
   }, [simulationParams, transitions, pages, inputs, outputs, constraints, variables])
 

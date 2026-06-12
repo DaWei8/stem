@@ -16,7 +16,6 @@ import { Cpu, Filter, LayoutGrid, Plus, ShieldCheck, Table2, Users } from 'lucid
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { PermissionMatrix } from './identity/PermissionMatrix'
-import { PersonaManagerModal } from './identity/PersonaManagerModal'
 import { PolicyFormModal } from './identity/PolicyFormModal'
 import { PolicyRow } from './identity/PolicyRow'
 import { PolicySandbox } from './identity/PolicySandbox'
@@ -102,14 +101,14 @@ export function IdentityPermissions() {
               <div className="flex items-center gap-3">
                 <div className="size-2 rounded-full bg-amber-500 animate-pulse" />
                 <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                  Persona Mode Active — Viewing canvas as <span className="font-mono">{impersonatedRole.name}</span>
+                  Role simulation active — The canvas is currently filtering screens to only show what is accessible to: <span className="font-mono font-bold capitalize">{impersonatedRole.name}</span>
                 </span>
               </div>
               <button
                 onClick={() => setViewAsUserTypeId(null)}
-                className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
               >
-                Exit Persona Mode
+                Stop simulation
               </button>
             </motion.div>
           )}
@@ -198,7 +197,7 @@ export function IdentityPermissions() {
                             onDuplicate={() => { setEditingRole(null); setIsRoleModalOpen(true) }}
                             onDelete={() => deleteUserType(projectId as string, ut.id)}
                             onImpersonate={() => handleImpersonate(ut.id)}
-                            onManagePersonas={() => setManagingPersonaRole(ut)}
+                            onManagePersonas={() => setEditingRole(ut)}
                             isViewer={isViewer}
                           />
                         ))}
@@ -306,6 +305,7 @@ export function IdentityPermissions() {
         <RoleFormModal
           isOpen={isRoleModalOpen || !!editingRole}
           editingRole={editingRole}
+          availableVariables={variables}
           onClose={() => { setIsRoleModalOpen(false); setEditingRole(null) }}
           onSave={async (payload) => {
             if (editingRole) {
@@ -331,15 +331,7 @@ export function IdentityPermissions() {
           }}
         />
 
-        <PersonaManagerModal
-          isOpen={!!managingPersonaRole}
-          userType={managingPersonaRole}
-          availableVariables={variables}
-          onClose={() => setManagingPersonaRole(null)}
-          onSave={async (id, payload) => {
-            await updateUserType(projectId as string, id, payload)
-          }}
-        />
+
       </div>
 
       {/* Sandbox Drawer */}
