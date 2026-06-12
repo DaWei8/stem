@@ -38,8 +38,16 @@ export default function LoginPage() {
       router.push('/projects')
       router.refresh()
     } catch (err: any) {
-      setError(err.message || 'An error occurred during login')
+      const errMsg = err.message || 'An error occurred during login'
+      setError(errMsg)
       toast.error('Authentication failed')
+      
+      if (errMsg.toLowerCase().includes('email not confirmed')) {
+        toast.info('Redirecting to verification page...')
+        setTimeout(() => {
+          router.push(`/auth/confirm-email?email=${encodeURIComponent(email)}`)
+        }, 1500)
+      }
     } finally {
       setLoading(false)
     }

@@ -23,7 +23,8 @@ import {
   EyeOff,
   CheckCircle2,
   XCircle,
-  RefreshCw
+  RefreshCw,
+  LogOut
 } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@/hooks/useUser'
@@ -32,6 +33,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { StandardModal } from '@/components/ui/StandardModal'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { useAIUsage } from '@/hooks/useAIUsage'
 import { getUserKeysStatusAction, saveUserKeysAction } from '@/lib/actions/keys'
 import { AIProviderIntegrations } from '@/components/blocks/settings/AIProviderIntegrations'
@@ -51,6 +54,21 @@ export default function SettingsPage() {
   const { profile, isLoading, fetchProfile, updateProfile } = useUser()
   const { projects, fetchProjects } = useProjects()
   const [fullName, setFullName] = useState('')
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      toast.success('Successfully logged out')
+      router.push('/auth/login')
+      router.refresh()
+    } catch (err: any) {
+      console.error('Logout failed:', err)
+      toast.error(`Logout failed: ${err.message || 'Unknown error'}`)
+    }
+  }
   const [email, setEmail] = useState('')
   const [organization, setOrganization] = useState('')
   const [deterministicMode, setDeterministicMode] = useState(true)
@@ -361,14 +379,23 @@ export default function SettingsPage() {
           </Link>
           <h1 className="text-sm font-bold text-zinc-500 ">Global / Settings</h1>
         </div>
-        <Button
-          onClick={handleSave}
-          disabled={isLoading}
-          className="bg-white text-black hover:bg-zinc-200 rounded-md h-10 px-6 text-xs font-bold gap-2"
-        >
-          {isLoading ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
-          Save Preferences
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleLogout}
+            className="bg-transparent hover:bg-red-500/10 border border-zinc-800 hover:border-red-500/30 text-zinc-400 hover:text-red-400 rounded-md h-10 px-4 text-xs font-bold gap-2 transition-all cursor-pointer"
+          >
+            <LogOut className="size-3.5" />
+            Log Out
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="bg-white text-black hover:bg-zinc-200 rounded-md h-10 px-6 text-xs font-bold gap-2 cursor-pointer"
+          >
+            {isLoading ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
+            Save Preferences
+          </Button>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto w-full p-8 space-y-12 pb-20">

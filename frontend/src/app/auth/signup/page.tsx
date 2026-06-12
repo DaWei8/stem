@@ -44,7 +44,7 @@ export default function SignUpPage() {
       if (authError) throw authError
 
       toast.success('Check your email to confirm your account')
-      router.push('/auth/login')
+      router.push(`/auth/confirm-email?email=${encodeURIComponent(email)}`)
     } catch (err: any) {
       setError(err.message || 'An error occurred during sign up')
       toast.error('Registration failed')
